@@ -1,0 +1,2596 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<title>Rekenraket</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0B1130">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Rekenraket">
+<link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxODAgMTgwIj48cmVjdCB3aWR0aD0iMTgwIiBoZWlnaHQ9IjE4MCIgZmlsbD0iIzBCMTEzMCIvPjxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKDMwLDMwKSBzY2FsZSg1KSI+PHBhdGggZD0iTTEyIDJjMyAyLjUgNC41IDYgNC41IDEwLjUgMCAxLjctLjMgMy4yLS44IDQuNUg4LjNjLS41LTEuMy0uOC0yLjgtLjgtNC41QzcuNSA4IDkgNC41IDEyIDJaIiBmaWxsPSIjRkY4RjYzIi8+PGNpcmNsZSBjeD0iMTIiIGN5PSIxMC41IiByPSIxLjgiIGZpbGw9IiMxNDFCNEEiLz48cGF0aCBkPSJNOCAxNS41IDUuNSAyMGwzLTEgLjgtMi42TTE2IDE1LjUgMTguNSAyMGwtMy0xLS44LTIuNiIgZmlsbD0iI0ZGQzg1NyIvPjwvZz48L3N2Zz4=">
+<link rel="manifest" href="data:application/manifest+json;base64,eyJuYW1lIjogIlJla2VucmFrZXQiLCAic2hvcnRfbmFtZSI6ICJSZWtlbnJha2V0IiwgImRpc3BsYXkiOiAic3RhbmRhbG9uZSIsICJzdGFydF91cmwiOiAiLiIsICJiYWNrZ3JvdW5kX2NvbG9yIjogIiMwQjExMzAiLCAidGhlbWVfY29sb3IiOiAiIzBCMTEzMCIsICJpY29ucyI6IFt7InNyYyI6ICJkYXRhOmltYWdlL3N2Zyt4bWw7YmFzZTY0LFBITjJaeUI0Yld4dWN6MGlhSFIwY0RvdkwzZDNkeTUzTXk1dmNtY3ZNakF3TUM5emRtY2lJSFpwWlhkQ2IzZzlJakFnTUNBeE9EQWdNVGd3SWo0OGNtVmpkQ0IzYVdSMGFEMGlNVGd3SWlCb1pXbG5hSFE5SWpFNE1DSWdabWxzYkQwaUl6QkNNVEV6TUNJdlBqeG5JSFJ5WVc1elptOXliVDBpZEhKaGJuTnNZWFJsS0RNd0xETXdLU0J6WTJGc1pTZzFLU0krUEhCaGRHZ2daRDBpVFRFeUlESmpNeUF5TGpVZ05DNDFJRFlnTkM0MUlERXdMalVnTUNBeExqY3RMak1nTXk0eUxTNDRJRFF1TlVnNExqTmpMUzQxTFRFdU15MHVPQzB5TGpndExqZ3ROQzQxUXpjdU5TQTRJRGtnTkM0MUlERXlJREphSWlCbWFXeHNQU0lqUmtZNFJqWXpJaTgrUEdOcGNtTnNaU0JqZUQwaU1USWlJR041UFNJeE1DNDFJaUJ5UFNJeExqZ2lJR1pwYkd3OUlpTXhOREZDTkVFaUx6NDhjR0YwYUNCa1BTSk5PQ0F4TlM0MUlEVXVOU0F5TUd3ekxURWdMamd0TWk0MlRURTJJREUxTGpVZ01UZ3VOU0F5TUd3dE15MHhMUzQ0TFRJdU5pSWdabWxzYkQwaUkwWkdRemcxTnlJdlBqd3ZaejQ4TDNOMlp6ND0iLCAic2l6ZXMiOiAiMTgweDE4MCIsICJ0eXBlIjogImltYWdlL3N2Zyt4bWwifV19">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+  /* Deliberately a single dark "night launch" world — a daytime variant would break the premise, so no light-theme block. */
+  :root{
+    --bg-void:#0B1130;
+    --bg-void-2:#0E1640;
+    --bg-panel:#141B4A;
+    --bg-panel-2:#1C2560;
+    --bg-panel-3:#242E72;
+    --line:rgba(244,241,255,0.14);
+    --ink:#F4F1FF;
+    --ink-dim:#A8AEDB;
+    --flame:#FF6B4A;
+    --flame-strong:#FF8F63;
+    --flame-deep:#7A3222;
+    --gold:#FFC857;
+    --gold-deep:#8A6A22;
+    --retry:#CE8398;
+    --retry-deep:#5A3345;
+    --block:#8DA1F2;
+    --block-deep:#3A4590;
+    --speed-fast:#4ADE80;
+    --shadow: 0 20px 50px rgba(4,6,24,0.55);
+  }
+  /* Selectable color theme — a personalization choice, independent from the
+     single committed "night launch" world (which stays dark either way). */
+  :root[data-color-theme="pink"]{
+    --bg-void:#2B0F2A;
+    --bg-void-2:#3A1338;
+    --bg-panel:#421840;
+    --bg-panel-2:#592054;
+    --bg-panel-3:#6E2A68;
+    --line:rgba(255,235,250,0.16);
+    --ink:#FFF1FA;
+    --ink-dim:#E3AEDA;
+    --flame:#FF6FA8;
+    --flame-strong:#FF98C4;
+    --flame-deep:#7A2350;
+    --retry:#F2A6C9;
+    --retry-deep:#6B2F49;
+    --block:#C792EA;
+    --block-deep:#5A3590;
+  }
+
+  *{box-sizing:border-box;}
+  html,body{height:100%;}
+  body{
+    margin:0;
+    background:var(--bg-void);
+    color:var(--ink);
+    font-family:"Nunito",system-ui,sans-serif;
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+  }
+  h1,h2,h3,.display{
+    font-family:"Baloo 2","Nunito",system-ui,sans-serif;
+    text-wrap:balance;
+    margin:0;
+  }
+  button{font-family:inherit;}
+  .tabular{font-variant-numeric:tabular-nums;}
+
+  /* ---------- starfield ---------- */
+  #stars{
+    position:fixed; inset:0; z-index:0; pointer-events:none;
+    background:radial-gradient(ellipse at 20% -10%, var(--bg-void-2) 0%, var(--bg-void) 55%);
+  }
+
+  /* ---------- shell ---------- */
+  .shell{
+    position:relative; z-index:1;
+    min-height:100vh;
+    display:flex; flex-direction:column;
+    max-width:1080px; margin:0 auto;
+    padding:env(safe-area-inset-top) calc(20px + env(safe-area-inset-right)) calc(28px + env(safe-area-inset-bottom)) calc(20px + env(safe-area-inset-left));
+  }
+
+  header{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:18px 2px 10px;
+  }
+  .brand{
+    display:flex; align-items:center; gap:10px;
+  }
+  .header-actions{ display:flex; align-items:center; gap:8px; }
+  .brand-badge{
+    width:34px; height:34px; border-radius:10px;
+    background:linear-gradient(160deg, var(--bg-panel-3), var(--bg-panel));
+    border:1px solid var(--line);
+    display:flex; align-items:center; justify-content:center;
+  }
+  .brand h1{ font-size:1.35rem; font-weight:800; letter-spacing:0.2px; }
+  .brand span{ color:var(--gold); }
+
+  .icon-btn{
+    width:42px; height:42px; border-radius:12px;
+    background:var(--bg-panel);
+    border:1px solid var(--line);
+    color:var(--ink-dim);
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer;
+    transition:background .15s ease, color .15s ease, transform .15s ease;
+  }
+  .icon-btn[hidden]{ display:none; }
+  .icon-btn:hover{ background:var(--bg-panel-2); color:var(--ink); }
+  .icon-btn:focus-visible, button:focus-visible, input:focus-visible{
+    outline:2px solid var(--gold); outline-offset:2px;
+  }
+  .icon-btn:active{ transform:scale(0.94); }
+
+  /* ---------- main layout ---------- */
+  main{
+    flex:1;
+    display:grid;
+    grid-template-areas:"sky" "card";
+    grid-template-rows:200px 1fr;
+    gap:16px;
+  }
+  main[hidden]{ display:none; }
+  @media (min-width:760px){
+    main{
+      grid-template-areas:"sky card";
+      grid-template-columns:220px 1fr;
+      grid-template-rows:1fr;
+      min-height:560px;
+    }
+  }
+
+  /* ---------- sky rail ---------- */
+  .sky-rail{
+    grid-area:sky;
+    position:relative;
+    border-radius:20px;
+    background:linear-gradient(180deg, var(--bg-void-2), var(--bg-panel) 92%);
+    border:1px solid var(--line);
+    overflow:hidden;
+  }
+  .rail-track{
+    position:absolute;
+    left:50%; top:38px; bottom:34px;
+    width:2px; transform:translateX(-50%);
+    background-image:linear-gradient(var(--ink-dim), var(--ink-dim));
+    background-size:2px 10px;
+    background-repeat:repeat-y;
+    opacity:0.35;
+  }
+  .goal-marker{
+    position:absolute; top:10px; left:50%; transform:translateX(-50%);
+    display:flex; flex-direction:column; align-items:center; gap:2px;
+  }
+  .goal-marker svg{ filter:drop-shadow(0 0 10px rgba(255,200,87,0.55)); }
+  .goal-label{
+    font-size:0.62rem; font-weight:800; letter-spacing:0.6px; text-transform:uppercase;
+    color:var(--gold); opacity:0.9;
+  }
+  .launchpad{
+    position:absolute; bottom:14px; left:50%; transform:translateX(-50%);
+    width:52px; height:10px; border-radius:4px;
+    background:var(--bg-panel-3);
+    border:1px solid var(--line);
+  }
+  .rocket{
+    position:absolute; left:50%; bottom:22px;
+    transform:translate(-50%, 0);
+    transition:bottom .55s cubic-bezier(.34,1.4,.64,1);
+    will-change:bottom;
+  }
+  .rocket .flame{ transform-origin:50% 0%; animation:flicker 0.5s ease-in-out infinite alternate; }
+  @keyframes flicker{ from{ transform:scaleY(1) scaleX(1);} to{ transform:scaleY(1.25) scaleX(0.85);} }
+  .flame-boost{ transform-origin:50% 0%; transition:transform .3s ease; }
+
+  .rocket-spark{
+    position:absolute; left:50%; bottom:-4px;
+    width:34px; height:34px;
+    transform:translate(-50%, 30%) scale(0);
+    border-radius:50%;
+    background:radial-gradient(circle, rgba(255,200,87,0.85) 0%, rgba(255,107,74,0.4) 55%, transparent 75%);
+    pointer-events:none;
+    opacity:0;
+  }
+  .rocket-spark.burst{ animation:sparkBurst .5s ease-out; }
+  @keyframes sparkBurst{
+    0%{ opacity:0.85; transform:translate(-50%, 30%) scale(0.3); }
+    60%{ opacity:0.6; }
+    100%{ opacity:0; transform:translate(-50%, 50%) scale(1.7); }
+  }
+
+  .progress-pill{
+    position:absolute; left:50%; bottom:-2px; transform:translate(-50%, 100%);
+    display:none;
+  }
+  .rail-footer{
+    position:absolute; bottom:6px; left:0; right:0;
+    display:flex; justify-content:center;
+  }
+  .rail-footer[hidden]{ display:none; }
+  .rail-count{
+    font-family:"Baloo 2"; font-weight:800; font-size:0.95rem;
+    background:var(--bg-void); border:1px solid var(--line);
+    padding:4px 10px; border-radius:999px; color:var(--ink);
+  }
+  .rail-count b{ color:var(--gold); }
+
+  /* ---------- card ---------- */
+  .card{
+    grid-area:card;
+    position:relative;
+    border-radius:24px;
+    background:radial-gradient(120% 140% at 15% -10%, var(--bg-panel-3) 0%, var(--bg-panel) 55%);
+    border:1px solid var(--line);
+    box-shadow:var(--shadow);
+    padding:28px clamp(18px,4vw,40px) 26px;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    gap:22px;
+    min-height:340px;
+    transition:border-color .2s ease, box-shadow .2s ease;
+  }
+  .card.flash-good{ border-color:var(--gold); box-shadow:var(--shadow), 0 0 0 4px rgba(255,200,87,0.35); }
+  .card.flash-wrong{ border-color:var(--retry); box-shadow:var(--shadow), 0 0 0 4px rgba(206,131,152,0.35); }
+
+  .card-tint{
+    position:absolute; inset:0; z-index:-1;
+    border-radius:inherit;
+    pointer-events:none;
+    opacity:0;
+    transition:opacity .18s ease;
+  }
+  .card-tint.flash-good{ opacity:1; background:rgba(255,200,87,0.18); }
+  .card-tint.flash-wrong{ opacity:1; background:rgba(206,131,152,0.18); }
+
+  .result-flash{
+    position:absolute; inset:0; z-index:2;
+    display:flex; align-items:center; justify-content:center;
+    pointer-events:none;
+    opacity:0;
+    transition:opacity .15s ease;
+  }
+  .result-flash.show{ opacity:1; }
+  .result-flash svg{ transform:scale(0.5); }
+  .result-flash.show svg{ animation:resultPop .5s cubic-bezier(.34,1.56,.64,1) forwards; }
+  @keyframes resultPop{
+    0%{ transform:scale(0.4); opacity:0; }
+    55%{ transform:scale(1.15); opacity:1; }
+    100%{ transform:scale(1); opacity:1; }
+  }
+
+  .streak{
+    position:absolute; top:16px; left:20px;
+    display:flex; align-items:center; gap:6px;
+    font-weight:800; font-size:0.85rem; color:var(--flame-strong);
+    opacity:0; transform:translateY(-4px);
+    transition:opacity .25s ease, transform .25s ease;
+  }
+  .streak.show{ opacity:1; transform:translateY(0); }
+
+  .blocks-row{
+    display:flex; align-items:center; justify-content:center;
+    gap:16px; flex-wrap:wrap;
+    min-height:64px;
+  }
+  .blocks-row[hidden]{ display:none; }
+  .blocks-cluster{
+    display:grid; grid-template-columns:repeat(5, 20px);
+    grid-auto-rows:20px; gap:6px;
+    align-content:center;
+  }
+  .block-cell{ width:20px; height:20px; border-radius:6px; background:var(--block); }
+  .blocks-sym{
+    font-family:"Baloo 2"; font-weight:800; font-size:1.3rem; color:var(--ink-dim);
+  }
+
+  .sum{
+    display:flex; align-items:baseline; gap:18px;
+    font-size:clamp(2.6rem, 9vw, 4.4rem);
+    font-weight:800;
+    letter-spacing:1px;
+  }
+  .sum[hidden]{ display:none; }
+  .sum .op{ color:var(--flame-strong); }
+  .sum .q{
+    color:var(--gold);
+    display:inline-flex; align-items:center; justify-content:center;
+    min-width:1.1em;
+  }
+
+  .feedback{
+    min-height:1.6em;
+    font-weight:800; font-size:1.05rem;
+    color:var(--ink-dim);
+    text-align:center;
+    transition:color .15s ease;
+  }
+  .feedback.good{ color:var(--gold); }
+  .feedback.retry{ color:var(--retry); }
+
+  .timer-wrap{ width:100%; max-width:280px; }
+  .timer-bar{
+    width:100%; height:8px; border-radius:999px;
+    background:var(--bg-panel-2); border:1px solid var(--line);
+    overflow:hidden;
+  }
+  .timer-fill{
+    height:100%; width:100%; border-radius:999px;
+    background:var(--speed-fast);
+  }
+
+  .numpad{
+    display:flex; flex-wrap:wrap; justify-content:center; gap:14px;
+    max-width:620px;
+  }
+  .numkey{
+    width:96px; height:96px; border-radius:50%;
+    background:var(--bg-panel-2);
+    border:1px solid var(--line);
+    color:var(--ink);
+    font-family:"Baloo 2"; font-weight:700; font-size:2.25rem;
+    cursor:pointer;
+    transition:transform .12s ease, background .12s ease, border-color .12s ease;
+  }
+  .numkey:hover{ background:var(--bg-panel-3); }
+  .numkey:active{ transform:scale(0.92); }
+  .numkey.correct{ background:var(--gold-deep); border-color:var(--gold); color:var(--gold); animation:pop .3s ease; }
+  .numkey.wrong{ background:var(--retry-deep); border-color:var(--retry); animation:shake .35s ease; }
+  .numkey:disabled{ opacity:0.55; cursor:default; }
+  @keyframes pop{ 0%{transform:scale(1);} 40%{transform:scale(1.18);} 100%{transform:scale(1);} }
+  @keyframes shake{ 0%,100%{transform:translateX(0);} 25%{transform:translateX(-6px);} 75%{transform:translateX(6px);} }
+
+  .digit-pad{
+    display:grid; grid-template-columns:repeat(3, 76px); gap:12px;
+    justify-content:center;
+  }
+  .digit-key{
+    width:76px; height:64px; border-radius:16px;
+    background:var(--bg-panel-2);
+    border:1px solid var(--line);
+    color:var(--ink);
+    display:flex; align-items:center; justify-content:center;
+    font-family:"Baloo 2"; font-weight:700; font-size:1.6rem;
+    cursor:pointer;
+    transition:transform .12s ease, background .12s ease, border-color .12s ease;
+  }
+  .digit-key:hover{ background:var(--bg-panel-3); }
+  .digit-key:active{ transform:scale(0.92); }
+  .digit-key.correct{ background:var(--gold-deep); border-color:var(--gold); color:var(--gold); animation:pop .3s ease; }
+  .digit-key.wrong{ background:var(--retry-deep); border-color:var(--retry); animation:shake .35s ease; }
+  .digit-key.submit{ background:var(--gold-deep); border-color:var(--gold); color:var(--gold); }
+  .digit-key:disabled{ opacity:0.5; cursor:default; }
+
+  /* ---------- goal overlay ---------- */
+  .overlay{
+    position:fixed; inset:0; z-index:10;
+    background:radial-gradient(120% 120% at 50% 20%, rgba(28,37,96,0.97), rgba(11,17,48,0.98));
+    display:flex; align-items:center; justify-content:center;
+    padding:24px;
+  }
+  .overlay[hidden]{ display:none; }
+  .overlay-card{
+    position:relative; z-index:1;
+    text-align:center; max-width:420px;
+    display:flex; flex-direction:column; align-items:center; gap:14px;
+  }
+  .overlay-card h2{ font-size:clamp(1.8rem,6vw,2.4rem); }
+  .overlay-card p{ color:var(--ink-dim); font-weight:700; margin:0; }
+  .overlay-stats{ display:grid; grid-template-columns:repeat(2, 1fr); gap:10px; width:100%; }
+  #confetti{ position:absolute; inset:0; width:100%; height:100%; pointer-events:none; }
+
+  .primary-btn{
+    margin-top:6px;
+    background:linear-gradient(160deg, var(--flame-strong), var(--flame));
+    color:#2A0F08; border:none;
+    font-family:"Baloo 2"; font-weight:800; font-size:1.05rem;
+    padding:14px 28px; border-radius:14px;
+    cursor:pointer;
+    box-shadow:0 10px 24px rgba(255,107,74,0.35);
+    transition:transform .12s ease;
+  }
+  .primary-btn:active{ transform:scale(0.97); }
+
+  /* ---------- settings modal ---------- */
+  .modal-backdrop{
+    position:fixed; inset:0; z-index:20;
+    background:rgba(6,9,26,0.72);
+    display:flex; align-items:center; justify-content:center;
+    padding:20px;
+  }
+  .modal-backdrop[hidden]{ display:none; }
+  .modal{
+    width:100%; max-width:400px;
+    background:var(--bg-panel); border:1px solid var(--line);
+    border-radius:20px; box-shadow:var(--shadow);
+    padding:22px 22px 20px;
+    display:flex; flex-direction:column; gap:18px;
+  }
+  .modal.modal-settings{ max-width:680px; }
+  .general-panels{ display:grid; grid-template-columns:1fr 1fr; gap:22px; align-items:start; }
+  @media (max-width:560px){ .general-panels{ grid-template-columns:1fr; } }
+  .panel-col{ display:flex; flex-direction:column; gap:18px; min-width:0; }
+  .panel-heading{ font-size:1rem; margin:0 0 -6px; }
+  .modal-head{ display:flex; align-items:center; justify-content:space-between; }
+  .modal-head h2{ font-size:1.2rem; }
+  .modal-text{ margin:0; color:var(--ink-dim); font-weight:700; }
+  .field-label{
+    font-weight:800; font-size:0.78rem; text-transform:uppercase; letter-spacing:0.6px;
+    color:var(--ink-dim); margin-bottom:8px; display:block;
+  }
+  .stepper{
+    display:flex; align-items:center; gap:14px;
+  }
+  .stepper button{
+    width:38px; height:38px; border-radius:10px;
+    background:var(--bg-panel-2); border:1px solid var(--line); color:var(--ink);
+    font-size:1.2rem; font-weight:800; cursor:pointer;
+  }
+  .stepper .val{
+    font-family:"Baloo 2"; font-weight:800; font-size:1.3rem;
+    min-width:2.4ch; text-align:center;
+  }
+  .op-grid{
+    display:grid; grid-template-columns:1fr auto auto;
+    gap:10px 8px; align-items:center;
+  }
+  .op-row{
+    grid-column:1;
+    display:flex; align-items:center; gap:8px;
+    padding:11px 12px; border-radius:12px;
+    background:var(--bg-panel-2); border:1px solid var(--line);
+    font-weight:800; cursor:pointer; user-select:none;
+    color:var(--ink-dim);
+  }
+  .op-row input{ display:none; }
+  .op-row.active{ background:var(--gold-deep); border-color:var(--gold); color:var(--gold); }
+  .op-count-select, .op-max-select{
+    justify-self:end;
+    background:var(--bg-panel-2); border:1px solid var(--line); color:var(--ink);
+    font-family:"Nunito",system-ui,sans-serif; font-weight:800; font-size:0.9rem;
+    padding:9px 10px; border-radius:10px; cursor:pointer;
+  }
+  .op-count-select{ grid-column:2; }
+  .op-max-select{ grid-column:3; }
+  .op-count-select[hidden], .op-max-select[hidden]{ display:none; }
+  @media (max-width:420px){ .op-row{ grid-column:1 / -1; } }
+  .theme-row{ display:flex; gap:10px; }
+  .theme-pill{
+    flex:1; display:flex; flex-direction:column; align-items:center; gap:6px;
+    padding:10px 8px; border-radius:14px;
+    background:var(--bg-panel-2); border:1px solid var(--line);
+    font-weight:800; font-size:0.82rem; cursor:pointer; color:var(--ink-dim);
+  }
+  .theme-pill.active{ border-color:var(--gold); color:var(--ink); }
+  .theme-swatch{
+    width:28px; height:28px; border-radius:50%;
+    border:2px solid rgba(255,255,255,0.25);
+  }
+  .theme-swatch.swatch-blue{ background:linear-gradient(135deg, #0B1130, #8DA1F2); }
+  .theme-swatch.swatch-pink{ background:linear-gradient(135deg, #2B0F2A, #FF6FA8); }
+  .toggle-row{ display:flex; align-items:center; justify-content:space-between; }
+  .toggle-row.tight{ margin-bottom:10px; }
+  .field-label.inline{ margin:0; }
+  .unit-label{ color:var(--ink-dim); font-weight:800; font-size:0.85rem; }
+  .switch{
+    position:relative; width:46px; height:26px; border-radius:999px;
+    background:var(--bg-panel-2); border:1px solid var(--line);
+    cursor:pointer;
+  }
+  .switch .knob{
+    position:absolute; top:2px; left:2px; width:20px; height:20px; border-radius:50%;
+    background:var(--ink-dim); transition:transform .15s ease, background .15s ease;
+  }
+  .switch.on{ background:var(--gold-deep); border-color:var(--gold); }
+  .switch.on .knob{ transform:translateX(20px); background:var(--gold); }
+  .settings-tabs{ display:flex; gap:8px; }
+  .settings-tab{
+    flex:1; padding:10px 8px; border-radius:12px;
+    background:var(--bg-panel-2); border:1px solid var(--line); color:var(--ink-dim);
+    font-family:"Nunito",system-ui,sans-serif; font-weight:800; font-size:0.85rem;
+    cursor:pointer;
+  }
+  .settings-tab.active{ background:var(--gold-deep); border-color:var(--gold); color:var(--gold); }
+  .tab-panel{ display:flex; flex-direction:column; gap:18px; }
+  .tab-panel[hidden]{ display:none; }
+  .leitner-explainer{ font-size:0.85rem; line-height:1.5; }
+  .leitner-due{ font-size:0.8rem; color:var(--gold); font-weight:800; }
+  .stat-tiles.leitner-stats{ grid-template-columns:repeat(2, 1fr); }
+
+  .reset-btn{
+    background:transparent; border:1px dashed var(--line); color:var(--ink-dim);
+    font-weight:800; padding:10px; border-radius:12px; cursor:pointer;
+  }
+  .reset-btn:hover{ color:var(--ink); border-color:var(--ink-dim); }
+  .stepper.disabled{ opacity:0.4; pointer-events:none; }
+
+  /* ---------- history modal ---------- */
+  .modal.modal-wide{ max-width:1040px; width:100%; }
+  .history-empty{
+    text-align:center; color:var(--ink-dim); font-weight:700;
+    padding:18px 8px; line-height:1.5;
+  }
+  #historyContent{ display:flex; flex-direction:column; gap:18px; }
+  #historyContent[hidden]{ display:none; }
+  .stat-tiles{ display:grid; grid-template-columns:repeat(3, 1fr); gap:10px; }
+  .stat-tile{
+    background:var(--bg-panel-2); border:1px solid var(--line); border-radius:14px;
+    padding:16px 8px; text-align:center;
+  }
+  .stat-tile.due-today{ border-color:var(--speed-fast); }
+  .stat-tile.clickable{
+    width:100%; font-family:inherit; color:inherit; cursor:pointer;
+    transition:border-color .15s ease, background .15s ease;
+  }
+  .stat-tile.clickable:hover, .stat-tile.clickable:focus-visible{ background:var(--bg-panel); }
+  .stat-tile .val{
+    display:block; font-family:"Baloo 2"; font-weight:800; font-size:1.8rem; color:var(--ink);
+  }
+  .stat-tile .lbl{
+    display:block; font-size:0.72rem; font-weight:800; text-transform:uppercase;
+    letter-spacing:0.4px; color:var(--ink-dim); margin-top:4px;
+  }
+
+  .leitner-panel{
+    margin-top:16px; padding:16px clamp(14px,3vw,22px);
+    border-radius:20px; background:var(--bg-panel); border:1px solid var(--line);
+  }
+  .stat-tiles.leitner-panel-stats{ grid-template-columns:repeat(4, 1fr); }
+  @media (max-width:480px){ .stat-tiles.leitner-panel-stats{ grid-template-columns:repeat(2, 1fr); } }
+  .leitner-today{
+    margin-top:12px; text-align:center; font-weight:800; color:var(--gold);
+  }
+  .leitner-box-list{
+    margin-top:14px; display:flex; flex-direction:column; gap:8px;
+    max-height:52vh; overflow-y:auto;
+  }
+  .leitner-box-row{
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
+    padding:10px 12px; border-radius:12px;
+    background:var(--bg-panel-2); border:1px solid var(--line);
+  }
+  .leitner-box-eq{ font-family:"Baloo 2"; font-weight:800; font-size:1.05rem; color:var(--ink); }
+  .leitner-box-row select{ flex-shrink:0; }
+
+  .charts-grid{ display:grid; grid-template-columns:1fr; gap:18px; }
+  .chart-block{ display:flex; flex-direction:column; gap:6px; }
+  @media (min-width:680px){
+    .charts-grid{ grid-template-columns:1fr 1fr; }
+  }
+  .chart-title{
+    font-size:0.78rem; font-weight:800; text-transform:uppercase; letter-spacing:0.5px;
+    color:var(--ink-dim);
+  }
+  .chart-block svg{ width:100%; height:auto; display:block; }
+  .history-table-wrap{
+    max-height:180px; overflow-y:auto; overflow-x:auto;
+    border:1px solid var(--line); border-radius:14px;
+    scrollbar-width:thin; scrollbar-color:rgba(244,241,255,0.25) var(--bg-panel-2);
+  }
+  .history-table-wrap::-webkit-scrollbar{ width:10px; height:10px; }
+  .history-table-wrap::-webkit-scrollbar-track{ background:var(--bg-panel-2); }
+  .history-table-wrap::-webkit-scrollbar-thumb{
+    background:rgba(244,241,255,0.25); border-radius:999px;
+    border:2px solid var(--bg-panel-2); background-clip:padding-box;
+  }
+  .history-table-wrap::-webkit-scrollbar-thumb:hover{ background:rgba(244,241,255,0.4); background-clip:padding-box; }
+  .history-table-wrap::-webkit-scrollbar-corner{ background:var(--bg-panel-2); }
+  .history-table{ width:100%; border-collapse:collapse; font-size:0.82rem; }
+  .history-table th, .history-table td{
+    padding:8px 10px; text-align:left; white-space:nowrap;
+  }
+  .history-table thead th{
+    position:sticky; top:0; background:var(--bg-panel-2); color:var(--ink-dim);
+    font-size:0.68rem; text-transform:uppercase; letter-spacing:0.4px;
+    border-bottom:1px solid var(--line);
+  }
+  .history-table tbody tr:nth-child(even){ background:rgba(244,241,255,0.03); }
+  .history-table tbody td{ color:var(--ink); font-variant-numeric:tabular-nums; }
+  .history-actions{ display:flex; justify-content:flex-end; }
+  .history-actions .reset-btn{ font-size:0.75rem; padding:8px 12px; }
+  .badge-row{ display:flex; flex-wrap:wrap; gap:4px; }
+  .mini-badge{
+    background:var(--bg-panel-3); border:1px solid var(--line); color:var(--ink-dim);
+    font-size:0.66rem; font-weight:800; padding:2px 7px; border-radius:999px;
+    white-space:nowrap;
+  }
+  .row-actions{ display:flex; gap:6px; }
+  .row-icon-btn{
+    width:26px; height:26px; border-radius:8px; padding:0;
+    background:var(--bg-panel-2); border:1px solid var(--line); color:var(--ink-dim);
+    display:inline-flex; align-items:center; justify-content:center; cursor:pointer;
+  }
+  .row-icon-btn:hover{ color:var(--ink); background:var(--bg-panel-3); }
+  .row-icon-btn.row-icon-danger:hover{ color:var(--retry); border-color:var(--retry); }
+  .hist-detail-row td{
+    background:rgba(244,241,255,0.03); color:var(--ink-dim); font-size:0.78rem;
+    font-weight:700; white-space:normal;
+  }
+  .hist-detail-row[hidden]{ display:none; }
+
+  @media (prefers-reduced-motion: reduce){
+    .rocket .flame, .numkey.correct, .numkey.wrong, .digit-key.correct, .digit-key.wrong{ animation:none !important; }
+    .rocket{ transition:none !important; }
+    .result-flash.show svg{ animation:none !important; transform:scale(1); }
+    .flame-boost{ transition:none !important; }
+    .rocket-spark.burst{ animation:none !important; opacity:0 !important; }
+  }
+</style>
+</head>
+<body>
+
+<div id="stars"></div>
+
+<div class="shell">
+  <header>
+    <div class="brand">
+      <div class="brand-badge">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 2c3 2.5 4.5 6 4.5 10.5 0 1.7-.3 3.2-.8 4.5H8.3c-.5-1.3-.8-2.8-.8-4.5C7.5 8 9 4.5 12 2Z" fill="#FF8F63"/><circle cx="12" cy="10.5" r="1.8" fill="#141B4A"/><path d="M8 15.5 5.5 20l3-1 .8-2.6M16 15.5 18.5 20l-3-1-.8-2.6" fill="#FFC857"/></svg>
+      </div>
+      <h1>Reken<span>raket</span></h1>
+    </div>
+    <div class="header-actions">
+      <button type="button" class="icon-btn" id="historyBtn" aria-label="Geschiedenis openen" title="Geschiedenis">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 12a8 8 0 1 1 2.6 5.9" stroke-linecap="round"/><path d="M4 6v5h5" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 8v4.5l3 2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <button type="button" class="icon-btn" id="restartBtn" aria-label="Ronde opnieuw starten" title="Opnieuw starten">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 12a8 8 0 1 1-2.34-5.66" stroke-linecap="round"/><path d="M20 4v5h-5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <button type="button" class="icon-btn" id="settingsBtn" aria-label="Instellingen openen" title="Instellingen">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 13.5a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.9 2.9l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5V20a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.9-2.9l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H4a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.6-1.1 1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.9-2.9l.1.1a1.7 1.7 0 0 0 1.9.3H10a1.7 1.7 0 0 0 1-1.5V4a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.9 2.9l-.1.1a1.7 1.7 0 0 0-.3 1.9V10a1.7 1.7 0 0 0 1.5 1H20a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <main id="mainView" hidden>
+    <div class="sky-rail" id="skyRail">
+      <div class="rail-track"></div>
+      <div class="goal-marker">
+        <svg width="46" height="34" viewBox="0 0 46 34" fill="none">
+          <rect x="3" y="2" width="40" height="26" rx="5" fill="#1C2560" stroke="#FFC857" stroke-width="1.5"/>
+          <rect x="8" y="7" width="30" height="16" rx="2" fill="#0B1130"/>
+          <path d="M15 15h16M23 11v8" stroke="#FFC857" stroke-width="1.6" stroke-linecap="round"/>
+          <rect x="17" y="28" width="12" height="3" rx="1.5" fill="#1C2560"/>
+        </svg>
+        <span class="goal-label">TV-tijd</span>
+      </div>
+      <div class="rocket" id="rocket">
+        <svg width="30" height="52" viewBox="0 0 30 52" fill="none">
+          <path d="M15 0c6 5.5 9 13 9 22.5 0 3.7-.6 7-1.8 9.9H7.8C6.6 29.5 6 26.2 6 22.5 6 13 9 5.5 15 0Z" fill="#F4F1FF"/>
+          <path d="M15 0c6 5.5 9 13 9 22.5 0 3.7-.6 7-1.8 9.9H15V0Z" fill="#CFD3F5"/>
+          <circle cx="15" cy="19" r="4" fill="#141B4A"/>
+          <circle cx="15" cy="19" r="4" fill="#141B4A" stroke="#FFC857" stroke-width="1.4"/>
+          <path d="M6 26 1 34l6-1.6L9.4 28M24 26l5 8-6-1.6-2.4-4.4" fill="#FF6B4A"/>
+          <path d="M15 32.4h-3.6L9 39h12l-2.4-6.6H15Z" fill="#FF6B4A"/>
+          <g class="flame-boost" id="flameBoost">
+            <g class="flame">
+              <path d="M11.5 39 15 51l3.5-12-3.5 4-3.5-4Z" fill="#FFC857"/>
+            </g>
+          </g>
+        </svg>
+        <div class="rocket-spark" id="rocketSpark"></div>
+      </div>
+      <div class="launchpad"></div>
+      <div class="rail-footer" id="railFooter"><div class="rail-count tabular"><b id="railCorrect">0</b>&nbsp;/&nbsp;<span id="railTarget">12</span> opgaven</div></div>
+    </div>
+
+    <div class="card" id="sumCard">
+      <div class="card-tint" id="cardTint" aria-hidden="true"></div>
+      <div class="result-flash" id="resultFlash" aria-hidden="true"></div>
+      <div class="streak" id="streakEl">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="#FF6B4A"><path d="M12 2c1 4-4 5-4 10a4 4 0 0 0 8 0c1.5 1 2 2.8 2 4.5A6.5 6.5 0 0 1 5 16.5C5 10 12 8 12 2Z"/></svg>
+        <span id="streakCount">0</span> op een rij
+      </div>
+      <div class="blocks-row" id="blocksRow" hidden>
+        <div class="blocks-cluster" id="blocksA"></div>
+        <span class="blocks-sym" id="blocksOp">+</span>
+        <div class="blocks-cluster" id="blocksB"></div>
+        <span class="blocks-sym">=</span>
+        <div class="blocks-cluster" id="blocksResult"></div>
+      </div>
+      <div class="sum tabular" id="sumEl" aria-live="off" hidden>
+        <span id="numA">3</span><span class="op" id="opEl">+</span><span id="numB">4</span><span class="op">=</span><span id="qEl">?</span>
+      </div>
+      <div class="timer-wrap" id="timerWrap" hidden>
+        <div class="timer-bar"><div class="timer-fill" id="timerFill"></div></div>
+      </div>
+      <div class="feedback" id="feedbackEl" role="status" aria-live="polite">Kies het juiste antwoord!</div>
+      <div class="numpad" id="numpad"></div>
+    </div>
+  </main>
+
+  <div class="leitner-panel" id="leitnerPanel" hidden>
+    <div class="stat-tiles leitner-panel-stats">
+      <div class="stat-tile"><span class="val" id="lpBox1">0</span><span class="lbl">Box 1</span></div>
+      <div class="stat-tile"><span class="val" id="lpBox2">0</span><span class="lbl">Box 2</span></div>
+      <div class="stat-tile"><span class="val" id="lpBox3">0</span><span class="lbl">Box 3</span></div>
+      <div class="stat-tile"><span class="val" id="lpMastered">0</span><span class="lbl">Gemasterd</span></div>
+    </div>
+    <div class="leitner-today" id="leitnerTodayText"></div>
+  </div>
+</div>
+
+<div class="overlay" id="goalOverlay" hidden>
+  <canvas id="confetti"></canvas>
+  <div class="overlay-card">
+    <svg width="64" height="64" viewBox="0 0 24 24" fill="none"><rect x="2" y="4" width="20" height="14" rx="2.5" fill="#1C2560" stroke="#FFC857" stroke-width="1.4"/><rect x="9" y="20" width="6" height="1.6" rx="0.8" fill="#1C2560"/><path d="M8 9h8M12 6v6" stroke="#FFC857" stroke-width="1.6" stroke-linecap="round"/></svg>
+    <h2>TV-tijd verdiend!</h2>
+    <p id="overlayText">Je hebt 12 opgaven juist gemaakt. Goed gedaan, ga het maar zeggen!</p>
+    <div class="overlay-stats">
+      <div class="stat-tile"><span class="val" id="overlayDuration">0s</span><span class="lbl">Tijd</span></div>
+      <div class="stat-tile"><span class="val" id="overlayPerSum">0s</span><span class="lbl">Sec/opgave</span></div>
+      <div class="stat-tile"><span class="val" id="overlayMistakes">0</span><span class="lbl">Fouten</span></div>
+      <div class="stat-tile"><span class="val" id="overlayLongestStreak">0</span><span class="lbl">Langste rijtje</span></div>
+    </div>
+    <button type="button" class="primary-btn" id="closeOverlayBtn">Sluiten</button>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="settingsBackdrop" hidden>
+  <div class="modal modal-settings" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal-head">
+      <h2 id="modalTitle">Instellingen</h2>
+      <button type="button" class="icon-btn" id="closeSettings" aria-label="Sluiten">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 5l14 14M19 5 5 19"/></svg>
+      </button>
+    </div>
+
+    <div class="settings-tabs">
+      <button type="button" class="settings-tab active" id="settingsTabGeneralBtn">Algemeen</button>
+      <button type="button" class="settings-tab" id="settingsTabLeitnerBtn">Leitner</button>
+    </div>
+
+    <div class="tab-panel" id="tabGeneral">
+      <div class="general-panels">
+        <div class="panel-col">
+          <h3 class="panel-heading">Instellingen</h3>
+
+          <div>
+            <span class="field-label">Thema</span>
+            <div class="theme-row">
+              <button type="button" class="theme-pill" id="themeBlueBtn" data-theme="blue">
+                <span class="theme-swatch swatch-blue"></span>
+                Blauw
+              </button>
+              <button type="button" class="theme-pill" id="themePinkBtn" data-theme="pink">
+                <span class="theme-swatch swatch-pink"></span>
+                Roze
+              </button>
+            </div>
+          </div>
+
+          <div class="toggle-row">
+            <span class="field-label inline">Geluid</span>
+            <div class="switch" id="soundSwitch" role="switch" aria-checked="true" tabindex="0"><div class="knob"></div></div>
+          </div>
+
+          <div class="toggle-row">
+            <span class="field-label inline">Andere vraagvormen</span>
+            <div class="switch" id="formatSwitch" role="switch" aria-checked="true" tabindex="0"><div class="knob"></div></div>
+          </div>
+
+          <div class="toggle-row">
+            <span class="field-label inline">Hulpblokjes</span>
+            <div class="switch" id="blocksSwitch" role="switch" aria-checked="true" tabindex="0"><div class="knob"></div></div>
+          </div>
+
+          <div class="toggle-row">
+            <span class="field-label inline">Tijd per opgave</span>
+            <select class="op-count-select" id="timerSelect" aria-label="Tijd per opgave">
+              <option value="0">−</option>
+              <option value="1">1 sec</option>
+              <option value="2">2 sec</option>
+              <option value="3">3 sec</option>
+              <option value="4">4 sec</option>
+              <option value="5">5 sec</option>
+              <option value="6">6 sec</option>
+              <option value="7">7 sec</option>
+              <option value="8">8 sec</option>
+              <option value="9">9 sec</option>
+              <option value="10">10 sec</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="panel-col">
+          <h3 class="panel-heading">Opgaven</h3>
+
+          <div>
+            <span class="field-label" id="opGridLabel">Soorten opgaven &amp; aantal</span>
+            <div class="op-grid" id="opGrid"></div>
+          </div>
+
+          <div id="mistakePenaltyField">
+            <span class="field-label">Extra opgaven bij fout</span>
+            <div class="stepper">
+              <button type="button" id="mistakePenaltyDown" aria-label="Minder">−</button>
+              <span class="val tabular" id="mistakePenaltyVal">0</span>
+              <button type="button" id="mistakePenaltyUp" aria-label="Meer">+</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tab-panel" id="tabLeitner" hidden>
+      <div class="toggle-row">
+        <span class="field-label inline">Leitner-modus</span>
+        <div class="switch" id="leitnerSwitch" role="switch" aria-checked="false" tabindex="0"><div class="knob"></div></div>
+      </div>
+      <div class="toggle-row">
+        <span class="field-label inline">Max reeks lengte</span>
+        <select class="op-count-select" id="leitnerBatchSelect" aria-label="Max reeks lengte"></select>
+      </div>
+      <p class="modal-text leitner-explainer">3 boxen. Goed én binnen 3 seconden → box omhoog (vanuit box 3: gemasterd); vanaf de 4e seconde blijft de opgave in dezelfde box; fout → terug naar box 1. Box 1 elke dag, box 2 elke 3e dag, box 3 elke 5e dag (steeds samen met box 1).</p>
+      <p class="modal-text leitner-due" id="leitnerDueText"></p>
+      <div class="stat-tiles leitner-stats" id="leitnerStatsTiles">
+        <button type="button" class="stat-tile clickable" data-box="1" aria-label="Toon opgaven in box 1"><span class="val" id="leitnerBox1">0</span><span class="lbl">Box 1</span></button>
+        <button type="button" class="stat-tile clickable" data-box="2" aria-label="Toon opgaven in box 2"><span class="val" id="leitnerBox2">0</span><span class="lbl">Box 2</span></button>
+        <button type="button" class="stat-tile clickable" data-box="3" aria-label="Toon opgaven in box 3"><span class="val" id="leitnerBox3">0</span><span class="lbl">Box 3</span></button>
+        <button type="button" class="stat-tile clickable" data-box="mastered" aria-label="Toon gemasterde opgaven"><span class="val" id="leitnerMastered">0</span><span class="lbl">Gemasterd</span></button>
+      </div>
+      <button type="button" class="reset-btn" id="leitnerResetBtn">Leitner-voortgang wissen</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="restartBackdrop" hidden>
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="restartTitle">
+    <div class="modal-head">
+      <h2 id="restartTitle">Opnieuw starten?</h2>
+      <button type="button" class="icon-btn" id="closeRestart" aria-label="Sluiten">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 5l14 14M19 5 5 19"/></svg>
+      </button>
+    </div>
+    <p id="restartText" class="modal-text">Je huidige voortgang gaat verloren. Weet je het zeker?</p>
+    <button type="button" class="primary-btn" id="confirmRestartBtn">Ja, opnieuw beginnen</button>
+    <button type="button" class="reset-btn" id="cancelRestartBtn">Annuleren</button>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="historyBackdrop" hidden>
+  <div class="modal modal-wide" role="dialog" aria-modal="true" aria-labelledby="historyTitle">
+    <div class="modal-head">
+      <h2 id="historyTitle">Geschiedenis</h2>
+      <button type="button" class="icon-btn" id="closeHistory" aria-label="Sluiten">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 5l14 14M19 5 5 19"/></svg>
+      </button>
+    </div>
+
+    <div id="historyEmpty" class="history-empty" hidden>
+      Nog geen ronde voltooid. Speel een ronde uit om hier de voortgang te zien.
+    </div>
+
+    <div id="historyContent">
+      <div class="stat-tiles">
+        <div class="stat-tile"><span class="val" id="statRounds">0</span><span class="lbl">Ronden</span></div>
+        <div class="stat-tile"><span class="val" id="statAvgTime">0s</span><span class="lbl">Gem. tijd/opgave</span></div>
+        <div class="stat-tile"><span class="val" id="statMistakes">0</span><span class="lbl">Fouten totaal</span></div>
+      </div>
+
+      <div class="charts-grid">
+        <div class="chart-block">
+          <span class="chart-title">Snelheid (sec per opgave)</span>
+          <svg id="chartSpeed" viewBox="0 0 300 150" aria-hidden="true"></svg>
+        </div>
+
+        <div class="chart-block">
+          <span class="chart-title">Fouten per ronde</span>
+          <svg id="chartMistakes" viewBox="0 0 300 150" aria-hidden="true"></svg>
+        </div>
+      </div>
+
+      <div class="history-actions">
+        <button type="button" class="reset-btn" id="clearHistoryBtn">Volledige geschiedenis wissen</button>
+      </div>
+
+      <div class="history-table-wrap">
+        <table class="history-table">
+          <thead>
+            <tr><th>Datum</th><th>Duur</th><th>Sec/opgave</th><th>Fouten</th><th>Instellingen</th><th></th></tr>
+          </thead>
+          <tbody id="historyTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="leitnerBoxBackdrop" hidden>
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="leitnerBoxTitle">
+    <div class="modal-head">
+      <h2 id="leitnerBoxTitle">Box 1</h2>
+      <button type="button" class="icon-btn" id="closeLeitnerBox" aria-label="Sluiten">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 5l14 14M19 5 5 19"/></svg>
+      </button>
+    </div>
+    <div class="settings-tabs" id="leitnerBoxTabs">
+      <button type="button" class="settings-tab" data-box="1">Box 1</button>
+      <button type="button" class="settings-tab" data-box="2">Box 2</button>
+      <button type="button" class="settings-tab" data-box="3">Box 3</button>
+      <button type="button" class="settings-tab" data-box="mastered">Gemasterd</button>
+    </div>
+    <p class="modal-text" id="leitnerBoxEmpty" hidden>Geen opgaven in deze box.</p>
+    <div class="leitner-box-list" id="leitnerBoxList"></div>
+  </div>
+</div>
+
+<script src="leitner.js"></script>
+<script>
+(function(){
+  "use strict";
+
+  var LEGACY_STORAGE_KEY = "rekenraket_v1";
+  var DB_NAME = "rekenraket_db";
+  var DB_STORE = "state";
+  var DB_KEY = "main";
+  var HISTORY_STORE = "history";
+  var LEITNER_STORE = "leitner";
+  var MAX_OPTIONS_SUM = [10, 20, 30, 50, 100];
+  var MAX_OPTIONS_TABLE = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+  var OP_DEFS = [
+    { key: "add", symbol: "+", label: "Optellen", enabledKey: "opAddEnabled", countKey: "opAddCount", maxKey: "opAddMax", maxOptions: MAX_OPTIONS_SUM },
+    { key: "sub", symbol: "-", label: "Aftrekken", enabledKey: "opSubEnabled", countKey: "opSubCount", maxKey: "opSubMax", maxOptions: MAX_OPTIONS_SUM },
+    { key: "mul", symbol: "×", label: "Vermenigvuldigen", enabledKey: "opMulEnabled", countKey: "opMulCount", maxKey: "opMulMax", maxOptions: MAX_OPTIONS_TABLE },
+    { key: "div", symbol: "÷", label: "Delen", enabledKey: "opDivEnabled", countKey: "opDivCount", maxKey: "opDivMax", maxOptions: MAX_OPTIONS_TABLE }
+  ];
+  var defaults = {
+    mistakePenalty: 0,
+    opAddEnabled: true, opAddCount: 10, opAddMax: 10,
+    opSubEnabled: true, opSubCount: 10, opSubMax: 10,
+    opMulEnabled: false, opMulCount: 10, opMulMax: 10,
+    opDivEnabled: false, opDivCount: 10, opDivMax: 10,
+    mixedFormats: true, blocksEnabled: true, sound: true,
+    timerSeconds: 5, colorTheme: "blue",
+    leitnerEnabled: false,
+    leitnerDay: 0,
+    leitnerBatchSize: 15,
+    target: 20, correct: 0, streak: 0,
+    roundStartTs: 0, roundMistakes: 0, roundTimeouts: 0, roundLongestStreak: 0
+  };
+
+  function normalizeCount(t){
+    return Math.min(60, Math.max(5, Math.round(t / 5) * 5));
+  }
+
+  function computeTarget(s){
+    var total = 0;
+    OP_DEFS.forEach(function(def){
+      if(s[def.enabledKey]) total += s[def.countKey];
+    });
+    return total > 0 ? total : 5;
+  }
+
+  /* Older saves only had opAdd/opSub booleans and one global target;
+     translate those into the new per-operation enabled+count fields. */
+  function migrateOpFields(raw){
+    if(!raw || typeof raw.opAddEnabled !== "undefined") return raw;
+    var legacyCount = normalizeCount(raw.target || 10);
+    var migrated = Object.assign({}, raw);
+    migrated.opAddEnabled = raw.opAdd !== undefined ? !!raw.opAdd : true;
+    migrated.opSubEnabled = raw.opSub !== undefined ? !!raw.opSub : true;
+    migrated.opAddCount = legacyCount;
+    migrated.opSubCount = legacyCount;
+    migrated.opMulEnabled = false; migrated.opMulCount = 10;
+    migrated.opDivEnabled = false; migrated.opDivCount = 10;
+    return migrated;
+  }
+
+  /* Older saves had an on/off switch plus a 5-30s stepper; the dropdown now
+     folds "off" and the duration into a single 0-8 value (0 = "-", off). */
+  function migrateTimerField(raw){
+    if(!raw || typeof raw.timerEnabled === "undefined") return raw;
+    var migrated = Object.assign({}, raw);
+    migrated.timerSeconds = raw.timerEnabled ? Math.max(1, Math.min(10, Math.round(raw.timerSeconds || 5))) : 0;
+    return migrated;
+  }
+
+  function migrateLegacyFields(raw){
+    return migrateTimerField(migrateOpFields(raw));
+  }
+
+  function applyTheme(theme){
+    document.documentElement.setAttribute("data-color-theme", theme === "pink" ? "pink" : "blue");
+  }
+  var state = Object.assign({}, defaults);
+
+  var dbPromise = null;
+  function openDB(){
+    if(dbPromise) return dbPromise;
+    dbPromise = new Promise(function(resolve, reject){
+      if(!window.indexedDB){ reject(new Error("no indexeddb")); return; }
+      var req = indexedDB.open(DB_NAME, 3);
+      req.onupgradeneeded = function(){
+        if(!req.result.objectStoreNames.contains(DB_STORE)){
+          req.result.createObjectStore(DB_STORE);
+        }
+        if(!req.result.objectStoreNames.contains(HISTORY_STORE)){
+          req.result.createObjectStore(HISTORY_STORE, { autoIncrement: true });
+        }
+        if(!req.result.objectStoreNames.contains(LEITNER_STORE)){
+          req.result.createObjectStore(LEITNER_STORE);
+        }
+      };
+      req.onsuccess = function(){ resolve(req.result); };
+      req.onerror = function(){ reject(req.error); };
+    });
+    return dbPromise;
+  }
+
+  function addHistoryEntry(entry){
+    openDB().then(function(db){
+      db.transaction(HISTORY_STORE, "readwrite").objectStore(HISTORY_STORE).add(entry);
+    }).catch(function(){});
+  }
+  function getHistory(callback){
+    openDB().then(function(db){
+      var store = db.transaction(HISTORY_STORE, "readonly").objectStore(HISTORY_STORE);
+      var results = [];
+      var req = store.openCursor();
+      req.onsuccess = function(e){
+        var cursor = e.target.result;
+        if(cursor){
+          var val = cursor.value;
+          val._id = cursor.key;
+          results.push(val);
+          cursor.continue();
+        } else {
+          callback(results);
+        }
+      };
+      req.onerror = function(){ callback([]); };
+    }).catch(function(){ callback([]); });
+  }
+  function deleteHistoryEntry(id){
+    openDB().then(function(db){
+      db.transaction(HISTORY_STORE, "readwrite").objectStore(HISTORY_STORE).delete(id);
+    }).catch(function(){});
+  }
+  function clearHistory(){
+    openDB().then(function(db){
+      db.transaction(HISTORY_STORE, "readwrite").objectStore(HISTORY_STORE).clear();
+    }).catch(function(){});
+  }
+
+  /* Leitner.createStore is the same IndexedDB CRUD wrapper this used to
+     hand-roll here, moved to leitner.js so it can be exercised in tests
+     against a fake `getDb` -- see Leitner.createStore's tests. */
+  var leitnerStore = Leitner.createStore(openDB, LEITNER_STORE);
+  function persistLeitnerCard(id, record){ return leitnerStore.put(id, record); }
+  function clearLeitnerCards(){ return leitnerStore.clear(); }
+  function persistLeitnerCards(entries){ return leitnerStore.putAll(entries); }
+  function loadLeitnerCards(callback){ return leitnerStore.loadAll(callback); }
+
+  function readLegacyState(){
+    try{
+      var raw = localStorage.getItem(LEGACY_STORAGE_KEY);
+      return raw ? JSON.parse(raw) : null;
+    }catch(e){ return null; }
+  }
+
+  function persistState(s){
+    openDB().then(function(db){
+      db.transaction(DB_STORE, "readwrite").objectStore(DB_STORE).put(s, DB_KEY);
+    }).catch(function(){});
+  }
+
+  function saveState(){ persistState(state); }
+
+  function loadState(callback){
+    openDB().then(function(db){
+      var req = db.transaction(DB_STORE, "readonly").objectStore(DB_STORE).get(DB_KEY);
+      req.onsuccess = function(){
+        if(req.result){
+          callback(Object.assign({}, defaults, migrateLegacyFields(req.result)));
+        } else {
+          var merged = Object.assign({}, defaults, migrateLegacyFields(readLegacyState() || {}));
+          persistState(merged);
+          callback(merged);
+        }
+      };
+      req.onerror = function(){ callback(Object.assign({}, defaults, migrateLegacyFields(readLegacyState() || {}))); };
+    }).catch(function(){
+      callback(Object.assign({}, defaults, migrateLegacyFields(readLegacyState() || {})));
+    });
+  }
+
+  var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  /* ---------------- starfield ---------------- */
+  (function stars(){
+    var layer = document.getElementById("stars");
+    var n = 90, parts = [];
+    for(var i=0;i<n;i++){
+      var s = document.createElement("div");
+      var size = Math.random()*2 + 1;
+      s.style.position = "absolute";
+      s.style.width = size+"px";
+      s.style.height = size+"px";
+      s.style.borderRadius = "50%";
+      s.style.background = "#F4F1FF";
+      s.style.left = (Math.random()*100)+"%";
+      s.style.top = (Math.random()*100)+"%";
+      s.style.opacity = (0.25 + Math.random()*0.55).toFixed(2);
+      if(!reduceMotion){
+        s.style.animation = "twinkle "+(2+Math.random()*3).toFixed(2)+"s ease-in-out "+(Math.random()*3).toFixed(2)+"s infinite alternate";
+      }
+      layer.appendChild(s);
+    }
+    var styleTag = document.createElement("style");
+    styleTag.textContent = "@keyframes twinkle{from{opacity:.15}to{opacity:.9}}";
+    document.head.appendChild(styleTag);
+  })();
+
+  /* ---------------- DOM refs ---------------- */
+  var el = {
+    numA: document.getElementById("numA"),
+    opEl: document.getElementById("opEl"),
+    numB: document.getElementById("numB"),
+    qEl: document.getElementById("qEl"),
+    feedback: document.getElementById("feedbackEl"),
+    numpad: document.getElementById("numpad"),
+    sumCard: document.getElementById("sumCard"),
+    sumEl: document.getElementById("sumEl"),
+    resultFlash: document.getElementById("resultFlash"),
+    cardTint: document.getElementById("cardTint"),
+    blocksRow: document.getElementById("blocksRow"),
+    blocksA: document.getElementById("blocksA"),
+    blocksB: document.getElementById("blocksB"),
+    blocksResult: document.getElementById("blocksResult"),
+    blocksOp: document.getElementById("blocksOp"),
+    blocksSwitch: document.getElementById("blocksSwitch"),
+    rocket: document.getElementById("rocket"),
+    railFooter: document.getElementById("railFooter"),
+    flameBoost: document.getElementById("flameBoost"),
+    rocketSpark: document.getElementById("rocketSpark"),
+    railCorrect: document.getElementById("railCorrect"),
+    railTarget: document.getElementById("railTarget"),
+    streakEl: document.getElementById("streakEl"),
+    streakCount: document.getElementById("streakCount"),
+    mainView: document.getElementById("mainView"),
+    skyRail: document.getElementById("skyRail"),
+    goalOverlay: document.getElementById("goalOverlay"),
+    overlayText: document.getElementById("overlayText"),
+    overlayDuration: document.getElementById("overlayDuration"),
+    overlayPerSum: document.getElementById("overlayPerSum"),
+    overlayMistakes: document.getElementById("overlayMistakes"),
+    overlayLongestStreak: document.getElementById("overlayLongestStreak"),
+    closeOverlayBtn: document.getElementById("closeOverlayBtn"),
+    settingsBtn: document.getElementById("settingsBtn"),
+    settingsBackdrop: document.getElementById("settingsBackdrop"),
+    closeSettings: document.getElementById("closeSettings"),
+    themeBlueBtn: document.getElementById("themeBlueBtn"),
+    themePinkBtn: document.getElementById("themePinkBtn"),
+    mistakePenaltyField: document.getElementById("mistakePenaltyField"),
+    mistakePenaltyVal: document.getElementById("mistakePenaltyVal"),
+    mistakePenaltyUp: document.getElementById("mistakePenaltyUp"),
+    mistakePenaltyDown: document.getElementById("mistakePenaltyDown"),
+    opGridLabel: document.getElementById("opGridLabel"),
+    opGrid: document.getElementById("opGrid"),
+    soundSwitch: document.getElementById("soundSwitch"),
+    formatSwitch: document.getElementById("formatSwitch"),
+    timerSelect: document.getElementById("timerSelect"),
+    timerWrap: document.getElementById("timerWrap"),
+    timerFill: document.getElementById("timerFill"),
+    settingsTabGeneralBtn: document.getElementById("settingsTabGeneralBtn"),
+    settingsTabLeitnerBtn: document.getElementById("settingsTabLeitnerBtn"),
+    tabGeneral: document.getElementById("tabGeneral"),
+    tabLeitner: document.getElementById("tabLeitner"),
+    leitnerSwitch: document.getElementById("leitnerSwitch"),
+    leitnerBatchSelect: document.getElementById("leitnerBatchSelect"),
+    leitnerDueText: document.getElementById("leitnerDueText"),
+    leitnerBox1: document.getElementById("leitnerBox1"),
+    leitnerBox2: document.getElementById("leitnerBox2"),
+    leitnerBox3: document.getElementById("leitnerBox3"),
+    leitnerMastered: document.getElementById("leitnerMastered"),
+    leitnerResetBtn: document.getElementById("leitnerResetBtn"),
+    leitnerStatsTiles: document.getElementById("leitnerStatsTiles"),
+    leitnerBoxBackdrop: document.getElementById("leitnerBoxBackdrop"),
+    closeLeitnerBox: document.getElementById("closeLeitnerBox"),
+    leitnerBoxTitle: document.getElementById("leitnerBoxTitle"),
+    leitnerBoxTabs: document.getElementById("leitnerBoxTabs"),
+    leitnerBoxList: document.getElementById("leitnerBoxList"),
+    leitnerBoxEmpty: document.getElementById("leitnerBoxEmpty"),
+    leitnerPanel: document.getElementById("leitnerPanel"),
+    lpBox1: document.getElementById("lpBox1"),
+    lpBox2: document.getElementById("lpBox2"),
+    lpBox3: document.getElementById("lpBox3"),
+    lpMastered: document.getElementById("lpMastered"),
+    leitnerTodayText: document.getElementById("leitnerTodayText"),
+    historyBtn: document.getElementById("historyBtn"),
+    restartBtn: document.getElementById("restartBtn"),
+    restartBackdrop: document.getElementById("restartBackdrop"),
+    closeRestart: document.getElementById("closeRestart"),
+    confirmRestartBtn: document.getElementById("confirmRestartBtn"),
+    cancelRestartBtn: document.getElementById("cancelRestartBtn"),
+    historyBackdrop: document.getElementById("historyBackdrop"),
+    closeHistory: document.getElementById("closeHistory"),
+    historyEmpty: document.getElementById("historyEmpty"),
+    historyContent: document.getElementById("historyContent"),
+    statRounds: document.getElementById("statRounds"),
+    statAvgTime: document.getElementById("statAvgTime"),
+    statMistakes: document.getElementById("statMistakes"),
+    chartSpeed: document.getElementById("chartSpeed"),
+    chartMistakes: document.getElementById("chartMistakes"),
+    historyTableBody: document.getElementById("historyTableBody"),
+    clearHistoryBtn: document.getElementById("clearHistoryBtn")
+  };
+
+  var TRACK_TOP = 38, TRACK_BOTTOM_PAD = 44; // px reserved for goal marker / launchpad
+
+  var current = null;
+  var lastSum = null;
+  var locked = false;
+  var audioCtx = null;
+  var timer = { handle: null, startTs: 0, durationMs: 0, remainingMs: 0, running: false, paused: false };
+  var sumShownAt = 0;
+  var atBatchCheckpoint = false;
+  var rocketPositioned = false;
+  var flashHandle = null;
+
+  var ICON_CHECK = '<svg width="110" height="110" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="11" fill="rgba(255,200,87,0.16)" stroke="#FFC857" stroke-width="1.5"/><path d="M7 12.3l3.2 3.2L17 8.7" stroke="#FFC857" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  var ICON_CROSS = '<svg width="110" height="110" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="11" fill="rgba(206,131,152,0.16)" stroke="#CE8398" stroke-width="1.5"/><path d="M8.3 8.3l7.4 7.4M15.7 8.3l-7.4 7.4" stroke="#CE8398" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+
+  function flashResult(correct){
+    clearTimeout(flashHandle);
+    el.resultFlash.innerHTML = correct ? ICON_CHECK : ICON_CROSS;
+    el.resultFlash.classList.remove("show");
+    void el.resultFlash.offsetWidth;
+    el.resultFlash.classList.add("show");
+    el.sumCard.classList.remove("flash-good", "flash-wrong");
+    el.cardTint.classList.remove("flash-good", "flash-wrong");
+    void el.sumCard.offsetWidth;
+    el.sumCard.classList.add(correct ? "flash-good" : "flash-wrong");
+    el.cardTint.classList.add(correct ? "flash-good" : "flash-wrong");
+    flashHandle = setTimeout(function(){
+      el.resultFlash.classList.remove("show");
+      el.sumCard.classList.remove("flash-good", "flash-wrong");
+      el.cardTint.classList.remove("flash-good", "flash-wrong");
+    }, correct ? 560 : 420);
+  }
+
+  /* ---------------- sound ---------------- */
+  function ensureAudio(){
+    if(!state.sound) return null;
+    if(!audioCtx){
+      try{ audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }catch(e){ return null; }
+    }
+    return audioCtx;
+  }
+  function beep(freqs, dur, type, gain){
+    var ctx = ensureAudio();
+    if(!ctx) return;
+    var t = ctx.currentTime;
+    freqs.forEach(function(f, i){
+      var osc = ctx.createOscillator();
+      var g = ctx.createGain();
+      osc.type = type || "sine";
+      osc.frequency.value = f;
+      g.gain.value = 0;
+      osc.connect(g); g.connect(ctx.destination);
+      var start = t + i*dur;
+      g.gain.setValueAtTime(0, start);
+      g.gain.linearRampToValueAtTime(gain || 0.12, start + 0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001, start + dur);
+      osc.start(start);
+      osc.stop(start + dur + 0.02);
+    });
+  }
+  function playCorrect(bonus){
+    beep(bonus ? [523,659,784,1046] : [523,784], 0.11, "triangle", 0.14);
+  }
+  function playRetry(){
+    beep([220], 0.16, "sine", 0.08);
+  }
+  function playGoal(){
+    beep([523,659,784,1046,1318], 0.14, "triangle", 0.16);
+  }
+
+  /* ---------------- sums ---------------- */
+  function randInt(min, max){ return Math.floor(Math.random()*(max-min+1))+min; }
+
+  function shuffleArray(arr){
+    for(var i = arr.length - 1; i > 0; i--){
+      var j = Math.floor(Math.random() * (i + 1));
+      var tmp = arr[i]; arr[i] = arr[j]; arr[j] = tmp;
+    }
+    return arr;
+  }
+
+  function opMaxFor(op){
+    var def = OP_DEFS.filter(function(d){ return d.symbol === op; })[0];
+    return def ? (state[def.maxKey] || 10) : 10;
+  }
+
+  /* "Tot" limits the number range per soort: for + and - it caps the sum
+     resp. the minuend, for × and ÷ it caps the tafel (the factor / divisor
+     that's stepped through 1-10) so e.g. "tafels tot 3" only drills tafel
+     van 1 t/m 3. */
+  function genNumbersForOp(op){
+    var max = opMaxFor(op);
+    var a, b;
+    if(op === "+"){
+      do{ a = randInt(0, max); b = randInt(0, max); } while(a + b > max);
+      return { a: a, b: b, result: a + b };
+    } else if(op === "-"){
+      do{ a = randInt(0, max); b = randInt(0, max); } while(b > a);
+      return { a: a, b: b, result: a - b };
+    } else if(op === "×"){
+      a = randInt(1, max); b = randInt(1, 10);
+      return { a: a, b: b, result: a * b };
+    } else { // "÷"
+      b = randInt(1, max);
+      var q = randInt(1, 10);
+      return { a: b * q, b: b, result: q };
+    }
+  }
+
+  /* ---------------- Leitner (3 boxes) ---------------- */
+  var leitnerCards = {}; // cardId -> { op, a, b, result, box, mastered }
+
+  /* The Leitner box rules themselves (due-today, promote/demote, combo
+     generation, box counting/listing) live in leitner.js -- a DOM-free
+     module with its own Node test suite (test/leitner.test.js). These are
+     thin wrappers binding that pure logic to this app's `leitnerCards`
+     map and its IndexedDB persistence, kept under their original names so
+     every call site elsewhere in this file is untouched. */
+  function epochDay(){ return Leitner.epochDay(); }
+  function boxDueToday(box){ return Leitner.boxDueToday(box); }
+
+  function seedLeitnerBoxOne(){
+    var opDefs = OP_DEFS.filter(function(def){ return state[def.enabledKey]; })
+      .map(function(def){ return { symbol: def.symbol, max: state[def.maxKey] }; });
+    var entries = Leitner.buildSeedEntries(opDefs);
+    entries.forEach(function(e){ leitnerCards[e.id] = e.record; });
+    persistLeitnerCards(entries);
+  }
+
+  /* A correct answer only promotes a card when it came within 3 seconds
+     (answered from the 4th second on leaves it in its current box), for
+     every box transition -- see Leitner.promoteCard in leitner.js. */
+  function promoteLeitnerCard(id, fast){
+    var card = leitnerCards[id];
+    if(!card) return;
+    Leitner.promoteCard(card, fast);
+    persistLeitnerCard(id, card);
+  }
+  function demoteLeitnerCard(id){
+    var card = leitnerCards[id];
+    if(!card) return;
+    Leitner.demoteCard(card);
+    persistLeitnerCard(id, card);
+  }
+
+  function pickEntryForOp(def, excludeIds){
+    if(state.leitnerEnabled){
+      var pool = Leitner.dueCardsForOp(leitnerCards, def.symbol).filter(function(entry){
+        return !excludeIds || !excludeIds.has(entry.id);
+      });
+      if(pool.length === 0) return { op: def.symbol };
+      var chosen = pool[randInt(0, pool.length - 1)];
+      if(excludeIds) excludeIds.add(chosen.id);
+      return { op: def.symbol, a: chosen.card.a, b: chosen.card.b, result: chosen.card.result, cardId: chosen.id };
+    }
+    return { op: def.symbol };
+  }
+
+  /* The round's operation mix is planned up front and shuffled, instead of
+     independent draws that can streak or drift from the configured counts.
+     Non-Leitner: one entry per opgave, per the enabled types' counts.
+     Leitner: the "aantal" setting doesn't apply -- every card due today
+     (across enabled types) MUST be included, that's the day's full
+     workload. Box 1 is seeded in full with every combination on reset
+     (see seedLeitnerBoxOne), so no new cards get invented here -- cards
+     only ever move between boxes. */
+  var opQueue = [];
+  function buildOpQueue(){
+    var q = [];
+    OP_DEFS.forEach(function(def){
+      if(!state[def.enabledKey]) return;
+      if(state.leitnerEnabled){
+        Leitner.dueCardsForOp(leitnerCards, def.symbol).forEach(function(entry){
+          q.push({ op: def.symbol, a: entry.card.a, b: entry.card.b, result: entry.card.result, cardId: entry.id });
+        });
+      } else {
+        for(var j = 0; j < state[def.countKey]; j++) q.push(pickEntryForOp(def));
+      }
+    });
+    /* An empty queue is a real, valid state in Leitner mode -- nothing due
+       today -- so it must stay 0, not get padded with a phantom opgave.
+       In classic mode at least one type is always enabled (the UI won't
+       let you turn off the last one), so this fallback never actually
+       fires there; it only guards a truly pathological state. */
+    if(q.length === 0 && !state.leitnerEnabled) q.push(pickEntryForOp(OP_DEFS[0]));
+    opQueue = shuffleArray(q);
+  }
+  function syncLeitnerTarget(){
+    state.target = opQueue.length;
+    state.roundTarget = state.correct + state.target;
+  }
+  function nextEntry(){
+    if(opQueue.length > 0) return opQueue.pop();
+    /* Extra opgaven beyond the planned queue (e.g. mistake penalty):
+       draw randomly from whichever types are currently enabled. */
+    var enabled = OP_DEFS.filter(function(def){ return state[def.enabledKey]; });
+    if(enabled.length === 0) enabled = [OP_DEFS[0]];
+    return pickEntryForOp(enabled[randInt(0, enabled.length - 1)]);
+  }
+  var slotBag = [];
+  function nextSlot(){
+    if(slotBag.length === 0){
+      slotBag = shuffleArray(["result", "a", "b"]);
+    }
+    return slotBag.pop();
+  }
+
+  function generateSum(){
+    atBatchCheckpoint = false;
+    var entry = nextEntry();
+    var candidate, tries = 0;
+    if(typeof entry.a === "number"){
+      candidate = { a: entry.a, b: entry.b, op: entry.op, result: entry.result };
+    } else {
+      do{
+        var nums = genNumbersForOp(entry.op);
+        candidate = { a: nums.a, b: nums.b, op: entry.op, result: nums.result };
+        tries++;
+      } while(lastSum && candidate.a === lastSum.a && candidate.b === lastSum.b && candidate.op === lastSum.op && tries < 25);
+    }
+    candidate.cardId = entry.cardId || null;
+    candidate.timedOut = false;
+
+    var unknown = state.mixedFormats ? nextSlot() : "result";
+    candidate.unknown = unknown;
+    candidate.answer = unknown === "a" ? candidate.a : unknown === "b" ? candidate.b : candidate.result;
+
+    current = candidate;
+    lastSum = { a: candidate.a, b: candidate.b, op: candidate.op };
+    renderSum();
+    buildAnswerPad();
+    startTimerForCurrentSum();
+  }
+
+  function renderSum(){
+    el.numA.classList.remove("q");
+    el.numB.classList.remove("q");
+    el.qEl.classList.remove("q");
+    el.opEl.textContent = current.op;
+    if(current.unknown === "a"){
+      el.numA.textContent = "?"; el.numA.classList.add("q");
+      el.numB.textContent = current.b;
+      el.qEl.textContent = current.result;
+    } else if(current.unknown === "b"){
+      el.numA.textContent = current.a;
+      el.numB.textContent = "?"; el.numB.classList.add("q");
+      el.qEl.textContent = current.result;
+    } else {
+      el.numA.textContent = current.a;
+      el.numB.textContent = current.b;
+      el.qEl.textContent = "?"; el.qEl.classList.add("q");
+    }
+    renderBlocks();
+  }
+
+  function blocksSupported(){
+    return current.op === "+" || current.op === "-";
+  }
+
+  function revealAnswer(n){
+    if(current.unknown === "a"){ el.numA.textContent = n; }
+    else if(current.unknown === "b"){ el.numB.textContent = n; }
+    else { el.qEl.textContent = n; }
+    if(state.blocksEnabled && blocksSupported()){
+      var container = current.unknown === "a" ? el.blocksA : current.unknown === "b" ? el.blocksB : el.blocksResult;
+      var count = current.unknown === "a" ? current.a : current.unknown === "b" ? current.b : current.result;
+      fillCluster(container, count, true);
+    }
+  }
+
+  function fillCluster(container, count, show){
+    container.innerHTML = "";
+    if(!show || count === 0) return;
+    for(var i = 0; i < count; i++){
+      var cell = document.createElement("div");
+      cell.className = "block-cell";
+      container.appendChild(cell);
+    }
+  }
+
+  function renderBlocks(){
+    if(!state.blocksEnabled || !blocksSupported()){ el.blocksRow.hidden = true; return; }
+    el.blocksRow.hidden = false;
+    el.blocksOp.textContent = current.op;
+    fillCluster(el.blocksA, current.a, current.unknown !== "a");
+    fillCluster(el.blocksB, current.b, current.unknown !== "b");
+    fillCluster(el.blocksResult, current.result, current.unknown !== "result");
+  }
+
+  /* Add/sub answers always fall in 0-10, so a tap-numpad works. Mul/div
+     answers can run up to 100, so those sums get a digit keypad instead. */
+  function needsDigitPad(){
+    return current.answer > 10;
+  }
+
+  function buildTapPad(){
+    el.numpad.innerHTML = "";
+    for(var n=0; n<=10; n++){
+      var btn = document.createElement("button");
+      btn.className = "numkey";
+      btn.type = "button";
+      btn.textContent = n;
+      btn.setAttribute("data-n", n);
+      btn.addEventListener("click", function(e){
+        if(locked) return;
+        handleAnswer(parseInt(e.currentTarget.getAttribute("data-n"), 10), e.currentTarget);
+      });
+      el.numpad.appendChild(btn);
+    }
+  }
+
+  var typedDigits = "";
+  function digitDisplayEl(){
+    return current.unknown === "a" ? el.numA : current.unknown === "b" ? el.numB : el.qEl;
+  }
+  function updateDigitDisplay(){
+    digitDisplayEl().textContent = typedDigits.length ? typedDigits : "?";
+  }
+
+  function buildDigitPad(){
+    typedDigits = "";
+    el.numpad.innerHTML = "";
+    var pad = document.createElement("div");
+    pad.className = "digit-pad";
+    var layout = ["1","2","3","4","5","6","7","8","9","back","0","ok"];
+    layout.forEach(function(k){
+      var btn = document.createElement("button");
+      btn.type = "button";
+      if(k === "back"){
+        btn.className = "digit-key backspace";
+        btn.innerHTML = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 4 3 12l6 8h11a1 1 0 0 0 1-1V5a1 1 0 0 0-1-1H9Z" stroke-linejoin="round"/><path d="m11 9 6 6M17 9l-6 6" stroke-linecap="round"/></svg>';
+        btn.setAttribute("aria-label", "Wis cijfer");
+        btn.addEventListener("click", function(){
+          if(locked) return;
+          typedDigits = typedDigits.slice(0, -1);
+          updateDigitDisplay();
+        });
+      } else if(k === "ok"){
+        btn.className = "digit-key submit";
+        btn.innerHTML = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12.5 10 17l9-10" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+        btn.setAttribute("aria-label", "Antwoord bevestigen");
+        btn.addEventListener("click", function(e){ submitDigitAnswer(e.currentTarget); });
+      } else {
+        btn.className = "digit-key";
+        btn.textContent = k;
+        btn.addEventListener("click", function(e){
+          if(locked) return;
+          if(typedDigits.length >= 3) return;
+          typedDigits += e.currentTarget.textContent;
+          updateDigitDisplay();
+        });
+      }
+      pad.appendChild(btn);
+    });
+    el.numpad.appendChild(pad);
+    updateDigitDisplay();
+  }
+
+  function submitDigitAnswer(btn){
+    if(locked || typedDigits.length === 0) return;
+    handleAnswer(parseInt(typedDigits, 10), btn);
+  }
+
+  function buildAnswerPad(){
+    if(needsDigitPad()) buildDigitPad();
+    else buildTapPad();
+  }
+
+  document.addEventListener("keydown", function(e){
+    if(locked) return;
+    if(!el.numpad.querySelector(".digit-pad")) return;
+    if(/^[0-9]$/.test(e.key)){
+      if(typedDigits.length < 3){ typedDigits += e.key; updateDigitDisplay(); }
+    } else if(e.key === "Backspace"){
+      typedDigits = typedDigits.slice(0, -1); updateDigitDisplay();
+    } else if(e.key === "Enter"){
+      submitDigitAnswer(el.numpad.querySelector(".submit"));
+    }
+  });
+
+  var encouragements = ["Goed zo!", "Knap gedaan!", "Raket stijgt!", "Top!", "Super!"];
+  var retryLines = ["Bijna! Probeer nog eens.", "Niet helemaal, nog een poging.", "Kijk nog eens goed."];
+
+  function handleAnswer(n, highlightEl){
+    if(locked) return;
+
+    /* Time already ran out on this opgave (see onTimeUp): the wrong-path
+       consequences already fired there, so whatever gets answered now is
+       just an acknowledgement -- never scored as correct -- before moving
+       on to the next opgave. */
+    if(current.timedOut){
+      locked = true;
+      if(highlightEl) highlightEl.classList.add("wrong");
+      flashResult(false);
+      revealAnswer(current.answer);
+      el.feedback.textContent = "Tijd was al op. Volgende opgave.";
+      el.feedback.className = "feedback retry";
+      setTimeout(function(){
+        if(highlightEl) highlightEl.classList.remove("wrong");
+        if(el.numpad.querySelector(".digit-pad")){
+          typedDigits = "";
+          updateDigitDisplay();
+        }
+        locked = false;
+        generateSum();
+        el.feedback.textContent = "Kies het juiste antwoord!";
+        el.feedback.className = "feedback";
+      }, 700);
+      return;
+    }
+
+    if(n === current.answer){
+      locked = true;
+      timerStop();
+      if(highlightEl) highlightEl.classList.add("correct");
+      flashResult(true);
+      revealAnswer(n);
+      if(current.cardId) promoteLeitnerCard(current.cardId, elapsedForCurrentSum() < 3000);
+      state.correct++;
+      state.streak++;
+      if(state.streak > state.roundLongestStreak) state.roundLongestStreak = state.streak;
+      saveState();
+      var bonus = state.streak > 0 && state.streak % 5 === 0;
+      playCorrect(bonus);
+      el.feedback.textContent = bonus ? "Superstreak! " + encouragements[randInt(0,encouragements.length-1)] : encouragements[randInt(0,encouragements.length-1)];
+      el.feedback.className = "feedback good";
+      updateProgressUI(true, bonus);
+      if(!reduceMotion) burstRocketSpark();
+
+      setTimeout(function(){
+        if(highlightEl) highlightEl.classList.remove("correct");
+        locked = false;
+        if(state.correct >= state.roundTarget){
+          showGoal();
+        } else if(state.leitnerEnabled && state.correct % state.leitnerBatchSize === 0){
+          showBatchCheckpoint();
+        } else {
+          generateSum();
+          el.feedback.textContent = "Kies het juiste antwoord!";
+          el.feedback.className = "feedback";
+        }
+      }, 620);
+    } else {
+      if(highlightEl) highlightEl.classList.add("wrong");
+      flashResult(false);
+      if(current.cardId) demoteLeitnerCard(current.cardId);
+      state.streak = 0;
+      state.roundMistakes++;
+      /* Not under Leitner: a mistake already sends the card back to box 1
+         for a future review, so it doesn't also inflate today's target. */
+      if(!state.leitnerEnabled && state.mistakePenalty > 0){
+        state.roundTarget += state.mistakePenalty;
+      }
+      saveState();
+      playRetry();
+      el.feedback.textContent = retryLines[randInt(0,retryLines.length-1)];
+      el.feedback.className = "feedback retry";
+      updateProgressUI();
+      setTimeout(function(){
+        if(highlightEl) highlightEl.classList.remove("wrong");
+        if(el.numpad.querySelector(".digit-pad")){
+          typedDigits = "";
+          updateDigitDisplay();
+        }
+      }, 350);
+    }
+  }
+
+  function updateProgressUI(animateExtra){
+    var frac = state.roundTarget > 0 ? Math.max(0, Math.min(1, state.correct / state.roundTarget)) : 1;
+    var railH = el.skyRail.clientHeight || 300;
+    var usable = railH - TRACK_TOP - TRACK_BOTTOM_PAD;
+    var bottom = 22 + frac * Math.max(0, usable);
+    if(!rocketPositioned){
+      /* First paint after a page load restores whatever position today's
+         progress already earned -- that's not a fresh climb, so it must
+         land there instantly, not visibly fly up from the launchpad. */
+      rocketPositioned = true;
+      el.rocket.style.transition = "none";
+      el.rocket.style.bottom = bottom + "px";
+      void el.rocket.offsetWidth;
+      el.rocket.style.transition = "";
+    } else {
+      el.rocket.style.bottom = bottom + "px";
+    }
+    el.railCorrect.textContent = state.correct;
+    el.railTarget.textContent = state.roundTarget;
+    updateStreakUI();
+    refreshLeitnerPanel();
+  }
+  function updateStreakUI(){
+    el.streakCount.textContent = state.streak;
+    /* Never let a leftover streak badge (e.g. "8 op een rij") reappear
+       while a gate (start/resume/done screen) is up -- updateProgressUI()
+       can run after a gate is shown and must not undo its hiding. */
+    if(state.streak >= 2 && !atBatchCheckpoint){ el.streakEl.classList.add("show"); }
+    else { el.streakEl.classList.remove("show"); }
+    var flameScale = state.streak >= 5 ? 1.35 : state.streak >= 2 ? 1.15 : 1;
+    el.flameBoost.style.transform = "scale(" + flameScale + ")";
+  }
+
+  function burstRocketSpark(){
+    el.rocketSpark.classList.remove("burst");
+    void el.rocketSpark.offsetWidth;
+    el.rocketSpark.classList.add("burst");
+  }
+
+  /* Persisted on state (not a throwaway in-memory object) so a round's
+     stats -- duration, mistakes, timeouts, longest streak -- survive a
+     page reload mid-round instead of silently resetting to 0, which used
+     to make the "TV-tijd verdiend" screen's numbers wrong for any round
+     that spanned more than one page load (e.g. every gate/refresh cycle). */
+  function startRoundTracking(){
+    state.roundStartTs = Date.now();
+    state.roundMistakes = 0;
+    state.roundTimeouts = 0;
+    state.roundLongestStreak = 0;
+  }
+
+  function formatDuration(ms){
+    var sec = Math.round(ms / 1000);
+    return sec >= 60 ? Math.floor(sec / 60) + "m " + (sec % 60) + "s" : sec + "s";
+  }
+
+  /* justFinished is false when we're merely re-displaying "nothing left"
+     (app reopened, or "Nieuwe ronde starten" pressed with no due cards left)
+     rather than reacting to the answer that just completed the reeks --
+     that re-display shouldn't replay confetti/sound or log a fresh, empty
+     history entry. */
+  function showGoal(justFinished){
+    if(justFinished === undefined) justFinished = true;
+    showRoundDoneState();
+    var durationMs = Date.now() - state.roundStartTs;
+    el.overlayText.textContent = state.leitnerEnabled
+      ? "Geen opgaven meer voor vandaag! Proficiat!"
+      : "Je hebt " + state.roundTarget + " opgaven juist gemaakt. Goed gedaan, ga het maar zeggen!";
+    el.overlayDuration.textContent = formatDuration(durationMs);
+    el.overlayPerSum.textContent = state.roundTarget > 0 ? ((durationMs / state.roundTarget) / 1000).toFixed(1) + "s" : "-";
+    el.overlayMistakes.textContent = state.roundMistakes;
+    el.overlayLongestStreak.textContent = state.roundLongestStreak;
+    el.goalOverlay.hidden = false;
+    if(!justFinished) return;
+    playGoal();
+    if(!reduceMotion) runConfetti();
+    var histSettings = { mixedFormats: state.mixedFormats, blocksEnabled: state.blocksEnabled, timerSeconds: state.timerSeconds, mistakePenalty: state.mistakePenalty, leitnerEnabled: state.leitnerEnabled };
+    OP_DEFS.forEach(function(def){
+      histSettings[def.enabledKey] = state[def.enabledKey];
+      histSettings[def.countKey] = state[def.countKey];
+    });
+    addHistoryEntry({
+      ts: Date.now(),
+      target: state.roundTarget,
+      durationMs: durationMs,
+      mistakes: state.roundMistakes,
+      timeouts: state.roundTimeouts,
+      longestStreak: state.roundLongestStreak,
+      settings: histSettings
+    });
+  }
+
+  /* Neither mode auto-shows a sum -- opening the app, closing the settings
+     menu, and (Leitner-only) the pause every 15 correct answers all land
+     here first: a plain start screen with just a button, no exercise
+     visible underneath, until the child explicitly presses it. */
+  function hideExerciseVisuals(){
+    atBatchCheckpoint = true;
+    timerStop();
+    /* Hide the rocket and its "X/Y opgaven" readout, but leave the sky-rail
+       panel itself showing -- an empty backdrop looks fine, a fully blank
+       gap where the panel used to be does not. */
+    el.rocket.hidden = true;
+    el.railFooter.hidden = true;
+    el.timerWrap.hidden = true;
+    el.sumEl.hidden = true;
+    el.blocksRow.hidden = true;
+    el.streakEl.classList.remove("show");
+    el.numpad.innerHTML = "";
+  }
+  function showExerciseGate(buttonLabel, message){
+    hideExerciseVisuals();
+    var btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "primary-btn";
+    btn.textContent = buttonLabel;
+    btn.addEventListener("click", function(){
+      el.rocket.hidden = false;
+      el.railFooter.hidden = false;
+      el.sumEl.hidden = false;
+      generateSum();
+      el.feedback.textContent = "Kies het juiste antwoord!";
+      el.feedback.className = "feedback";
+    });
+    el.numpad.appendChild(btn);
+    el.feedback.textContent = message;
+    el.feedback.className = "feedback good";
+  }
+  function showBatchCheckpoint(){
+    var remaining = Math.max(0, state.roundTarget - state.correct);
+    showExerciseGate("Volgende reeks voor vandaag →", "Blok klaar! Nog " + remaining + " opgave" + (remaining === 1 ? "" : "n") + " te gaan vandaag.");
+  }
+  function showStartGate(){
+    showExerciseGate("Start reeks →", "Klaar om te starten met de opgaven van vandaag?");
+  }
+  function showBeginGate(){
+    showExerciseGate("Start →", "Klaar om te beginnen?");
+  }
+  function showResumeGate(){
+    showExerciseGate("Verder →", "Klaar om verder te gaan?");
+  }
+  /* What's waiting on the main play screen once the "TV-tijd verdiend"
+     overlay gets closed (via its own plain "Sluiten" button, which no
+     longer starts anything itself). Leitner has nothing actionable left
+     for today, so it's just a message; classic mode can always start
+     another round on demand, so that's an actual button. */
+  function showRoundDoneState(){
+    hideExerciseVisuals();
+    if(state.leitnerEnabled){
+      el.feedback.textContent = "Geen opgaven meer voor vandaag.";
+      el.feedback.className = "feedback good";
+    } else {
+      var btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "primary-btn";
+      btn.textContent = "Nieuwe ronde starten";
+      btn.addEventListener("click", newRound);
+      el.numpad.appendChild(btn);
+      el.feedback.textContent = "Ronde klaar!";
+      el.feedback.className = "feedback good";
+    }
+  }
+
+  function newRound(){
+    state.correct = 0;
+    state.streak = 0;
+    buildOpQueue();
+    if(state.leitnerEnabled){
+      state.leitnerDay = epochDay();
+      syncLeitnerTarget();
+    } else {
+      state.target = computeTarget(state);
+      state.roundTarget = state.target;
+    }
+    startRoundTracking();
+    saveState();
+    el.goalOverlay.hidden = true;
+    updateProgressUI();
+    /* newRound() is only ever called from an explicit user action (restart
+       confirmed, or "Nieuwe ronde starten" on the done screen) -- that
+       click already IS the start gesture, so it goes straight into the
+       first sum rather than putting yet another gate in front of it. */
+    if(state.leitnerEnabled && opQueue.length === 0){
+      showGoal(false);
+    } else {
+      el.rocket.hidden = false;
+      el.railFooter.hidden = false;
+      el.sumEl.hidden = false;
+      generateSum();
+      el.feedback.textContent = "Kies het juiste antwoord!";
+      el.feedback.className = "feedback";
+    }
+  }
+
+  /* ---------------- timer per opgave ---------------- */
+  function timerStop(){
+    clearTimeout(timer.handle);
+    timer.handle = null;
+    timer.running = false;
+    timer.paused = false;
+  }
+  function timerAnimateTo(ms){
+    el.timerFill.style.transition = "none";
+    void el.timerFill.offsetWidth;
+    requestAnimationFrame(function(){
+      el.timerFill.style.transition = "width " + (ms/1000) + "s linear";
+      el.timerFill.style.width = "0%";
+    });
+    timer.startTs = Date.now();
+    timer.durationMs = ms;
+    timer.handle = setTimeout(onTimeUp, ms);
+    timer.running = true;
+    timer.paused = false;
+  }
+  /* Just one plain green bar, running down over the duration set in
+     settings ("Tijd per opgave") -- no bar at all when that's "-", in
+     either mode. Leitner's own fast-answer bonus (elapsedForCurrentSum,
+     see promoteLeitnerCard) is judged the same way regardless of whether
+     a bar is shown. */
+  function startTimerForCurrentSum(){
+    sumShownAt = Date.now();
+    timerStop();
+    var hasDuration = state.timerSeconds > 0;
+    el.timerWrap.hidden = !hasDuration;
+    if(!hasDuration) return;
+    el.timerFill.style.transition = "none";
+    el.timerFill.style.width = "100%";
+    void el.timerFill.offsetWidth;
+    timerAnimateTo(state.timerSeconds * 1000);
+  }
+  function elapsedForCurrentSum(){
+    return Date.now() - sumShownAt;
+  }
+  function timerPause(){
+    if(!timer.running || timer.paused) return;
+    clearTimeout(timer.handle);
+    var elapsed = Date.now() - timer.startTs;
+    timer.remainingMs = Math.max(0, timer.durationMs - elapsed);
+    var computed = getComputedStyle(el.timerFill).width;
+    el.timerFill.style.transition = "none";
+    el.timerFill.style.width = computed;
+    timer.paused = true;
+  }
+  function timerResume(){
+    if(atBatchCheckpoint || current.timedOut) return;
+    var hasDuration = state.timerSeconds > 0;
+    if(hasDuration && timer.paused){
+      timerAnimateTo(timer.remainingMs);
+    } else if(hasDuration && !timer.running){
+      startTimerForCurrentSum();
+    } else if(!hasDuration){
+      timerStop();
+      el.timerWrap.hidden = true;
+    }
+  }
+  /* Time's up counts as wrong right away (Leitner card back to box 1 /
+     mistakePenalty extra opgaven), but doesn't advance to the next opgave --
+     the bar stays empty and the child still has to answer (see handleAnswer's
+     current.timedOut branch), it just can never be scored as correct. */
+  function onTimeUp(){
+    if(!el.goalOverlay.hidden || current.timedOut) return;
+    current.timedOut = true;
+    timerStop();
+    el.timerFill.style.transition = "none";
+    el.timerFill.style.width = "0%";
+    state.streak = 0;
+    state.roundTimeouts++;
+    state.roundMistakes++;
+    if(current.cardId) demoteLeitnerCard(current.cardId);
+    if(!state.leitnerEnabled && state.mistakePenalty > 0){
+      state.roundTarget += state.mistakePenalty;
+    }
+    saveState();
+    updateStreakUI();
+    updateProgressUI();
+    playRetry();
+    el.feedback.textContent = "Tijd op! Geef toch je antwoord.";
+    el.feedback.className = "feedback retry";
+  }
+
+  /* ---------------- confetti ---------------- */
+  function runConfetti(){
+    var canvas = document.getElementById("confetti");
+    var ctx = canvas.getContext("2d");
+    function size(){ canvas.width = canvas.offsetWidth; canvas.height = canvas.offsetHeight; }
+    size();
+    var colors = ["#FFC857","#FF6B4A","#F4F1FF","#8A6A22"];
+    var parts = [];
+    for(var i=0;i<80;i++){
+      parts.push({
+        x: Math.random()*canvas.width,
+        y: -20 - Math.random()*canvas.height*0.5,
+        r: 3 + Math.random()*4,
+        c: colors[randInt(0,colors.length-1)],
+        vy: 1.5 + Math.random()*2.5,
+        vx: -1 + Math.random()*2,
+        rot: Math.random()*Math.PI,
+        vr: -0.1 + Math.random()*0.2
+      });
+    }
+    var frames = 0, maxFrames = 220;
+    function tick(){
+      if(el.goalOverlay.hidden) return;
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+      parts.forEach(function(p){
+        p.x += p.vx; p.y += p.vy; p.rot += p.vr;
+        if(p.y > canvas.height + 20){ p.y = -20; p.x = Math.random()*canvas.width; }
+        ctx.save();
+        ctx.translate(p.x, p.y);
+        ctx.rotate(p.rot);
+        ctx.fillStyle = p.c;
+        ctx.fillRect(-p.r/2, -p.r/2, p.r, p.r*1.6);
+        ctx.restore();
+      });
+      frames++;
+      if(frames < maxFrames) requestAnimationFrame(tick);
+    }
+    tick();
+  }
+
+  /* ---------------- settings UI ---------------- */
+  var COUNT_OPTIONS = [5,10,15,20,25,30,35,40,45,50,55,60];
+
+  /* Leitner's "reeks": a pause with a "Volgende reeks voor vandaag" button
+     every leitnerBatchSize correct answers, instead of running the whole
+     day's due cards as one long stretch (see showBatchCheckpoint). */
+  function buildLeitnerBatchSelect(){
+    COUNT_OPTIONS.forEach(function(v){
+      var opt = document.createElement("option");
+      opt.value = v; opt.textContent = v;
+      el.leitnerBatchSelect.appendChild(opt);
+    });
+    el.leitnerBatchSelect.addEventListener("change", function(){
+      state.leitnerBatchSize = parseInt(el.leitnerBatchSelect.value, 10);
+      syncSettingsUI(); saveState();
+    });
+  }
+
+  function buildOpGrid(){
+    el.opGrid.innerHTML = "";
+    OP_DEFS.forEach(function(def){
+      var row = document.createElement("label");
+      row.className = "op-row";
+      row.setAttribute("data-op", def.key);
+      var chk = document.createElement("input");
+      chk.type = "checkbox";
+      row.appendChild(chk);
+      row.appendChild(document.createTextNode(def.label));
+      el.opGrid.appendChild(row);
+
+      var select = document.createElement("select");
+      select.className = "op-count-select";
+      select.setAttribute("aria-label", "Aantal " + def.label.toLowerCase());
+      COUNT_OPTIONS.forEach(function(v){
+        var opt = document.createElement("option");
+        opt.value = v; opt.textContent = v;
+        select.appendChild(opt);
+      });
+      el.opGrid.appendChild(select);
+
+      var maxSelect = document.createElement("select");
+      maxSelect.className = "op-max-select";
+      maxSelect.setAttribute("aria-label", "Tot welk getal " + def.label.toLowerCase());
+      def.maxOptions.forEach(function(v){
+        var opt = document.createElement("option");
+        opt.value = v; opt.textContent = "tot " + v;
+        maxSelect.appendChild(opt);
+      });
+      el.opGrid.appendChild(maxSelect);
+
+      chk.addEventListener("change", function(){ toggleOpEnabled(def); });
+      select.addEventListener("change", function(){ setOpCount(def, parseInt(select.value, 10)); });
+      maxSelect.addEventListener("change", function(){ setOpMax(def, parseInt(maxSelect.value, 10)); });
+
+      def._chk = chk;
+      def._select = select;
+      def._maxSelect = maxSelect;
+    });
+  }
+
+  function toggleOpEnabled(def){
+    var otherEnabled = OP_DEFS.some(function(d){ return d.key !== def.key && state[d.enabledKey]; });
+    if(state[def.enabledKey] && !otherEnabled){
+      syncSettingsUI();
+      return;
+    }
+    state[def.enabledKey] = !state[def.enabledKey];
+    state.target = computeTarget(state);
+    syncSettingsUI(); saveState();
+  }
+
+  function setOpCount(def, val){
+    state[def.countKey] = val;
+    state.target = computeTarget(state);
+    syncSettingsUI(); saveState();
+  }
+
+  function setOpMax(def, val){
+    state[def.maxKey] = val;
+    syncSettingsUI(); saveState();
+  }
+
+  function syncSettingsUI(){
+    el.themeBlueBtn.classList.toggle("active", state.colorTheme !== "pink");
+    el.themePinkBtn.classList.toggle("active", state.colorTheme === "pink");
+    el.mistakePenaltyVal.textContent = state.mistakePenalty;
+    /* "Aantal" per soort and "extra opgaven bij fout" only mean something
+       in the classic random mode -- Leitner decides both for itself. */
+    el.mistakePenaltyField.hidden = state.leitnerEnabled;
+    /* A full restart doesn't fit Leitner's per-day model (it would reset
+       today's tally and re-shuffle the queue); "Leitner-voortgang wissen"
+       in settings is the deliberate equivalent, so hide this shortcut. */
+    el.restartBtn.hidden = state.leitnerEnabled;
+    el.leitnerBatchSelect.value = state.leitnerBatchSize;
+    el.opGridLabel.textContent = state.leitnerEnabled ? "Soorten opgaven" : "Soorten opgaven & aantal";
+    OP_DEFS.forEach(function(def){
+      var enabled = !!state[def.enabledKey];
+      def._chk.checked = enabled;
+      def._select.value = state[def.countKey];
+      def._select.hidden = !enabled || state.leitnerEnabled;
+      def._maxSelect.value = state[def.maxKey];
+      def._maxSelect.hidden = !enabled;
+      def._chk.closest(".op-row").classList.toggle("active", enabled);
+    });
+    el.soundSwitch.classList.toggle("on", state.sound);
+    el.soundSwitch.setAttribute("aria-checked", state.sound ? "true" : "false");
+    el.formatSwitch.classList.toggle("on", state.mixedFormats);
+    el.formatSwitch.setAttribute("aria-checked", state.mixedFormats ? "true" : "false");
+    el.blocksSwitch.classList.toggle("on", state.blocksEnabled);
+    el.blocksSwitch.setAttribute("aria-checked", state.blocksEnabled ? "true" : "false");
+    el.timerSelect.value = state.timerSeconds;
+    el.leitnerSwitch.classList.toggle("on", state.leitnerEnabled);
+    el.leitnerSwitch.setAttribute("aria-checked", state.leitnerEnabled ? "true" : "false");
+    var dueBits = ["Box 1"];
+    if(boxDueToday(2)) dueBits.push("Box 2");
+    if(boxDueToday(3)) dueBits.push("Box 3");
+    el.leitnerDueText.textContent = "Vandaag actief: " + dueBits.join(", ");
+    refreshLeitnerStats();
+  }
+
+  function countLeitnerBoxes(){ return Leitner.countBoxes(leitnerCards); }
+
+  /* Marks a box's stat-tile with a light-green frame when that box is due
+     for review today (box 1 always is; box 2/3 only every 3rd/5th day) --
+     Mastered, and any box not due today, is left exactly as it is. */
+  function markBoxDue(tileValueEl, box){
+    tileValueEl.closest(".stat-tile").classList.toggle("due-today", boxDueToday(box));
+  }
+  function refreshLeitnerStats(){
+    var counts = countLeitnerBoxes();
+    el.leitnerBox1.textContent = counts[1];
+    el.leitnerBox2.textContent = counts[2];
+    el.leitnerBox3.textContent = counts[3];
+    el.leitnerMastered.textContent = counts.mastered;
+    markBoxDue(el.leitnerBox1, 1);
+    markBoxDue(el.leitnerBox2, 2);
+    markBoxDue(el.leitnerBox3, 3);
+  }
+
+  /* Gameplay-visible Leitner glance, shown under the rocket panel only
+     while Leitner mode is on: box counts + how much of today's workload
+     (state.roundTarget, built by buildOpQueue) is still left. */
+  function refreshLeitnerPanel(){
+    el.leitnerPanel.hidden = !state.leitnerEnabled;
+    if(!state.leitnerEnabled) return;
+    var counts = countLeitnerBoxes();
+    el.lpBox1.textContent = counts[1];
+    el.lpBox2.textContent = counts[2];
+    el.lpBox3.textContent = counts[3];
+    el.lpMastered.textContent = counts.mastered;
+    markBoxDue(el.lpBox1, 1);
+    markBoxDue(el.lpBox2, 2);
+    markBoxDue(el.lpBox3, 3);
+    var remaining = Math.max(0, state.roundTarget - state.correct);
+    el.leitnerTodayText.textContent = remaining === 0
+      ? "Alle opgaven van vandaag zijn klaar!"
+      : "Nog " + remaining + " opgave" + (remaining === 1 ? "" : "n") + " te gaan vandaag";
+  }
+
+  /* ---------------- box detail modal ---------------- */
+  /* Opened from a stat-tile in the settings Leitner tab: shows every
+     opgave sitting in that box (or Gemasterd) right now, with per-row
+     navigation between the boxes and a control to move an opgave to a
+     different box. */
+  var leitnerBoxViewTab = "1";
+  function leitnerCardLabel(card){ return Leitner.cardLabel(card); }
+  function leitnerCardsInView(tab){ return Leitner.cardsInView(leitnerCards, tab); }
+  function moveLeitnerCard(id, newBox){
+    var card = leitnerCards[id];
+    if(!card) return;
+    Leitner.moveCard(card, newBox);
+    persistLeitnerCard(id, card);
+    refreshLeitnerStats();
+    refreshLeitnerPanel();
+    renderLeitnerBoxModal();
+  }
+  function renderLeitnerBoxModal(){
+    el.leitnerBoxTitle.textContent = leitnerBoxViewTab === "mastered" ? "Gemasterd" : "Box " + leitnerBoxViewTab;
+    Array.prototype.forEach.call(el.leitnerBoxTabs.children, function(btn){
+      btn.classList.toggle("active", btn.getAttribute("data-box") === leitnerBoxViewTab);
+    });
+    var entries = leitnerCardsInView(leitnerBoxViewTab);
+    el.leitnerBoxList.innerHTML = "";
+    el.leitnerBoxEmpty.hidden = entries.length > 0;
+    entries.forEach(function(entry){
+      var row = document.createElement("div");
+      row.className = "leitner-box-row";
+      var label = document.createElement("span");
+      label.className = "leitner-box-eq";
+      label.textContent = leitnerCardLabel(entry.card);
+      row.appendChild(label);
+      var select = document.createElement("select");
+      select.className = "op-count-select";
+      select.setAttribute("aria-label", "Verplaats " + leitnerCardLabel(entry.card) + " naar box");
+      [1, 2, 3].forEach(function(b){
+        var opt = document.createElement("option");
+        opt.value = b; opt.textContent = "Box " + b;
+        select.appendChild(opt);
+      });
+      select.value = entry.card.box;
+      select.addEventListener("change", function(){
+        moveLeitnerCard(entry.id, parseInt(select.value, 10));
+      });
+      row.appendChild(select);
+      el.leitnerBoxList.appendChild(row);
+    });
+  }
+  function openLeitnerBoxModal(tab){
+    leitnerBoxViewTab = tab;
+    renderLeitnerBoxModal();
+    el.leitnerBoxBackdrop.hidden = false;
+    el.closeLeitnerBox.focus();
+  }
+  function closeLeitnerBoxModal(){
+    el.leitnerBoxBackdrop.hidden = true;
+  }
+  el.leitnerStatsTiles.addEventListener("click", function(e){
+    var tile = e.target.closest("[data-box]");
+    if(tile) openLeitnerBoxModal(tile.getAttribute("data-box"));
+  });
+  el.leitnerBoxTabs.addEventListener("click", function(e){
+    var btn = e.target.closest("[data-box]");
+    if(!btn) return;
+    leitnerBoxViewTab = btn.getAttribute("data-box");
+    renderLeitnerBoxModal();
+  });
+  el.closeLeitnerBox.addEventListener("click", closeLeitnerBoxModal);
+  el.leitnerBoxBackdrop.addEventListener("click", function(e){ if(e.target === el.leitnerBoxBackdrop) closeLeitnerBoxModal(); });
+
+  function switchSettingsTab(tab){
+    el.settingsTabGeneralBtn.classList.toggle("active", tab === "general");
+    el.settingsTabLeitnerBtn.classList.toggle("active", tab === "leitner");
+    el.tabGeneral.hidden = tab !== "general";
+    el.tabLeitner.hidden = tab !== "leitner";
+    if(tab === "leitner") refreshLeitnerStats();
+  }
+  el.settingsTabGeneralBtn.addEventListener("click", function(){ switchSettingsTab("general"); });
+  el.settingsTabLeitnerBtn.addEventListener("click", function(){ switchSettingsTab("leitner"); });
+
+  el.leitnerSwitch.addEventListener("click", function(){
+    state.leitnerEnabled = !state.leitnerEnabled;
+    if(state.leitnerEnabled && Object.keys(leitnerCards).length === 0) seedLeitnerBoxOne();
+    syncSettingsUI(); saveState(); refreshLeitnerPanel();
+  });
+  el.leitnerSwitch.addEventListener("keydown", function(e){
+    if(e.key === "Enter" || e.key === " "){ e.preventDefault(); el.leitnerSwitch.click(); }
+  });
+  el.leitnerResetBtn.addEventListener("click", function(){
+    if(!confirm("Weet je zeker dat je alle Leitner-voortgang wilt wissen? Alle kaarten beginnen weer in box 1.")) return;
+    leitnerCards = {};
+    clearLeitnerCards();
+    seedLeitnerBoxOne();
+    /* Wiping progress also wipes today's tally -- otherwise a stale
+       correct/roundTarget from before the reset would make the freshly
+       seeded workload look already (partly) done, or done-for-today. */
+    state.correct = 0;
+    state.streak = 0;
+    state.leitnerDay = epochDay();
+    startRoundTracking();
+    buildOpQueue();
+    syncLeitnerTarget();
+    saveState();
+    refreshLeitnerStats();
+    updateProgressUI();
+    /* The main screen (hidden behind the settings modal right now) was
+       showing whatever gate/message matched the OLD progress -- often
+       "Geen opgaven meer voor vandaag" if today's reeks was already done.
+       That's stale the instant box 1 gets reseeded, so replace it with the
+       fresh-start gate now; closeSettings() then leaves it alone since
+       it's already a gate, not a live exercise. */
+    if(opQueue.length === 0){
+      showRoundDoneState();
+    } else {
+      showStartGate();
+    }
+  });
+
+  function openSettings(){
+    switchSettingsTab("general");
+    syncSettingsUI();
+    timerPause();
+    el.settingsBackdrop.hidden = false;
+    el.closeSettings.focus();
+  }
+  function closeSettings(){
+    el.settingsBackdrop.hidden = true;
+    el.settingsBtn.focus();
+    /* Never resume straight back into whatever sum was showing -- settings
+       may have just changed. If a gate (Start/Volgende reeks) was already
+       up behind the modal, it's untouched and still satisfies that. If a
+       live, unanswered sum was showing, stash it back onto the queue (so
+       it isn't lost from today's/this round's total) and gate it behind
+       an explicit "Verder" press instead. */
+    if(!atBatchCheckpoint){
+      if(current && !current.timedOut) opQueue.push(current);
+      showResumeGate();
+    }
+  }
+
+  el.settingsBtn.addEventListener("click", openSettings);
+  el.closeSettings.addEventListener("click", closeSettings);
+  el.settingsBackdrop.addEventListener("click", function(e){ if(e.target === el.settingsBackdrop) closeSettings(); });
+
+  /* ---------------- restart confirm ---------------- */
+  function openRestartConfirm(){
+    timerPause();
+    el.restartBackdrop.hidden = false;
+    el.cancelRestartBtn.focus();
+  }
+  function closeRestartConfirm(){
+    el.restartBackdrop.hidden = true;
+    el.restartBtn.focus();
+    timerResume();
+  }
+  el.restartBtn.addEventListener("click", openRestartConfirm);
+  el.closeRestart.addEventListener("click", closeRestartConfirm);
+  el.cancelRestartBtn.addEventListener("click", closeRestartConfirm);
+  el.restartBackdrop.addEventListener("click", function(e){ if(e.target === el.restartBackdrop) closeRestartConfirm(); });
+  el.confirmRestartBtn.addEventListener("click", function(){
+    el.restartBackdrop.hidden = true;
+    newRound();
+  });
+
+  document.addEventListener("keydown", function(e){
+    if(e.key !== "Escape") return;
+    /* The box detail modal can be open on top of the settings modal, so it
+       must close first -- otherwise Escape would drop both at once. */
+    if(!el.leitnerBoxBackdrop.hidden) closeLeitnerBoxModal();
+    else if(!el.settingsBackdrop.hidden) closeSettings();
+    else if(!el.historyBackdrop.hidden) closeHistoryModal();
+    else if(!el.restartBackdrop.hidden) closeRestartConfirm();
+  });
+
+  /* ---------------- history ---------------- */
+  function buildBarChart(svg, values, color){
+    var W = 300, H = 150, padL = 6, padR = 6, padT = 20, padB = 10;
+    var innerW = W - padL - padR, innerH = H - padT - padB;
+    var n = values.length;
+    if(n === 0){ svg.innerHTML = ""; return; }
+    var maxVal = Math.max.apply(null, values.concat([0.0001]));
+    var gap = 8;
+    var barW = Math.max(6, (innerW - gap * (n - 1)) / n);
+    var parts = ['<line x1="' + padL + '" y1="' + (padT + innerH) + '" x2="' + (padL + innerW) + '" y2="' + (padT + innerH) + '" style="stroke:var(--ink); stroke-opacity:0.18;" stroke-width="1"/>'];
+    values.forEach(function(v, i){
+      var h = maxVal > 0 ? (v / maxVal) * innerH : 0;
+      if(v > 0) h = Math.max(h, 3);
+      var x = padL + i * (barW + gap);
+      var y = padT + innerH - h;
+      var label = Number.isInteger(v) ? String(v) : v.toFixed(1);
+      parts.push('<rect x="' + x.toFixed(1) + '" y="' + y.toFixed(1) + '" width="' + barW.toFixed(1) + '" height="' + h.toFixed(1) + '" rx="4" fill="' + color + '"/>');
+      parts.push('<text x="' + (x + barW / 2).toFixed(1) + '" y="' + (y - 5).toFixed(1) + '" font-size="9" text-anchor="middle" style="fill:var(--ink-dim)" font-family="Baloo 2, sans-serif">' + label + '</text>');
+    });
+    svg.setAttribute("viewBox", "0 0 " + W + " " + H);
+    svg.innerHTML = parts.join("");
+  }
+
+  function renderHistoryModal(){
+    getHistory(function(entries){
+      entries.sort(function(a, b){ return a.ts - b.ts; });
+      if(entries.length === 0){
+        el.historyEmpty.hidden = false;
+        el.historyContent.hidden = true;
+        return;
+      }
+      el.historyEmpty.hidden = true;
+      el.historyContent.hidden = false;
+
+      var totalMistakes = 0;
+      var totalSecPerSum = 0;
+      entries.forEach(function(e){
+        totalMistakes += e.mistakes;
+        totalSecPerSum += (e.durationMs / e.target) / 1000;
+      });
+      el.statRounds.textContent = entries.length;
+      el.statAvgTime.textContent = (totalSecPerSum / entries.length).toFixed(1) + "s";
+      el.statMistakes.textContent = totalMistakes;
+
+      var recent = entries.slice(-12);
+      var speedValues = recent.map(function(e){ return (e.durationMs / e.target) / 1000; });
+      var mistakeValues = recent.map(function(e){ return e.mistakes; });
+      var rootStyle = getComputedStyle(document.documentElement);
+      buildBarChart(el.chartSpeed, speedValues, rootStyle.getPropertyValue("--block").trim());
+      buildBarChart(el.chartMistakes, mistakeValues, rootStyle.getPropertyValue("--retry").trim());
+
+      var rows = entries.slice().reverse().slice(0, 20).map(function(e){
+        var d = new Date(e.ts);
+        var dateStr = d.toLocaleDateString("nl-BE", { day: "2-digit", month: "2-digit" }) + " " + d.toLocaleTimeString("nl-BE", { hour: "2-digit", minute: "2-digit" });
+        var durStr = formatDuration(e.durationMs);
+        var secPerSum = ((e.durationMs / e.target) / 1000).toFixed(1);
+
+        var badges, detail;
+        if(e.settings){
+          var s = e.settings;
+          var opsParts = OP_DEFS.map(function(def){
+            var enabled = s[def.enabledKey];
+            if(typeof enabled === "undefined"){
+              enabled = def.key === "add" ? s.opAdd : def.key === "sub" ? s.opSub : false;
+            }
+            if(!enabled) return null;
+            var count = s[def.countKey];
+            return def.symbol + (typeof count === "number" ? " " + count : "");
+          }).filter(function(p){ return p; });
+          var opsBadge = opsParts.length ? opsParts.join(" / ") : "-";
+          var timerOn = typeof s.timerEnabled !== "undefined" ? s.timerEnabled : s.timerSeconds > 0;
+          var timerBadge = timerOn ? s.timerSeconds + "s" : "geen tijd";
+          badges = '<span class="mini-badge">' + opsBadge + '</span><span class="mini-badge">' + timerBadge + '</span>' +
+            (s.blocksEnabled ? '<span class="mini-badge">blokjes</span>' : '') +
+            (s.leitnerEnabled ? '<span class="mini-badge">leitner</span>' : '') +
+            (s.mistakePenalty ? '<span class="mini-badge">+' + s.mistakePenalty + '/fout</span>' : '');
+          detail = "Doel: " + e.target + " opgaven · Soorten: " + opsBadge +
+            " · Vraagvormen: " + (s.mixedFormats ? "gemengd" : "klassiek") +
+            " · Tijd per opgave: " + (timerOn ? s.timerSeconds + " sec" : "geen limiet") +
+            " · Hulpblokjes: " + (s.blocksEnabled ? "aan" : "uit") +
+            " · Extra opgaven bij fout: " + (s.mistakePenalty ? "+" + s.mistakePenalty : "geen") +
+            " · Time-outs: " + e.timeouts;
+        } else {
+          badges = '<span class="mini-badge">onbekend</span>';
+          detail = "Geen instellingen opgeslagen voor deze ronde.";
+        }
+
+        return "<tr class=\"hist-row\"><td>" + dateStr + "</td><td>" + durStr + "</td><td>" + secPerSum + "s</td><td>" + e.mistakes + "</td>" +
+          "<td><div class=\"badge-row\">" + badges + "</div></td>" +
+          "<td class=\"row-actions\">" +
+            "<button type=\"button\" class=\"row-icon-btn\" data-toggle-detail aria-label=\"Instellingen tonen\">" +
+              '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8v.01" stroke-linecap="round"/></svg>' +
+            "</button>" +
+            "<button type=\"button\" class=\"row-icon-btn row-icon-danger\" data-delete-id=\"" + e._id + "\" aria-label=\"Ronde verwijderen\">" +
+              '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
+            "</button>" +
+          "</td></tr>" +
+          "<tr class=\"hist-detail-row\" hidden><td colspan=\"6\">" + detail + "</td></tr>";
+      });
+      el.historyTableBody.innerHTML = rows.join("");
+    });
+  }
+
+  function openHistory(){
+    renderHistoryModal();
+    timerPause();
+    el.historyBackdrop.hidden = false;
+    el.closeHistory.focus();
+  }
+  function closeHistoryModal(){
+    el.historyBackdrop.hidden = true;
+    el.historyBtn.focus();
+    timerResume();
+  }
+  el.historyBtn.addEventListener("click", openHistory);
+  el.closeHistory.addEventListener("click", closeHistoryModal);
+  el.historyBackdrop.addEventListener("click", function(e){ if(e.target === el.historyBackdrop) closeHistoryModal(); });
+
+  el.clearHistoryBtn.addEventListener("click", function(){
+    if(!confirm("Weet je zeker dat je de volledige geschiedenis wilt wissen? Dit kan niet ongedaan worden gemaakt.")) return;
+    clearHistory();
+    renderHistoryModal();
+  });
+
+  el.historyTableBody.addEventListener("click", function(e){
+    var delBtn = e.target.closest("[data-delete-id]");
+    if(delBtn){
+      deleteHistoryEntry(Number(delBtn.getAttribute("data-delete-id")));
+      renderHistoryModal();
+      return;
+    }
+    var toggleBtn = e.target.closest("[data-toggle-detail]");
+    if(toggleBtn){
+      var detailRow = toggleBtn.closest("tr").nextElementSibling;
+      if(detailRow && detailRow.classList.contains("hist-detail-row")){
+        detailRow.hidden = !detailRow.hidden;
+      }
+    }
+  });
+
+  el.themeBlueBtn.addEventListener("click", function(){
+    state.colorTheme = "blue";
+    applyTheme("blue");
+    syncSettingsUI(); saveState();
+  });
+  el.themePinkBtn.addEventListener("click", function(){
+    state.colorTheme = "pink";
+    applyTheme("pink");
+    syncSettingsUI(); saveState();
+  });
+
+  el.mistakePenaltyUp.addEventListener("click", function(){
+    state.mistakePenalty = Math.min(5, state.mistakePenalty + 1);
+    syncSettingsUI(); saveState();
+  });
+  el.mistakePenaltyDown.addEventListener("click", function(){
+    state.mistakePenalty = Math.max(0, state.mistakePenalty - 1);
+    syncSettingsUI(); saveState();
+  });
+
+  el.soundSwitch.addEventListener("click", function(){
+    state.sound = !state.sound;
+    syncSettingsUI(); saveState();
+  });
+  el.soundSwitch.addEventListener("keydown", function(e){
+    if(e.key === "Enter" || e.key === " "){ e.preventDefault(); el.soundSwitch.click(); }
+  });
+
+  el.formatSwitch.addEventListener("click", function(){
+    state.mixedFormats = !state.mixedFormats;
+    slotBag = [];
+    syncSettingsUI(); saveState();
+  });
+  el.formatSwitch.addEventListener("keydown", function(e){
+    if(e.key === "Enter" || e.key === " "){ e.preventDefault(); el.formatSwitch.click(); }
+  });
+
+  el.blocksSwitch.addEventListener("click", function(){
+    state.blocksEnabled = !state.blocksEnabled;
+    syncSettingsUI(); saveState(); renderBlocks();
+  });
+  el.blocksSwitch.addEventListener("keydown", function(e){
+    if(e.key === "Enter" || e.key === " "){ e.preventDefault(); el.blocksSwitch.click(); }
+  });
+
+  el.timerSelect.addEventListener("change", function(){
+    state.timerSeconds = parseInt(el.timerSelect.value, 10);
+    syncSettingsUI(); saveState();
+  });
+
+  el.closeOverlayBtn.addEventListener("click", function(){
+    el.goalOverlay.hidden = true;
+  });
+
+  window.addEventListener("resize", function(){ updateProgressUI(); });
+
+  /* ---------------- boot ---------------- */
+  buildOpGrid();
+  buildLeitnerBatchSelect();
+  loadState(function(loaded){
+    state = loaded;
+    OP_DEFS.forEach(function(def){ state[def.countKey] = normalizeCount(state[def.countKey]); });
+    applyTheme(state.colorTheme);
+    loadLeitnerCards(function(cards){
+      leitnerCards = cards;
+      buildOpQueue();
+      if(state.leitnerEnabled){
+        /* A new calendar day resets today's tally. Same-day reopen just
+           resumes: roundTarget is always recomputed from the CURRENT due
+           queue (correct + however much is left), never left at a stale,
+           larger number from an earlier session -- that stale-max approach
+           is what previously kept "opgaven te gaan" from ever reaching 0
+           once cards got promoted out of box 1 between sessions. */
+        if(state.leitnerDay !== epochDay()){
+          state.leitnerDay = epochDay();
+          state.correct = 0;
+          state.streak = 0;
+        }
+        syncLeitnerTarget();
+      } else {
+        state.target = computeTarget(state);
+        if(typeof state.roundTarget !== "number" || state.roundTarget < state.target){
+          state.roundTarget = state.target;
+        }
+      }
+      syncSettingsUI();
+      if(state.correct >= state.roundTarget || (state.leitnerEnabled && opQueue.length === 0)){
+        /* Reopening the app after the round/day is already done (or there
+           was never anything due today): the "TV-tijd verdiend" overlay is
+           a celebration for JUST finishing, earned by answering, so it
+           must never appear on a page load -- show the same plain done
+           state on the main screen instead (message for Leitner, "Nieuwe
+           ronde starten" button for classic), with the overlay left shut. */
+        showRoundDoneState();
+      } else if(state.correct === 0){
+        /* Fresh round/reeks: wait for an explicit Start press instead of
+           dropping straight into the first sum. */
+        if(state.leitnerEnabled) showStartGate(); else showBeginGate();
+      } else {
+        /* Resuming part-way through a round: still never drop straight
+           into a sum on a page load/refresh -- gate it behind a "Verder"
+           press too, same as reopening from settings. */
+        showResumeGate();
+      }
+      /* <main> stays hidden (see the static markup) until this exact point,
+         so the rocket's launch position, the rail counts, the feedback
+         text and every other default/placeholder value never gets painted
+         even for a single frame -- only the fully-decided state above is
+         ever shown. */
+      el.mainView.hidden = false;
+      updateProgressUI();
+    });
+  });
+})();
+</script>
+</body>
+</html>

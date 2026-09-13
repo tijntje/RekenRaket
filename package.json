@@ -1,0 +1,8 @@
+{
+  "name": "rekenhelper",
+  "private": true,
+  "description": "Rekenraket - een reken-oefentool voor kinderen, met een Leitner spaced-repetition modus.",
+  "scripts": {
+    "test": "node --test"
+  }
+}

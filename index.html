@@ -32,6 +32,8 @@
     --gold-deep:#8A6A22;
     --retry:#CE8398;
     --retry-deep:#5A3345;
+    --late:#FF9F43;
+    --late-deep:#8A5220;
     --block:#8DA1F2;
     --block-deep:#3A4590;
     --speed-fast:#4ADE80;
@@ -87,12 +89,12 @@
     min-height:100vh;
     display:flex; flex-direction:column;
     max-width:1080px; margin:0 auto;
-    padding:env(safe-area-inset-top) calc(20px + env(safe-area-inset-right)) calc(28px + env(safe-area-inset-bottom)) calc(20px + env(safe-area-inset-left));
+    padding:env(safe-area-inset-top) calc(20px + env(safe-area-inset-right)) calc(18px + env(safe-area-inset-bottom)) calc(20px + env(safe-area-inset-left));
   }
 
   header{
     display:flex; align-items:center; justify-content:space-between;
-    padding:18px 2px 10px;
+    padding:10px 2px 8px;
   }
   .brand{
     display:flex; align-items:center; gap:10px;
@@ -128,16 +130,16 @@
     flex:1;
     display:grid;
     grid-template-areas:"sky" "card";
-    grid-template-rows:200px 1fr;
-    gap:16px;
+    grid-template-rows:170px 1fr;
+    gap:12px;
   }
   main[hidden]{ display:none; }
   @media (min-width:760px){
     main{
       grid-template-areas:"sky card";
-      grid-template-columns:220px 1fr;
+      grid-template-columns:200px 1fr;
       grid-template-rows:1fr;
-      min-height:560px;
+      min-height:460px;
     }
   }
 
@@ -224,13 +226,14 @@
     background:radial-gradient(120% 140% at 15% -10%, var(--bg-panel-3) 0%, var(--bg-panel) 55%);
     border:1px solid var(--line);
     box-shadow:var(--shadow);
-    padding:28px clamp(18px,4vw,40px) 26px;
+    padding:18px clamp(16px,4vw,36px) 18px;
     display:flex; flex-direction:column; align-items:center; justify-content:center;
-    gap:22px;
-    min-height:340px;
+    gap:14px;
+    min-height:300px;
     transition:border-color .2s ease, box-shadow .2s ease;
   }
   .card.flash-good{ border-color:var(--gold); box-shadow:var(--shadow), 0 0 0 4px rgba(255,200,87,0.35); }
+  .card.flash-late{ border-color:var(--late); box-shadow:var(--shadow), 0 0 0 4px rgba(255,159,67,0.35); }
   .card.flash-wrong{ border-color:var(--retry); box-shadow:var(--shadow), 0 0 0 4px rgba(206,131,152,0.35); }
 
   .card-tint{
@@ -241,6 +244,7 @@
     transition:opacity .18s ease;
   }
   .card-tint.flash-good{ opacity:1; background:rgba(255,200,87,0.18); }
+  .card-tint.flash-late{ opacity:1; background:rgba(255,159,67,0.18); }
   .card-tint.flash-wrong{ opacity:1; background:rgba(206,131,152,0.18); }
 
   .result-flash{
@@ -270,8 +274,8 @@
 
   .blocks-row{
     display:flex; align-items:center; justify-content:center;
-    gap:16px; flex-wrap:wrap;
-    min-height:64px;
+    gap:12px; flex-wrap:wrap;
+    min-height:48px;
   }
   .blocks-row[hidden]{ display:none; }
   .blocks-cluster{
@@ -286,7 +290,7 @@
 
   .sum{
     display:flex; align-items:baseline; gap:18px;
-    font-size:clamp(2.6rem, 9vw, 4.4rem);
+    font-size:clamp(2.2rem, 7vw, 3.6rem);
     font-weight:800;
     letter-spacing:1px;
   }
@@ -320,43 +324,45 @@
   }
 
   .numpad{
-    display:flex; flex-wrap:wrap; justify-content:center; gap:14px;
+    display:flex; flex-wrap:wrap; justify-content:center; gap:12px;
     max-width:620px;
   }
   .numkey{
-    width:96px; height:96px; border-radius:50%;
+    width:80px; height:80px; border-radius:50%;
     background:var(--bg-panel-2);
     border:1px solid var(--line);
     color:var(--ink);
-    font-family:"Baloo 2"; font-weight:700; font-size:2.25rem;
+    font-family:"Baloo 2"; font-weight:700; font-size:1.95rem;
     cursor:pointer;
     transition:transform .12s ease, background .12s ease, border-color .12s ease;
   }
   .numkey:hover{ background:var(--bg-panel-3); }
   .numkey:active{ transform:scale(0.92); }
   .numkey.correct{ background:var(--gold-deep); border-color:var(--gold); color:var(--gold); animation:pop .3s ease; }
+  .numkey.late{ background:var(--late-deep); border-color:var(--late); color:var(--late); animation:pop .3s ease; }
   .numkey.wrong{ background:var(--retry-deep); border-color:var(--retry); animation:shake .35s ease; }
   .numkey:disabled{ opacity:0.55; cursor:default; }
   @keyframes pop{ 0%{transform:scale(1);} 40%{transform:scale(1.18);} 100%{transform:scale(1);} }
   @keyframes shake{ 0%,100%{transform:translateX(0);} 25%{transform:translateX(-6px);} 75%{transform:translateX(6px);} }
 
   .digit-pad{
-    display:grid; grid-template-columns:repeat(3, 76px); gap:12px;
+    display:grid; grid-template-columns:repeat(3, 70px); gap:10px;
     justify-content:center;
   }
   .digit-key{
-    width:76px; height:64px; border-radius:16px;
+    width:70px; height:54px; border-radius:14px;
     background:var(--bg-panel-2);
     border:1px solid var(--line);
     color:var(--ink);
     display:flex; align-items:center; justify-content:center;
-    font-family:"Baloo 2"; font-weight:700; font-size:1.6rem;
+    font-family:"Baloo 2"; font-weight:700; font-size:1.5rem;
     cursor:pointer;
     transition:transform .12s ease, background .12s ease, border-color .12s ease;
   }
   .digit-key:hover{ background:var(--bg-panel-3); }
   .digit-key:active{ transform:scale(0.92); }
   .digit-key.correct{ background:var(--gold-deep); border-color:var(--gold); color:var(--gold); animation:pop .3s ease; }
+  .digit-key.late{ background:var(--late-deep); border-color:var(--late); color:var(--late); animation:pop .3s ease; }
   .digit-key.wrong{ background:var(--retry-deep); border-color:var(--retry); animation:shake .35s ease; }
   .digit-key.submit{ background:var(--gold-deep); border-color:var(--gold); color:var(--gold); }
   .digit-key:disabled{ opacity:0.5; cursor:default; }
@@ -609,7 +615,7 @@
   .hist-detail-row[hidden]{ display:none; }
 
   @media (prefers-reduced-motion: reduce){
-    .rocket .flame, .numkey.correct, .numkey.wrong, .digit-key.correct, .digit-key.wrong{ animation:none !important; }
+    .rocket .flame, .numkey.correct, .numkey.late, .numkey.wrong, .digit-key.correct, .digit-key.late, .digit-key.wrong{ animation:none !important; }
     .rocket{ transition:none !important; }
     .result-flash.show svg{ animation:none !important; transform:scale(1); }
     .flame-boost{ transition:none !important; }
@@ -821,7 +827,7 @@
         <span class="field-label inline">Max reeks lengte</span>
         <select class="op-count-select" id="leitnerBatchSelect" aria-label="Max reeks lengte"></select>
       </div>
-      <p class="modal-text leitner-explainer">3 boxen. Goed én binnen 3 seconden → box omhoog (vanuit box 3: gemasterd); vanaf de 4e seconde blijft de opgave in dezelfde box; fout → terug naar box 1. Box 1 elke dag, box 2 elke 3e dag, box 3 elke 5e dag (steeds samen met box 1).</p>
+      <p class="modal-text leitner-explainer">3 boxen. Goed vóór de tijd om is → box omhoog (vanuit box 3: gemasterd); geen tijdslimiet ingesteld? Dan telt elk goed antwoord. Eén keer fout of te laat op een opgave → direct terug naar box 1; daarna nog een keer (of vaker) opnieuw proberen mag om te oefenen, maar verandert niets meer aan de box. Box 1 elke dag, box 2 elke 3e dag, box 3 elke 5e dag (steeds samen met box 1).</p>
       <p class="modal-text leitner-due" id="leitnerDueText"></p>
       <div class="stat-tiles leitner-stats" id="leitnerStatsTiles">
         <button type="button" class="stat-tile clickable" data-box="1" aria-label="Toon opgaven in box 1"><span class="val" id="leitnerBox1">0</span><span class="lbl">Box 1</span></button>
@@ -1223,30 +1229,44 @@
   var locked = false;
   var audioCtx = null;
   var timer = { handle: null, startTs: 0, durationMs: 0, remainingMs: 0, running: false, paused: false };
-  var sumShownAt = 0;
   var atBatchCheckpoint = false;
   var rocketPositioned = false;
   var flashHandle = null;
 
   var ICON_CHECK = '<svg width="110" height="110" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="11" fill="rgba(255,200,87,0.16)" stroke="#FFC857" stroke-width="1.5"/><path d="M7 12.3l3.2 3.2L17 8.7" stroke="#FFC857" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  /* Same checkmark shape as ICON_CHECK, in the --late orange -- shown when
+     an answer arrives after the per-opgave timer already ran out (see
+     current.timedOut in handleAnswer): it's still scored as wrong (the
+     Leitner demote/mistake penalty already fired in onTimeUp), but a
+     numerically correct answer got a plain red cross here before, which
+     read as "you got it wrong" even though the child answered right, just
+     too late. A distinct check tells those two apart instead of lumping
+     "wrong" and "right but late" under the same red cross. */
+  var ICON_CHECK_LATE = '<svg width="110" height="110" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="11" fill="rgba(255,159,67,0.16)" stroke="#FF9F43" stroke-width="1.5"/><path d="M7 12.3l3.2 3.2L17 8.7" stroke="#FF9F43" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
   var ICON_CROSS = '<svg width="110" height="110" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="11" fill="rgba(206,131,152,0.16)" stroke="#CE8398" stroke-width="1.5"/><path d="M8.3 8.3l7.4 7.4M15.7 8.3l-7.4 7.4" stroke="#CE8398" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  var FLASH_ICONS = { good: ICON_CHECK, late: ICON_CHECK_LATE, wrong: ICON_CROSS };
+  var FLASH_CLASSES = ["flash-good", "flash-late", "flash-wrong"];
 
-  function flashResult(correct){
+  /* `kind` is "good" (correct, in time), "late" (correct, but the timer
+     had already run out -- still scored as wrong, see current.timedOut),
+     or "wrong" (a genuine miss). */
+  function flashResult(kind){
     clearTimeout(flashHandle);
-    el.resultFlash.innerHTML = correct ? ICON_CHECK : ICON_CROSS;
+    var cls = "flash-" + kind;
+    el.resultFlash.innerHTML = FLASH_ICONS[kind];
     el.resultFlash.classList.remove("show");
     void el.resultFlash.offsetWidth;
     el.resultFlash.classList.add("show");
-    el.sumCard.classList.remove("flash-good", "flash-wrong");
-    el.cardTint.classList.remove("flash-good", "flash-wrong");
+    el.sumCard.classList.remove.apply(el.sumCard.classList, FLASH_CLASSES);
+    el.cardTint.classList.remove.apply(el.cardTint.classList, FLASH_CLASSES);
     void el.sumCard.offsetWidth;
-    el.sumCard.classList.add(correct ? "flash-good" : "flash-wrong");
-    el.cardTint.classList.add(correct ? "flash-good" : "flash-wrong");
+    el.sumCard.classList.add(cls);
+    el.cardTint.classList.add(cls);
     flashHandle = setTimeout(function(){
       el.resultFlash.classList.remove("show");
-      el.sumCard.classList.remove("flash-good", "flash-wrong");
-      el.cardTint.classList.remove("flash-good", "flash-wrong");
-    }, correct ? 560 : 420);
+      el.sumCard.classList.remove.apply(el.sumCard.classList, FLASH_CLASSES);
+      el.cardTint.classList.remove.apply(el.cardTint.classList, FLASH_CLASSES);
+    }, kind === "good" ? 560 : 420);
   }
 
   /* ---------------- sound ---------------- */
@@ -1345,9 +1365,19 @@
     persistLeitnerCards(entries);
   }
 
-  /* A correct answer only promotes a card when it came within 3 seconds
-     (answered from the 4th second on leaves it in its current box), for
-     every box transition -- see Leitner.promoteCard in leitner.js. */
+  /* A correct answer promotes a card for every box transition -- see
+     Leitner.promoteCard in leitner.js. `fast` is decided by the caller:
+     handleAnswer only reaches its correct branch when current.timedOut is
+     still false, i.e. the per-opgave timer (when one is set) hadn't run
+     out yet, so every promotion call here is a "fast" one. A timed-out
+     answer is scored as wrong before this is ever called (see
+     current.timedOut in handleAnswer / onTimeUp), and with no timer set
+     there's no depletion to race against, so every correct answer
+     promotes there too. This is only ever called when !current.faulted --
+     once an opgave has had a wrong try (or a timeout), the eventual
+     correct answer is just the child working it out for their own
+     learning and no longer changes the card's box; see current.faulted
+     in handleAnswer. */
   function promoteLeitnerCard(id, fast){
     var card = leitnerCards[id];
     if(!card) return;
@@ -1438,6 +1468,7 @@
     }
     candidate.cardId = entry.cardId || null;
     candidate.timedOut = false;
+    candidate.faulted = false;
 
     var unknown = state.mixedFormats ? nextSlot() : "result";
     candidate.unknown = unknown;
@@ -1607,14 +1638,21 @@
        just an acknowledgement -- never scored as correct -- before moving
        on to the next opgave. */
     if(current.timedOut){
+      /* Still scored as wrong (the Leitner demote/mistake penalty already
+         fired in onTimeUp) either way, but a numerically correct answer
+         gets the "late" check instead of the plain cross -- a red cross
+         on the right answer read as "you got it wrong", which confused
+         kids who'd actually answered correctly, just too late. */
+      var isRight = n === current.answer;
+      var lateCls = isRight ? "late" : "wrong";
       locked = true;
-      if(highlightEl) highlightEl.classList.add("wrong");
-      flashResult(false);
+      if(highlightEl) highlightEl.classList.add(lateCls);
+      flashResult(isRight ? "late" : "wrong");
       revealAnswer(current.answer);
-      el.feedback.textContent = "Tijd was al op. Volgende opgave.";
+      el.feedback.textContent = isRight ? "Goed! Maar de tijd was al om." : "Tijd was al op. Volgende opgave.";
       el.feedback.className = "feedback retry";
       setTimeout(function(){
-        if(highlightEl) highlightEl.classList.remove("wrong");
+        if(highlightEl) highlightEl.classList.remove(lateCls);
         if(el.numpad.querySelector(".digit-pad")){
           typedDigits = "";
           updateDigitDisplay();
@@ -1631,9 +1669,9 @@
       locked = true;
       timerStop();
       if(highlightEl) highlightEl.classList.add("correct");
-      flashResult(true);
+      flashResult("good");
       revealAnswer(n);
-      if(current.cardId) promoteLeitnerCard(current.cardId, elapsedForCurrentSum() < 3000);
+      if(current.cardId && !current.faulted) promoteLeitnerCard(current.cardId, true);
       state.correct++;
       state.streak++;
       if(state.streak > state.roundLongestStreak) state.roundLongestStreak = state.streak;
@@ -1660,14 +1698,22 @@
       }, 620);
     } else {
       if(highlightEl) highlightEl.classList.add("wrong");
-      flashResult(false);
-      if(current.cardId) demoteLeitnerCard(current.cardId);
+      flashResult("wrong");
       state.streak = 0;
-      state.roundMistakes++;
-      /* Not under Leitner: a mistake already sends the card back to box 1
-         for a future review, so it doesn't also inflate today's target. */
-      if(!state.leitnerEnabled && state.mistakePenalty > 0){
-        state.roundTarget += state.mistakePenalty;
+      /* Only the first wrong try on this opgave counts: the card is done
+         moving for today (box 1) and the mistake is recorded once. Further
+         retries on the same opgave are for the child to still work out the
+         right answer, but no longer change the card's box or the tallies --
+         see current.faulted. */
+      if(!current.faulted){
+        current.faulted = true;
+        if(current.cardId) demoteLeitnerCard(current.cardId);
+        state.roundMistakes++;
+        /* Not under Leitner: a mistake already sends the card back to box 1
+           for a future review, so it doesn't also inflate today's target. */
+        if(!state.leitnerEnabled && state.mistakePenalty > 0){
+          state.roundTarget += state.mistakePenalty;
+        }
       }
       saveState();
       playRetry();
@@ -1900,11 +1946,11 @@
   }
   /* Just one plain green bar, running down over the duration set in
      settings ("Tijd per opgave") -- no bar at all when that's "-", in
-     either mode. Leitner's own fast-answer bonus (elapsedForCurrentSum,
-     see promoteLeitnerCard) is judged the same way regardless of whether
-     a bar is shown. */
+     either mode. Leitner's promotion rule rides on this same timer: a
+     correct answer promotes as long as current.timedOut hasn't fired yet
+     (see promoteLeitnerCard / onTimeUp), so there's nothing extra to track
+     here beyond starting/stopping the bar itself. */
   function startTimerForCurrentSum(){
-    sumShownAt = Date.now();
     timerStop();
     var hasDuration = state.timerSeconds > 0;
     el.timerWrap.hidden = !hasDuration;
@@ -1913,9 +1959,6 @@
     el.timerFill.style.width = "100%";
     void el.timerFill.offsetWidth;
     timerAnimateTo(state.timerSeconds * 1000);
-  }
-  function elapsedForCurrentSum(){
-    return Date.now() - sumShownAt;
   }
   function timerPause(){
     if(!timer.running || timer.paused) return;
@@ -1946,6 +1989,7 @@
   function onTimeUp(){
     if(!el.goalOverlay.hidden || current.timedOut) return;
     current.timedOut = true;
+    current.faulted = true;
     timerStop();
     el.timerFill.style.transition = "none";
     el.timerFill.style.width = "0%";

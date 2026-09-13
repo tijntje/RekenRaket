@@ -68,10 +68,12 @@
     return combos;
   }
 
-  /* A correct answer only promotes a card when it came within 3 seconds
-     (answered from the 4th second on leaves it in its current box), for
-     every box transition. Either way, lastSeenDay always gets stamped --
-     the card was attempted today regardless of speed. */
+  /* A correct answer only promotes a card when the caller marks it
+     `fast` (index.html decides that by whether the per-opgave timer, if
+     any, had already run out -- see promoteLeitnerCard); an answer that
+     doesn't qualify leaves the card in its current box, for every box
+     transition. Either way, lastSeenDay always gets stamped -- the card
+     was attempted today regardless. */
   function promoteCard(card, fast, day){
     if(day === undefined) day = epochDay();
     card.lastSeenDay = day;

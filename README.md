@@ -43,12 +43,18 @@ browser's IndexedDB (database `rekenraket_db`) — nothing is sent to a server.
 
 - [index.html](index.html) — the entire app: markup, styles, and UI/game
   logic (rendering sums, timers, settings, history, IndexedDB persistence).
-- [leitner.js](leitner.js) — the Leitner spaced-repetition rules engine,
-  deliberately kept DOM-free and dependency-free so it can be shared between
-  the app (as the global `Leitner`) and the Node test suite. It knows nothing
-  about IndexedDB, app state, or the DOM — every function takes the data it
-  needs as arguments and returns/mutates plain objects.
-- [test/leitner.test.js](test/leitner.test.js) — unit tests for `leitner.js`.
+- [leitner.js](leitner.js) — the Leitner spaced-repetition rules engine
+  (box due-dates, promote/demote, the net-mistake-per-opgave scoring rule,
+  combo generation), deliberately kept DOM-free and dependency-free so it
+  can be shared between the app (as the global `Leitner`) and the Node
+  test suite. It knows nothing about IndexedDB, app state, or the DOM —
+  every function takes the data it needs as arguments and returns/mutates
+  plain objects.
+- [rules.js](rules.js) — the other pure app rules: settings
+  normalization/migration and sum generation, following the same
+  DOM-free pattern as `leitner.js` (shared as the global `Rules`).
+- [test/leitner.test.js](test/leitner.test.js), [test/rules.test.js](test/rules.test.js)
+  — unit tests for `leitner.js` and `rules.js`.
 
 ## Tests
 
@@ -56,6 +62,9 @@ browser's IndexedDB (database `rekenraket_db`) — nothing is sent to a server.
 npm test
 ```
 
-Runs the `leitner.js` unit tests via Node's built-in test runner
-(`node --test`). There is no automated coverage for `index.html` itself
-(DOM/game logic) — changes there should be checked by hand in a browser.
+Runs the `leitner.js` and `rules.js` unit tests via Node's built-in test
+runner (`node --test`). All business/scoring logic lives in those two
+DOM-free modules for exactly this reason; `index.html` itself is thin
+UI/DOM wiring (rendering, timers, IndexedDB persistence) with no
+automated coverage — changes there should be checked by hand in a
+browser. See [AGENTS.md](AGENTS.md) for the convention this follows.

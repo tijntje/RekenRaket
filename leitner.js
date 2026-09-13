@@ -105,6 +105,30 @@
     return card;
   }
 
+  /* One opgave can involve several submissions before it's answered right
+     (retries) or the timer runs out. Only the FIRST fault -- a wrong
+     answer or a timeout, whichever comes first -- changes anything: it
+     demotes the card (if there is one) and is the one mistake counted for
+     that opgave. Everything after that -- further wrong tries, or the
+     eventual correct answer -- is just the child working it out for their
+     own learning: no extra demotions, no extra mistakes, and no promotion
+     (an opgave that ever faulted doesn't promote its card just because it
+     was eventually answered right). `card` may be null/undefined (classic
+     mode has no Leitner card for a given opgave); the fault/mistake
+     bookkeeping works the same either way, it just skips the box move.
+     Callers keep the returned `faulted` as the opgave's running state
+     (index.html's current.faulted) and use `isNewMistake` to decide
+     whether to bump their own mistake counters. */
+  function scoreAttempt(card, alreadyFaulted, correct, fast, day){
+    if(alreadyFaulted) return { faulted: true, isNewMistake: false };
+    if(correct){
+      if(card) promoteCard(card, fast, day);
+      return { faulted: false, isNewMistake: false };
+    }
+    if(card) demoteCard(card, day);
+    return { faulted: true, isNewMistake: true };
+  }
+
   function countBoxes(cards){
     var counts = { 1: 0, 2: 0, 3: 0, mastered: 0 };
     Object.keys(cards).forEach(function(id){
@@ -219,6 +243,7 @@
     allCombosForOp: allCombosForOp,
     promoteCard: promoteCard,
     demoteCard: demoteCard,
+    scoreAttempt: scoreAttempt,
     moveCard: moveCard,
     countBoxes: countBoxes,
     cardsInView: cardsInView,

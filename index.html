@@ -922,6 +922,7 @@
 </div>
 
 <script src="leitner.js"></script>
+<script src="rules.js"></script>
 <script>
 (function(){
   "use strict";
@@ -955,45 +956,17 @@
     roundStartTs: 0, roundMistakes: 0, roundTimeouts: 0, roundLongestStreak: 0
   };
 
-  function normalizeCount(t){
-    return Math.min(60, Math.max(5, Math.round(t / 5) * 5));
-  }
-
-  function computeTarget(s){
-    var total = 0;
-    OP_DEFS.forEach(function(def){
-      if(s[def.enabledKey]) total += s[def.countKey];
-    });
-    return total > 0 ? total : 5;
-  }
-
-  /* Older saves only had opAdd/opSub booleans and one global target;
-     translate those into the new per-operation enabled+count fields. */
-  function migrateOpFields(raw){
-    if(!raw || typeof raw.opAddEnabled !== "undefined") return raw;
-    var legacyCount = normalizeCount(raw.target || 10);
-    var migrated = Object.assign({}, raw);
-    migrated.opAddEnabled = raw.opAdd !== undefined ? !!raw.opAdd : true;
-    migrated.opSubEnabled = raw.opSub !== undefined ? !!raw.opSub : true;
-    migrated.opAddCount = legacyCount;
-    migrated.opSubCount = legacyCount;
-    migrated.opMulEnabled = false; migrated.opMulCount = 10;
-    migrated.opDivEnabled = false; migrated.opDivCount = 10;
-    return migrated;
-  }
-
-  /* Older saves had an on/off switch plus a 5-30s stepper; the dropdown now
-     folds "off" and the duration into a single 0-8 value (0 = "-", off). */
-  function migrateTimerField(raw){
-    if(!raw || typeof raw.timerEnabled === "undefined") return raw;
-    var migrated = Object.assign({}, raw);
-    migrated.timerSeconds = raw.timerEnabled ? Math.max(1, Math.min(10, Math.round(raw.timerSeconds || 5))) : 0;
-    return migrated;
-  }
-
-  function migrateLegacyFields(raw){
-    return migrateTimerField(migrateOpFields(raw));
-  }
+  /* Settings normalization/migration and sum generation are pure rules
+     that live in rules.js -- a DOM-free module with its own Node test
+     suite (test/rules.test.js), the same pattern leitner.js follows for
+     the Leitner box rules. These are thin wrappers binding that pure
+     logic to this app's OP_DEFS/`state`, kept under their original names
+     so every call site elsewhere in this file is untouched. */
+  function normalizeCount(t){ return Rules.normalizeCount(t); }
+  function computeTarget(s){ return Rules.computeTarget(OP_DEFS, s); }
+  function migrateOpFields(raw){ return Rules.migrateOpFields(raw); }
+  function migrateTimerField(raw){ return Rules.migrateTimerField(raw); }
+  function migrateLegacyFields(raw){ return Rules.migrateLegacyFields(raw); }
 
   function applyTheme(theme){
     document.documentElement.setAttribute("data-color-theme", theme === "pink" ? "pink" : "blue");
@@ -1307,43 +1280,15 @@
   }
 
   /* ---------------- sums ---------------- */
-  function randInt(min, max){ return Math.floor(Math.random()*(max-min+1))+min; }
-
-  function shuffleArray(arr){
-    for(var i = arr.length - 1; i > 0; i--){
-      var j = Math.floor(Math.random() * (i + 1));
-      var tmp = arr[i]; arr[i] = arr[j]; arr[j] = tmp;
-    }
-    return arr;
-  }
+  function randInt(min, max){ return Rules.randInt(min, max); }
+  function shuffleArray(arr){ return Rules.shuffleArray(arr); }
 
   function opMaxFor(op){
     var def = OP_DEFS.filter(function(d){ return d.symbol === op; })[0];
     return def ? (state[def.maxKey] || 10) : 10;
   }
 
-  /* "Tot" limits the number range per soort: for + and - it caps the sum
-     resp. the minuend, for × and ÷ it caps the tafel (the factor / divisor
-     that's stepped through 1-10) so e.g. "tafels tot 3" only drills tafel
-     van 1 t/m 3. */
-  function genNumbersForOp(op){
-    var max = opMaxFor(op);
-    var a, b;
-    if(op === "+"){
-      do{ a = randInt(0, max); b = randInt(0, max); } while(a + b > max);
-      return { a: a, b: b, result: a + b };
-    } else if(op === "-"){
-      do{ a = randInt(0, max); b = randInt(0, max); } while(b > a);
-      return { a: a, b: b, result: a - b };
-    } else if(op === "×"){
-      a = randInt(1, max); b = randInt(1, 10);
-      return { a: a, b: b, result: a * b };
-    } else { // "÷"
-      b = randInt(1, max);
-      var q = randInt(1, 10);
-      return { a: b * q, b: b, result: q };
-    }
-  }
+  function genNumbersForOp(op){ return Rules.genNumbersForOp(op, opMaxFor(op)); }
 
   /* ---------------- Leitner (3 boxes) ---------------- */
   var leitnerCards = {}; // cardId -> { op, a, b, result, box, mastered }
@@ -1365,30 +1310,25 @@
     persistLeitnerCards(entries);
   }
 
-  /* A correct answer promotes a card for every box transition -- see
-     Leitner.promoteCard in leitner.js. `fast` is decided by the caller:
-     handleAnswer only reaches its correct branch when current.timedOut is
-     still false, i.e. the per-opgave timer (when one is set) hadn't run
-     out yet, so every promotion call here is a "fast" one. A timed-out
-     answer is scored as wrong before this is ever called (see
-     current.timedOut in handleAnswer / onTimeUp), and with no timer set
-     there's no depletion to race against, so every correct answer
-     promotes there too. This is only ever called when !current.faulted --
-     once an opgave has had a wrong try (or a timeout), the eventual
-     correct answer is just the child working it out for their own
-     learning and no longer changes the card's box; see current.faulted
-     in handleAnswer. */
-  function promoteLeitnerCard(id, fast){
-    var card = leitnerCards[id];
-    if(!card) return;
-    Leitner.promoteCard(card, fast);
-    persistLeitnerCard(id, card);
-  }
-  function demoteLeitnerCard(id){
-    var card = leitnerCards[id];
-    if(!card) return;
-    Leitner.demoteCard(card);
-    persistLeitnerCard(id, card);
+  /* One opgave can involve several submissions -- retries after a wrong
+     answer, or an answer given after the timer already ran out -- before
+     it's done with. Leitner.scoreAttempt (leitner.js) is the single,
+     tested rule for what any one submission does: only the FIRST fault
+     (wrong answer or timeout) on an opgave demotes the card and counts as
+     a mistake; everything after that, including the eventual correct
+     answer, changes nothing further. `fast` is only meaningful when
+     `correct` is true, and is decided by the caller: handleAnswer's
+     correct branch is only reached while current.timedOut is still
+     false, i.e. the per-opgave timer (when one is set) hadn't run out
+     yet, so every correct-and-not-yet-faulted answer there promotes. This
+     wrapper binds that pure rule to this app's `leitnerCards` map/
+     persistence and returns the `{faulted, isNewMistake}` verdict for the
+     caller to fold into current.faulted and its own mistake counters. */
+  function scoreLeitnerAttempt(id, alreadyFaulted, correct, fast){
+    var card = id ? leitnerCards[id] : null;
+    var result = Leitner.scoreAttempt(card, alreadyFaulted, correct, fast);
+    if(card) persistLeitnerCard(id, card);
+    return result;
   }
 
   function pickEntryForOp(def, excludeIds){
@@ -1671,7 +1611,7 @@
       if(highlightEl) highlightEl.classList.add("correct");
       flashResult("good");
       revealAnswer(n);
-      if(current.cardId && !current.faulted) promoteLeitnerCard(current.cardId, true);
+      scoreLeitnerAttempt(current.cardId, current.faulted, true, true);
       state.correct++;
       state.streak++;
       if(state.streak > state.roundLongestStreak) state.roundLongestStreak = state.streak;
@@ -1700,14 +1640,9 @@
       if(highlightEl) highlightEl.classList.add("wrong");
       flashResult("wrong");
       state.streak = 0;
-      /* Only the first wrong try on this opgave counts: the card is done
-         moving for today (box 1) and the mistake is recorded once. Further
-         retries on the same opgave are for the child to still work out the
-         right answer, but no longer change the card's box or the tallies --
-         see current.faulted. */
-      if(!current.faulted){
-        current.faulted = true;
-        if(current.cardId) demoteLeitnerCard(current.cardId);
+      var wrongResult = scoreLeitnerAttempt(current.cardId, current.faulted, false, false);
+      current.faulted = wrongResult.faulted;
+      if(wrongResult.isNewMistake){
         state.roundMistakes++;
         /* Not under Leitner: a mistake already sends the card back to box 1
            for a future review, so it doesn't also inflate today's target. */
@@ -1781,10 +1716,7 @@
     state.roundLongestStreak = 0;
   }
 
-  function formatDuration(ms){
-    var sec = Math.round(ms / 1000);
-    return sec >= 60 ? Math.floor(sec / 60) + "m " + (sec % 60) + "s" : sec + "s";
-  }
+  function formatDuration(ms){ return Rules.formatDuration(ms); }
 
   /* justFinished is false when we're merely re-displaying "nothing left"
      (app reopened, or "Nieuwe ronde starten" pressed with no due cards left)
@@ -1948,8 +1880,8 @@
      settings ("Tijd per opgave") -- no bar at all when that's "-", in
      either mode. Leitner's promotion rule rides on this same timer: a
      correct answer promotes as long as current.timedOut hasn't fired yet
-     (see promoteLeitnerCard / onTimeUp), so there's nothing extra to track
-     here beyond starting/stopping the bar itself. */
+     (see scoreLeitnerAttempt / onTimeUp), so there's nothing extra to
+     track here beyond starting/stopping the bar itself. */
   function startTimerForCurrentSum(){
     timerStop();
     var hasDuration = state.timerSeconds > 0;
@@ -1983,22 +1915,28 @@
     }
   }
   /* Time's up counts as wrong right away (Leitner card back to box 1 /
-     mistakePenalty extra opgaven), but doesn't advance to the next opgave --
-     the bar stays empty and the child still has to answer (see handleAnswer's
-     current.timedOut branch), it just can never be scored as correct. */
+     mistakePenalty extra opgaven) -- unless a wrong try already did that
+     for this opgave (current.faulted), in which case the timeout is just
+     the clock catching up to an already-recorded mistake and changes
+     nothing further, per scoreLeitnerAttempt's rule. It doesn't advance
+     to the next opgave either way -- the bar stays empty and the child
+     still has to answer (see handleAnswer's current.timedOut branch), it
+     just can never be scored as correct. */
   function onTimeUp(){
     if(!el.goalOverlay.hidden || current.timedOut) return;
     current.timedOut = true;
-    current.faulted = true;
     timerStop();
     el.timerFill.style.transition = "none";
     el.timerFill.style.width = "0%";
     state.streak = 0;
     state.roundTimeouts++;
-    state.roundMistakes++;
-    if(current.cardId) demoteLeitnerCard(current.cardId);
-    if(!state.leitnerEnabled && state.mistakePenalty > 0){
-      state.roundTarget += state.mistakePenalty;
+    var timeoutResult = scoreLeitnerAttempt(current.cardId, current.faulted, false, false);
+    current.faulted = timeoutResult.faulted;
+    if(timeoutResult.isNewMistake){
+      state.roundMistakes++;
+      if(!state.leitnerEnabled && state.mistakePenalty > 0){
+        state.roundTarget += state.mistakePenalty;
+      }
     }
     saveState();
     updateStreakUI();

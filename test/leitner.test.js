@@ -168,6 +168,68 @@ describe("demoteCard", () => {
   });
 });
 
+describe("scoreAttempt", () => {
+  test("a correct first try (fast) promotes the card and isn't a new mistake", () => {
+    const card = { box: 1, mastered: false };
+    const result = Leitner.scoreAttempt(card, false, true, true, 10);
+    assert.equal(card.box, 2);
+    assert.deepEqual(result, { faulted: false, isNewMistake: false });
+  });
+
+  test("a correct first try that wasn't fast leaves the box unchanged", () => {
+    const card = { box: 1, mastered: false };
+    const result = Leitner.scoreAttempt(card, false, true, false, 10);
+    assert.equal(card.box, 1);
+    assert.deepEqual(result, { faulted: false, isNewMistake: false });
+  });
+
+  test("a first wrong try demotes the card and is a new mistake", () => {
+    const card = { box: 3, mastered: false };
+    const result = Leitner.scoreAttempt(card, false, false, false, 10);
+    assert.equal(card.box, 1);
+    assert.deepEqual(result, { faulted: true, isNewMistake: true });
+  });
+
+  test("once faulted, a further wrong retry changes nothing and isn't counted again", () => {
+    const card = { box: 1, mastered: false, lastSeenDay: 10 };
+    const result = Leitner.scoreAttempt(card, true, false, false, 10);
+    assert.equal(card.box, 1);
+    assert.deepEqual(result, { faulted: true, isNewMistake: false });
+  });
+
+  test("once faulted, the eventual correct answer does not promote the card", () => {
+    const card = { box: 1, mastered: false, lastSeenDay: 10 };
+    const result = Leitner.scoreAttempt(card, true, true, true, 10);
+    assert.equal(card.box, 1);
+    assert.deepEqual(result, { faulted: true, isNewMistake: false });
+  });
+
+  test("five wrong tries then a correct one nets exactly one mistake and box 1", () => {
+    const card = { box: 3, mastered: false };
+    let faulted = false;
+    let mistakes = 0;
+    for (let i = 0; i < 5; i++) {
+      const r = Leitner.scoreAttempt(card, faulted, false, false, 10);
+      faulted = r.faulted;
+      if (r.isNewMistake) mistakes++;
+    }
+    const finalTry = Leitner.scoreAttempt(card, faulted, true, true, 10);
+    assert.equal(mistakes, 1);
+    assert.equal(card.box, 1);
+    assert.equal(finalTry.isNewMistake, false);
+  });
+
+  test("works without a card (classic mode has no Leitner card for an opgave)", () => {
+    const result = Leitner.scoreAttempt(null, false, false, false, 10);
+    assert.deepEqual(result, { faulted: true, isNewMistake: true });
+  });
+
+  test("a null card on an already-faulted opgave still reports no new mistake", () => {
+    const result = Leitner.scoreAttempt(undefined, true, true, true, 10);
+    assert.deepEqual(result, { faulted: true, isNewMistake: false });
+  });
+});
+
 describe("moveCard", () => {
   test("sets the new box, un-masters, and clears lastSeenDay", () => {
     const card = { box: 1, mastered: true, lastSeenDay: 10 };

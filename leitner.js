@@ -28,6 +28,30 @@
     return false;
   }
 
+  /* How many days until `box` is next due -- 0 means "due today" (matches
+     boxDueToday). Box 1 is always due, so it's always 0; anything that
+     isn't a real box (mastered has no due day) also gets 0, which callers
+     treat as "nothing to announce" rather than as a real due date. */
+  function daysUntilDue(box, day){
+    if(day === undefined) day = epochDay();
+    var interval = box === 2 ? 3 : box === 3 ? 5 : null;
+    if(interval === null) return 0;
+    var rem = day % interval;
+    return rem === 0 ? 0 : interval - rem;
+  }
+
+  /* The stat-tile label for box 2/3 (see index.html's leitner panel and
+     settings tiles): blank when there's nothing to say -- due today, or
+     not a box with a due-day rhythm at all -- "(voor morgen!)" for
+     tomorrow specifically, and "(in N dagen)" further out. Box 1 and
+     "mastered" are never passed here; their tiles never carry this label. */
+  function dueInLabel(box, day){
+    var days = daysUntilDue(box, day);
+    if(days === 0) return "";
+    if(days === 1) return "(voor morgen!)";
+    return "(in " + days + " dagen)";
+  }
+
   /* A card already answered today (right, wrong, or timed out -- see
      promoteCard/demoteCard, which always stamp lastSeenDay) stays out of
      today's queue even if it's still sitting in box 1 and box 1 is "due
@@ -127,6 +151,29 @@
     }
     if(card) demoteCard(card, day);
     return { faulted: true, isNewMistake: true };
+  }
+
+  /* The one place that decides what "a new day started" resets on the
+     app's round-tracking state. Bundled into a single function instead of
+     inline resets scattered at each call site, because that's exactly how
+     a previous bug happened: `correct`/`streak` got reset for the new day
+     but `roundMistakes`/`roundTimeouts`/`roundLongestStreak`/`roundStartTs`
+     were forgotten, so today's mistakes silently accumulated on top of
+     yesterday's leftover tally. Returns true when a rollover happened
+     (state was mutated), false when `day` still matches `state.leitnerDay`
+     and nothing changed. */
+  function rolloverIfNewDay(state, day){
+    if(day === undefined) day = epochDay();
+    if(state.leitnerDay === day) return false;
+    state.leitnerDay = day;
+    state.correct = 0;
+    state.streak = 0;
+    state.roundStartTs = Date.now();
+    state.roundMistakes = 0;
+    state.roundTimeouts = 0;
+    state.roundLongestStreak = 0;
+    state.roundLog = [];
+    return true;
   }
 
   function countBoxes(cards){
@@ -238,7 +285,10 @@
   return {
     epochDay: epochDay,
     boxDueToday: boxDueToday,
+    daysUntilDue: daysUntilDue,
+    dueInLabel: dueInLabel,
     cardDueToday: cardDueToday,
+    rolloverIfNewDay: rolloverIfNewDay,
     cardId: cardId,
     allCombosForOp: allCombosForOp,
     promoteCard: promoteCard,

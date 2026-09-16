@@ -45,6 +45,54 @@ describe("boxDueToday", () => {
   });
 });
 
+describe("daysUntilDue", () => {
+  test("box 1 is always 0 (always due)", () => {
+    for (const day of [0, 1, 2, 3, 4, 5, 100]) {
+      assert.equal(Leitner.daysUntilDue(1, day), 0);
+    }
+  });
+
+  test("box 2 counts down to the next multiple of 3", () => {
+    assert.equal(Leitner.daysUntilDue(2, 3), 0);
+    assert.equal(Leitner.daysUntilDue(2, 4), 2);
+    assert.equal(Leitner.daysUntilDue(2, 5), 1);
+    assert.equal(Leitner.daysUntilDue(2, 6), 0);
+  });
+
+  test("box 3 counts down to the next multiple of 5", () => {
+    assert.equal(Leitner.daysUntilDue(3, 5), 0);
+    assert.equal(Leitner.daysUntilDue(3, 6), 4);
+    assert.equal(Leitner.daysUntilDue(3, 9), 1);
+    assert.equal(Leitner.daysUntilDue(3, 10), 0);
+  });
+
+  test("an unknown box (e.g. 'mastered') is always 0", () => {
+    assert.equal(Leitner.daysUntilDue(4, 1), 0);
+  });
+});
+
+describe("dueInLabel", () => {
+  test("blank when due today", () => {
+    assert.equal(Leitner.dueInLabel(2, 3), "");
+    assert.equal(Leitner.dueInLabel(3, 5), "");
+  });
+
+  test("calls out tomorrow specifically", () => {
+    assert.equal(Leitner.dueInLabel(2, 5), "(voor morgen!)");
+    assert.equal(Leitner.dueInLabel(3, 9), "(voor morgen!)");
+  });
+
+  test("counts days further out", () => {
+    assert.equal(Leitner.dueInLabel(2, 4), "(in 2 dagen)");
+    assert.equal(Leitner.dueInLabel(3, 6), "(in 4 dagen)");
+  });
+
+  test("blank for a box with no due-day rhythm", () => {
+    assert.equal(Leitner.dueInLabel(1, 1), "");
+    assert.equal(Leitner.dueInLabel("mastered", 1), "");
+  });
+});
+
 describe("cardDueToday", () => {
   test("mastered cards are never due", () => {
     const card = { box: 1, mastered: true };
@@ -74,6 +122,39 @@ describe("cardDueToday", () => {
   test("a box-2 card is due on a multiple-of-3 day if not yet seen today", () => {
     const card = { box: 2, mastered: false };
     assert.equal(Leitner.cardDueToday(card, 9), true);
+  });
+});
+
+describe("rolloverIfNewDay", () => {
+  function freshState(day){
+    return {
+      leitnerDay: day, correct: 5, streak: 3, roundStartTs: 1000,
+      roundMistakes: 4, roundTimeouts: 2, roundLongestStreak: 6,
+      roundLog: [{ op: "+", a: 1, b: 2, result: 3, outcome: "wrong", ms: 500 }]
+    };
+  }
+
+  test("same day: leaves everything untouched and returns false", () => {
+    const state = freshState(10);
+    const changed = Leitner.rolloverIfNewDay(state, 10);
+    assert.equal(changed, false);
+    assert.deepEqual(state, freshState(10));
+  });
+
+  test("new day: resets correct/streak AND every round-tracking field together", () => {
+    const state = freshState(10);
+    const changed = Leitner.rolloverIfNewDay(state, 11);
+    assert.equal(changed, true);
+    assert.equal(state.leitnerDay, 11);
+    assert.equal(state.correct, 0);
+    assert.equal(state.streak, 0);
+    // A stale round tally is exactly the bug this guards against: today's
+    // mistakes/timeouts must not be added on top of yesterday's leftovers.
+    assert.equal(state.roundMistakes, 0);
+    assert.equal(state.roundTimeouts, 0);
+    assert.equal(state.roundLongestStreak, 0);
+    assert.deepEqual(state.roundLog, []);
+    assert.ok(state.roundStartTs >= 1000);
   });
 });
 

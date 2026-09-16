@@ -74,6 +74,16 @@ describe("migrateOpFields", () => {
     assert.equal(Rules.migrateOpFields(null), null);
     assert.equal(Rules.migrateOpFields(undefined), undefined);
   });
+
+  /* A genuinely fresh install (no legacy save under any key at all) hands
+     this an empty object, not old-format data -- it must come back
+     untouched so index.html's `Object.assign({}, defaults, migrated)` in
+     loadState keeps whatever `defaults` says for every op, instead of
+     this unconditionally forcing add/sub-only like a real legacy save. */
+  test("leaves a genuinely empty object untouched (fresh install, not a legacy save)", () => {
+    const raw = {};
+    assert.equal(Rules.migrateOpFields(raw), raw);
+  });
 });
 
 describe("migrateTimerField", () => {

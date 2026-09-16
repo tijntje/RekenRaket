@@ -31,9 +31,15 @@
   }
 
   /* Older saves only had opAdd/opSub booleans and one global target;
-     translate those into the new per-operation enabled+count fields. */
+     translate those into the new per-operation enabled+count fields. A
+     bare `{}` (a genuinely fresh install with no legacy save at all, not
+     an old-format one) must also be left untouched -- otherwise every
+     first open would get force-migrated into "only add/sub enabled",
+     silently overriding whatever `defaults` actually says for the other
+     ops, since `typeof {}.opAddEnabled` is "undefined" same as real
+     legacy data. */
   function migrateOpFields(raw){
-    if(!raw || typeof raw.opAddEnabled !== "undefined") return raw;
+    if(!raw || Object.keys(raw).length === 0 || typeof raw.opAddEnabled !== "undefined") return raw;
     var legacyCount = normalizeCount(raw.target || 10);
     var migrated = Object.assign({}, raw);
     migrated.opAddEnabled = raw.opAdd !== undefined ? !!raw.opAdd : true;

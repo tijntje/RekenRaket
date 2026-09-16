@@ -972,11 +972,11 @@
     mistakePenalty: 0,
     opAddEnabled: true, opAddCount: 10, opAddMax: 10,
     opSubEnabled: true, opSubCount: 10, opSubMax: 10,
-    opMulEnabled: false, opMulCount: 10, opMulMax: 10,
-    opDivEnabled: false, opDivCount: 10, opDivMax: 10,
-    mixedFormats: true, blocksEnabled: true, sound: true,
-    timerSeconds: 5, colorTheme: "blue",
-    leitnerEnabled: false,
+    opMulEnabled: true, opMulCount: 10, opMulMax: 1,
+    opDivEnabled: true, opDivCount: 10, opDivMax: 1,
+    mixedFormats: false, blocksEnabled: false, sound: true,
+    timerSeconds: 10, colorTheme: "blue",
+    leitnerEnabled: true,
     leitnerFreePractice: false,
     leitnerDay: 0,
     leitnerBatchSize: 15,
@@ -2756,6 +2756,12 @@
     applyTheme(state.colorTheme);
     loadLeitnerCards(function(cards){
       leitnerCards = cards;
+      /* Leitner now defaults to on (see `defaults`), so a genuinely fresh
+         install boots with it enabled but box 1 never seeded -- the same
+         situation the settings switch's click handler already guards
+         against when turning Leitner on by hand. Without this, a first
+         open would find nothing due and never offer any opgave at all. */
+      if(state.leitnerEnabled && Object.keys(leitnerCards).length === 0) seedLeitnerBoxOne();
       /* A new calendar day resets today's tally. Same-day reopen just
          resumes: roundTarget is always recomputed from the CURRENT due
          queue (correct + however much is left), never left at a stale,

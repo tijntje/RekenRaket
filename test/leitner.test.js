@@ -11,6 +11,31 @@ describe("epochDay", () => {
   test("is stable within the same day", () => {
     assert.equal(Leitner.epochDay(), Leitner.epochDay());
   });
+
+  /* Everything else in this file calls daysUntilDue/boxDueToday/dueInLabel
+     with an explicit `day`, which proves the rotation math but not that
+     the app's actual clock-driven calls (no `day` argument -- see
+     index.html's refreshLeitnerStats/refreshLeitnerPanel) advance when a
+     real day passes. Mocking Date.now to jump forward exercises that same
+     no-argument path the app uses, so this is the one test that would
+     catch e.g. epochDay() accidentally getting memoized. */
+  test("a real day passing changes epochDay() and dueInLabel() with no arguments", () => {
+    const realNow = Date.now;
+    try {
+      Date.now = () => realNow();
+      const today = Leitner.epochDay();
+      const todayLabel = Leitner.dueInLabel(3);
+
+      Date.now = () => realNow() + 86400000;
+      const tomorrow = Leitner.epochDay();
+      const tomorrowLabel = Leitner.dueInLabel(3);
+
+      assert.equal(tomorrow, today + 1);
+      assert.notEqual(tomorrowLabel, todayLabel);
+    } finally {
+      Date.now = realNow;
+    }
+  });
 });
 
 describe("boxDueToday", () => {
@@ -68,6 +93,28 @@ describe("daysUntilDue", () => {
 
   test("an unknown box (e.g. 'mastered') is always 0", () => {
     assert.equal(Leitner.daysUntilDue(4, 1), 0);
+  });
+
+  /* boxDueToday and daysUntilDue are two independent implementations of
+     the same due-day rhythm (see leitner.js) -- nothing forces them to
+     agree except this test. Walking a real stretch of consecutive days
+     (rather than a handful of hand-picked ones) is what actually proves
+     the rotation: box 2 due exactly every 3rd day, box 3 exactly every
+     5th, in lockstep with "is it due today". */
+  test("agrees with boxDueToday across 60 consecutive days, for every box", () => {
+    for (const box of [2, 3]) {
+      for (let day = 0; day < 60; day++) {
+        assert.equal(Leitner.daysUntilDue(box, day) === 0, Leitner.boxDueToday(box, day),
+          `box ${box}, day ${day}`);
+      }
+    }
+  });
+
+  test("box 2 is due exactly every 3rd day, box 3 exactly every 5th", () => {
+    for (let day = 0; day < 60; day++) {
+      assert.equal(Leitner.boxDueToday(2, day), day % 3 === 0, `day ${day}`);
+      assert.equal(Leitner.boxDueToday(3, day), day % 5 === 0, `day ${day}`);
+    }
   });
 });
 

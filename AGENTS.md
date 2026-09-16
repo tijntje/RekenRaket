@@ -44,13 +44,31 @@ rule explicitly handles (e.g. "already faulted", "nothing enabled", clamp
 boundaries), and any case a bug could plausibly hide in (off-by-one
 thresholds, `null`/`undefined` inputs where the caller can pass them).
 
+**Any new functionality or reported bug needs a test, full stop** — not
+just changes that happen to already live in `leitner.js`/`rules.js`. If the
+functionality or bug lives inline in `index.html` instead, that's a sign
+the decision it makes belongs in a pure module per the pattern above:
+extract it (or the smallest piece of it that has a testable outcome) into
+`leitner.js`/`rules.js`/a new module, wire `index.html` to call it, and add
+a test. E.g. the day-rollover bug where `state.roundMistakes` etc. weren't
+reset alongside `state.correct` on a new day got fixed by pulling that
+whole reset into `Leitner.rolloverIfNewDay()` and testing that it zeroes
+every round-tracking field together — that same shape (bundle the related
+resets/decisions into one tested function) is the template for future
+bug fixes, not a one-off. Only reach for "no automated coverage" (below)
+once extraction genuinely isn't possible.
+
 ## What stays untested
 
-`index.html` itself (rendering, timers, animations, audio, IndexedDB
-plumbing, modal show/hide) has no automated coverage and isn't expected to
-— it's UI wiring, not logic with outcomes to assert on. If a task changes
-that kind of code, check it by hand in a browser instead of trying to unit
-test it. Do not reach for Playwright or any browser-automation tool in this
-environment to verify changes — it isn't available here.
+Pure UI wiring in `index.html` — rendering, timers, animations, audio,
+IndexedDB plumbing, modal show/hide — has no automated coverage and isn't
+expected to, because it has no outcome a test could assert on beyond "did
+the DOM change," which this repo doesn't have a harness for. This is a
+narrow exception, not a default: it applies to the wiring itself, not to
+any decision/rule/reset that wiring happens to trigger (see above — that
+belongs in a tested module). If a task changes genuine UI wiring, check it
+by hand in a browser instead of trying to unit test it. Do not reach for
+Playwright or any browser-automation tool in this environment to verify
+changes — it isn't available here.
 
 Before considering any task in this repo finished, run `npm test`.

@@ -175,6 +175,32 @@ describe("genNumbersForOp", () => {
   });
 });
 
+describe("orderRoundLog", () => {
+  function entry(outcome, id){ return { op: "+", a: 1, b: 1, result: 2, outcome: outcome, ms: 100, id: id }; }
+
+  test("puts wrong first, then late, then correct", () => {
+    const log = [entry("correct", 1), entry("wrong", 2), entry("late", 3)];
+    const ids = Rules.orderRoundLog(log).map(function(e){ return e.id; });
+    assert.deepEqual(ids, [2, 3, 1]);
+  });
+
+  test("is stable: keeps original order within the same outcome", () => {
+    const log = [entry("wrong", 1), entry("correct", 2), entry("wrong", 3), entry("correct", 4)];
+    const ids = Rules.orderRoundLog(log).map(function(e){ return e.id; });
+    assert.deepEqual(ids, [1, 3, 2, 4]);
+  });
+
+  test("empty log stays empty", () => {
+    assert.deepEqual(Rules.orderRoundLog([]), []);
+  });
+
+  test("does not mutate the input array", () => {
+    const log = [entry("correct", 1), entry("wrong", 2)];
+    Rules.orderRoundLog(log);
+    assert.deepEqual(log.map(function(e){ return e.id; }), [1, 2]);
+  });
+});
+
 describe("formatDuration", () => {
   test("formats sub-minute durations as seconds", () => {
     assert.equal(Rules.formatDuration(45000), "45s");

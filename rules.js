@@ -91,6 +91,23 @@
     }
   }
 
+  /* Ranks a round's logged exercises (see index.html's roundLog) for
+     display in the history detail panel: wrong answers first, then
+     late-but-eventually-right ones, then plain correct ones -- so the
+     entries most worth a second look surface at the top. A stable sort:
+     entries within the same outcome keep the order they were actually
+     done in, rather than getting shuffled by the sort itself. */
+  var ROUND_LOG_OUTCOME_RANK = { wrong: 0, late: 1, correct: 2 };
+  function orderRoundLog(log){
+    return log
+      .map(function(entry, i){ return { entry: entry, i: i }; })
+      .sort(function(x, y){
+        var rankDiff = ROUND_LOG_OUTCOME_RANK[x.entry.outcome] - ROUND_LOG_OUTCOME_RANK[y.entry.outcome];
+        return rankDiff !== 0 ? rankDiff : x.i - y.i;
+      })
+      .map(function(x){ return x.entry; });
+  }
+
   function formatDuration(ms){
     var sec = Math.round(ms / 1000);
     return sec >= 60 ? Math.floor(sec / 60) + "m " + (sec % 60) + "s" : sec + "s";
@@ -105,6 +122,7 @@
     randInt: randInt,
     shuffleArray: shuffleArray,
     genNumbersForOp: genNumbersForOp,
+    orderRoundLog: orderRoundLog,
     formatDuration: formatDuration
   };
 });

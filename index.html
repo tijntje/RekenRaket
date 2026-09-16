@@ -396,6 +396,10 @@
     transition:transform .12s ease;
   }
   .primary-btn:active{ transform:scale(0.97); }
+  .primary-btn.secondary-btn{
+    background:var(--bg-panel-2); color:var(--ink); border:1px solid var(--line);
+    box-shadow:none;
+  }
 
   /* ---------- settings modal ---------- */
   .modal-backdrop{
@@ -536,6 +540,11 @@
     display:block; font-size:0.72rem; font-weight:800; text-transform:uppercase;
     letter-spacing:0.4px; color:var(--ink-dim); margin-top:4px;
   }
+  .stat-tile .due-in{
+    display:block; font-size:0.62rem; font-weight:700; text-transform:none;
+    letter-spacing:normal; color:var(--ink-dim); margin-top:2px;
+  }
+  .stat-tile .due-in:empty{ display:none; }
 
   .leitner-panel{
     margin-top:16px; padding:16px clamp(14px,3vw,22px);
@@ -600,6 +609,7 @@
     font-size:0.66rem; font-weight:800; padding:2px 7px; border-radius:999px;
     white-space:nowrap;
   }
+  .mini-badge.mini-badge-practice{ background:var(--gold-deep); border-color:var(--gold); color:var(--gold); }
   .row-actions{ display:flex; gap:6px; }
   .row-icon-btn{
     width:26px; height:26px; border-radius:8px; padding:0;
@@ -613,6 +623,23 @@
     font-weight:700; white-space:normal;
   }
   .hist-detail-row[hidden]{ display:none; }
+  .hist-detail-settings{ margin-bottom:10px; }
+  .exercise-log{
+    display:flex; flex-direction:column; gap:4px;
+    max-height:240px; overflow-y:auto;
+  }
+  .exercise-log-row{
+    display:flex; align-items:center; gap:8px; padding:5px 9px;
+    border-radius:8px; border-left:3px solid var(--line);
+    font-size:0.78rem; font-weight:700;
+  }
+  .exercise-log-row .exercise-eq{ flex:1; color:var(--ink); font-weight:800; }
+  .exercise-log-row .exercise-time{ font-variant-numeric:tabular-nums; }
+  .exercise-log-row .exercise-outcome{ min-width:34px; text-align:right; text-transform:uppercase; font-size:0.66rem; }
+  .exercise-log-row.outcome-correct{ border-left-color:var(--gold); }
+  .exercise-log-row.outcome-late{ border-left-color:var(--late); color:var(--late); background:rgba(255,159,67,0.08); }
+  .exercise-log-row.outcome-wrong{ border-left-color:var(--retry); color:var(--retry); background:rgba(206,131,152,0.1); }
+  .exercise-log-empty{ font-size:0.78rem; color:var(--ink-dim); }
 
   @media (prefers-reduced-motion: reduce){
     .rocket .flame, .numkey.correct, .numkey.late, .numkey.wrong, .digit-key.correct, .digit-key.late, .digit-key.wrong{ animation:none !important; }
@@ -708,8 +735,8 @@
   <div class="leitner-panel" id="leitnerPanel" hidden>
     <div class="stat-tiles leitner-panel-stats">
       <div class="stat-tile"><span class="val" id="lpBox1">0</span><span class="lbl">Box 1</span></div>
-      <div class="stat-tile"><span class="val" id="lpBox2">0</span><span class="lbl">Box 2</span></div>
-      <div class="stat-tile"><span class="val" id="lpBox3">0</span><span class="lbl">Box 3</span></div>
+      <div class="stat-tile"><span class="val" id="lpBox2">0</span><span class="lbl">Box 2</span><span class="due-in" id="lpBox2DueIn"></span></div>
+      <div class="stat-tile"><span class="val" id="lpBox3">0</span><span class="lbl">Box 3</span><span class="due-in" id="lpBox3DueIn"></span></div>
       <div class="stat-tile"><span class="val" id="lpMastered">0</span><span class="lbl">Gemasterd</span></div>
     </div>
     <div class="leitner-today" id="leitnerTodayText"></div>
@@ -831,8 +858,8 @@
       <p class="modal-text leitner-due" id="leitnerDueText"></p>
       <div class="stat-tiles leitner-stats" id="leitnerStatsTiles">
         <button type="button" class="stat-tile clickable" data-box="1" aria-label="Toon opgaven in box 1"><span class="val" id="leitnerBox1">0</span><span class="lbl">Box 1</span></button>
-        <button type="button" class="stat-tile clickable" data-box="2" aria-label="Toon opgaven in box 2"><span class="val" id="leitnerBox2">0</span><span class="lbl">Box 2</span></button>
-        <button type="button" class="stat-tile clickable" data-box="3" aria-label="Toon opgaven in box 3"><span class="val" id="leitnerBox3">0</span><span class="lbl">Box 3</span></button>
+        <button type="button" class="stat-tile clickable" data-box="2" aria-label="Toon opgaven in box 2"><span class="val" id="leitnerBox2">0</span><span class="lbl">Box 2</span><span class="due-in" id="leitnerBox2DueIn"></span></button>
+        <button type="button" class="stat-tile clickable" data-box="3" aria-label="Toon opgaven in box 3"><span class="val" id="leitnerBox3">0</span><span class="lbl">Box 3</span><span class="due-in" id="leitnerBox3DueIn"></span></button>
         <button type="button" class="stat-tile clickable" data-box="mastered" aria-label="Toon gemasterde opgaven"><span class="val" id="leitnerMastered">0</span><span class="lbl">Gemasterd</span></button>
       </div>
       <button type="button" class="reset-btn" id="leitnerResetBtn">Leitner-voortgang wissen</button>
@@ -950,10 +977,12 @@
     mixedFormats: true, blocksEnabled: true, sound: true,
     timerSeconds: 5, colorTheme: "blue",
     leitnerEnabled: false,
+    leitnerFreePractice: false,
     leitnerDay: 0,
     leitnerBatchSize: 15,
     target: 20, correct: 0, streak: 0,
-    roundStartTs: 0, roundMistakes: 0, roundTimeouts: 0, roundLongestStreak: 0
+    roundStartTs: 0, roundMistakes: 0, roundTimeouts: 0, roundLongestStreak: 0,
+    roundLog: []
   };
 
   /* Settings normalization/migration and sum generation are pure rules
@@ -1161,6 +1190,8 @@
     leitnerBox1: document.getElementById("leitnerBox1"),
     leitnerBox2: document.getElementById("leitnerBox2"),
     leitnerBox3: document.getElementById("leitnerBox3"),
+    leitnerBox2DueIn: document.getElementById("leitnerBox2DueIn"),
+    leitnerBox3DueIn: document.getElementById("leitnerBox3DueIn"),
     leitnerMastered: document.getElementById("leitnerMastered"),
     leitnerResetBtn: document.getElementById("leitnerResetBtn"),
     leitnerStatsTiles: document.getElementById("leitnerStatsTiles"),
@@ -1174,6 +1205,8 @@
     lpBox1: document.getElementById("lpBox1"),
     lpBox2: document.getElementById("lpBox2"),
     lpBox3: document.getElementById("lpBox3"),
+    lpBox2DueIn: document.getElementById("lpBox2DueIn"),
+    lpBox3DueIn: document.getElementById("lpBox3DueIn"),
     lpMastered: document.getElementById("lpMastered"),
     leitnerTodayText: document.getElementById("leitnerTodayText"),
     historyBtn: document.getElementById("historyBtn"),
@@ -1323,9 +1356,13 @@
      yet, so every correct-and-not-yet-faulted answer there promotes. This
      wrapper binds that pure rule to this app's `leitnerCards` map/
      persistence and returns the `{faulted, isNewMistake}` verdict for the
-     caller to fold into current.faulted and its own mistake counters. */
+     caller to fold into current.faulted and its own mistake counters.
+     During Vrij oefenen (state.leitnerFreePractice), `card` is forced to
+     null regardless of `id` -- the mistake/fault bookkeeping still runs
+     (so it still logs correctly), it just never touches the real card, so
+     practicing never promotes or demotes anything. */
   function scoreLeitnerAttempt(id, alreadyFaulted, correct, fast){
-    var card = id ? leitnerCards[id] : null;
+    var card = (id && !state.leitnerFreePractice) ? leitnerCards[id] : null;
     var result = Leitner.scoreAttempt(card, alreadyFaulted, correct, fast);
     if(card) persistLeitnerCard(id, card);
     return result;
@@ -1355,6 +1392,16 @@
   var opQueue = [];
   function buildOpQueue(){
     var q = [];
+    if(state.leitnerEnabled && state.leitnerFreePractice){
+      /* Vrij oefenen: every box-1 opgave, regardless of which ones are
+         actually due today or which op types are currently enabled --
+         "all of box 1" is the point, not "today's workload". */
+      Leitner.cardsInView(leitnerCards, "1").forEach(function(entry){
+        q.push({ op: entry.card.op, a: entry.card.a, b: entry.card.b, result: entry.card.result, cardId: entry.id });
+      });
+      opQueue = shuffleArray(q);
+      return;
+    }
     OP_DEFS.forEach(function(def){
       if(!state[def.enabledKey]) return;
       if(state.leitnerEnabled){
@@ -1409,6 +1456,12 @@
     candidate.cardId = entry.cardId || null;
     candidate.timedOut = false;
     candidate.faulted = false;
+    /* For the history detail panel's per-opgave log (see logCurrentExercise):
+       startedAt marks when this opgave appeared, firstFaultKind/faultMs
+       capture the moment (and cause) of its first fault, if any. */
+    candidate.startedAt = Date.now();
+    candidate.firstFaultKind = null;
+    candidate.faultMs = null;
 
     var unknown = state.mixedFormats ? nextSlot() : "result";
     candidate.unknown = unknown;
@@ -1570,6 +1623,17 @@
   var encouragements = ["Goed zo!", "Knap gedaan!", "Raket stijgt!", "Top!", "Super!"];
   var retryLines = ["Bijna! Probeer nog eens.", "Niet helemaal, nog een poging.", "Kijk nog eens goed."];
 
+  /* One entry per opgave in the history detail panel (see rules.js's
+     orderRoundLog for how they're sorted for display). `ms` is the time to
+     the moment the outcome was actually decided -- the first fault
+     (current.faultMs), or now if it was never faulted -- not the time to
+     the child's eventual answer, which for a timed-out opgave could be
+     seconds or minutes later and wouldn't mean anything. */
+  function logCurrentExercise(outcome){
+    var ms = current.faultMs !== null ? current.faultMs : (Date.now() - current.startedAt);
+    state.roundLog.push({ op: current.op, a: current.a, b: current.b, result: current.result, outcome: outcome, ms: Math.max(0, ms) });
+  }
+
   function handleAnswer(n, highlightEl){
     if(locked) return;
 
@@ -1585,6 +1649,12 @@
          kids who'd actually answered correctly, just too late. */
       var isRight = n === current.answer;
       var lateCls = isRight ? "late" : "wrong";
+      /* A wrong answer given BEFORE the timeout already decided this
+         opgave's outcome -- a numerically right guess volunteered after
+         the clock ran out doesn't undo that earlier fault. */
+      var logOutcome = current.firstFaultKind === "wrong" ? "wrong" : (isRight ? "late" : "wrong");
+      logCurrentExercise(logOutcome);
+      saveState();
       locked = true;
       if(highlightEl) highlightEl.classList.add(lateCls);
       flashResult(isRight ? "late" : "wrong");
@@ -1615,6 +1685,10 @@
       state.correct++;
       state.streak++;
       if(state.streak > state.roundLongestStreak) state.roundLongestStreak = state.streak;
+      /* current.timedOut is false in this branch (that case is handled
+         above), so the only way this opgave ends up faulted here is an
+         earlier wrong answer that got retried into a correct one. */
+      logCurrentExercise(current.firstFaultKind === "wrong" ? "wrong" : "correct");
       saveState();
       var bonus = state.streak > 0 && state.streak % 5 === 0;
       playCorrect(bonus);
@@ -1643,6 +1717,8 @@
       var wrongResult = scoreLeitnerAttempt(current.cardId, current.faulted, false, false);
       current.faulted = wrongResult.faulted;
       if(wrongResult.isNewMistake){
+        current.firstFaultKind = "wrong";
+        current.faultMs = Date.now() - current.startedAt;
         state.roundMistakes++;
         /* Not under Leitner: a mistake already sends the card back to box 1
            for a future review, so it doesn't also inflate today's target. */
@@ -1714,6 +1790,7 @@
     state.roundMistakes = 0;
     state.roundTimeouts = 0;
     state.roundLongestStreak = 0;
+    state.roundLog = [];
   }
 
   function formatDuration(ms){ return Rules.formatDuration(ms); }
@@ -1725,8 +1802,46 @@
      history entry. */
   function showGoal(justFinished){
     if(justFinished === undefined) justFinished = true;
+    /* Captured before the flag reset below so the rest of this function
+       can still tell a practice session apart from the real daily round
+       it displaced. */
+    var wasFreePractice = state.leitnerFreePractice;
     showRoundDoneState();
     var durationMs = Date.now() - state.roundStartTs;
+    /* Practice never counts as "the round" it displaced -- the moment it's
+       done, drop back into normal mode so "Vernieuwen"/a reload rebuilds
+       the real due-cards queue instead of handing out box 1 again. */
+    if(wasFreePractice) state.leitnerFreePractice = false;
+    var histSettings = { mixedFormats: state.mixedFormats, blocksEnabled: state.blocksEnabled, timerSeconds: state.timerSeconds, mistakePenalty: state.mistakePenalty, leitnerEnabled: state.leitnerEnabled };
+    OP_DEFS.forEach(function(def){
+      histSettings[def.enabledKey] = state[def.enabledKey];
+      histSettings[def.countKey] = state[def.countKey];
+    });
+    /* A practice run is optional extra drilling, not the graded daily
+       round -- no "TV-tijd verdiend" overlay, confetti or fanfare, since
+       nothing was actually earned by redoing box 1 (kids could otherwise
+       repeat it purely to re-trigger the reward screen). It lands straight
+       back on the plain "geen opgaven meer voor vandaag" gate that
+       showRoundDoneState() already put up above. Still logged to history
+       (see addHistoryEntry's `practice` flag) so it shows up in the
+       exercise-log detail panel. */
+    if(wasFreePractice){
+      saveState();
+      if(justFinished){
+        addHistoryEntry({
+          ts: Date.now(),
+          target: state.roundTarget,
+          durationMs: durationMs,
+          mistakes: state.roundMistakes,
+          timeouts: state.roundTimeouts,
+          longestStreak: state.roundLongestStreak,
+          settings: histSettings,
+          log: state.roundLog.slice(),
+          practice: true
+        });
+      }
+      return;
+    }
     el.overlayText.textContent = state.leitnerEnabled
       ? "Geen opgaven meer voor vandaag! Proficiat!"
       : "Je hebt " + state.roundTarget + " opgaven juist gemaakt. Goed gedaan, ga het maar zeggen!";
@@ -1738,11 +1853,6 @@
     if(!justFinished) return;
     playGoal();
     if(!reduceMotion) runConfetti();
-    var histSettings = { mixedFormats: state.mixedFormats, blocksEnabled: state.blocksEnabled, timerSeconds: state.timerSeconds, mistakePenalty: state.mistakePenalty, leitnerEnabled: state.leitnerEnabled };
-    OP_DEFS.forEach(function(def){
-      histSettings[def.enabledKey] = state[def.enabledKey];
-      histSettings[def.countKey] = state[def.countKey];
-    });
     addHistoryEntry({
       ts: Date.now(),
       target: state.roundTarget,
@@ -1750,7 +1860,9 @@
       mistakes: state.roundMistakes,
       timeouts: state.roundTimeouts,
       longestStreak: state.roundLongestStreak,
-      settings: histSettings
+      settings: histSettings,
+      log: state.roundLog.slice(),
+      practice: false
     });
   }
 
@@ -1792,7 +1904,12 @@
   }
   function showBatchCheckpoint(){
     var remaining = Math.max(0, state.roundTarget - state.correct);
-    showExerciseGate("Volgende reeks voor vandaag →", "Blok klaar! Nog " + remaining + " opgave" + (remaining === 1 ? "" : "n") + " te gaan vandaag.");
+    var plural = remaining === 1 ? "" : "n";
+    if(state.leitnerFreePractice){
+      showExerciseGate("Verder oefenen →", "Blok klaar! Nog " + remaining + " opgave" + plural + " om te oefenen.");
+    } else {
+      showExerciseGate("Volgende reeks voor vandaag →", "Blok klaar! Nog " + remaining + " opgave" + plural + " te gaan vandaag.");
+    }
   }
   function showStartGate(){
     showExerciseGate("Start reeks →", "Klaar om te starten met de opgaven van vandaag?");
@@ -1813,6 +1930,25 @@
     if(state.leitnerEnabled){
       el.feedback.textContent = "Geen opgaven meer voor vandaag.";
       el.feedback.className = "feedback good";
+      /* Left open overnight (e.g. a standalone home-screen app on iPad
+         never reloads on its own), this screen would otherwise keep
+         saying "niets meer" even after midnight quietly made a fresh
+         batch due -- let the child re-check without a real page reload. */
+      var refreshBtn = document.createElement("button");
+      refreshBtn.type = "button";
+      refreshBtn.className = "primary-btn";
+      refreshBtn.textContent = "Vernieuwen";
+      refreshBtn.addEventListener("click", syncDayAndShowGate);
+      el.numpad.appendChild(refreshBtn);
+      /* Optional, unlimited extra drilling of every box-1 opgave -- see
+         startFreePractice: it never promotes/demotes a card, so doing this
+         ten times in a row changes nothing about tomorrow's due cards. */
+      var practiceBtn = document.createElement("button");
+      practiceBtn.type = "button";
+      practiceBtn.className = "primary-btn secondary-btn";
+      practiceBtn.textContent = "Vrij oefenen";
+      practiceBtn.addEventListener("click", startFreePractice);
+      el.numpad.appendChild(practiceBtn);
     } else {
       var btn = document.createElement("button");
       btn.type = "button";
@@ -1823,6 +1959,32 @@
       el.feedback.textContent = "Ronde klaar!";
       el.feedback.className = "feedback good";
     }
+  }
+
+  /* Re-derives today's due queue and shows whichever gate matches it --
+     shared by the boot sequence and the "Vernieuwen" button above, since
+     that button's whole job is to redo this same day-rollover check
+     on demand instead of waiting for a page reload. */
+  function syncDayAndShowGate(){
+    buildOpQueue();
+    if(state.leitnerEnabled){
+      Leitner.rolloverIfNewDay(state, epochDay());
+      syncLeitnerTarget();
+    } else {
+      state.target = computeTarget(state);
+      if(typeof state.roundTarget !== "number" || state.roundTarget < state.target){
+        state.roundTarget = state.target;
+      }
+    }
+    syncSettingsUI();
+    if(state.correct >= state.roundTarget || (state.leitnerEnabled && opQueue.length === 0)){
+      showRoundDoneState();
+    } else if(state.correct === 0){
+      if(state.leitnerEnabled) showStartGate(); else showBeginGate();
+    } else {
+      showResumeGate();
+    }
+    updateProgressUI();
   }
 
   function newRound(){
@@ -1854,6 +2016,43 @@
       el.feedback.textContent = "Kies het juiste antwoord!";
       el.feedback.className = "feedback";
     }
+  }
+
+  /* "Vrij oefenen": an optional, repeatable drill through every box-1
+     opgave, for a kid who wants extra practice on the ones they're still
+     shaky on. It reuses the normal round machinery (buildOpQueue,
+     generateSum, handleAnswer) rather than a separate code path, but sets
+     state.leitnerFreePractice first -- buildOpQueue then draws from ALL of
+     box 1 instead of today's due cards, and scoreLeitnerAttempt skips the
+     real card lookup entirely, so no amount of practicing ever promotes or
+     demotes anything. Only offered from the Leitner "niets meer vandaag"
+     screen, so there's always a real due-cards queue to fall back to once
+     practice ends (see showGoal, which clears the flag again). */
+  function startFreePractice(){
+    state.leitnerFreePractice = true;
+    state.correct = 0;
+    state.streak = 0;
+    buildOpQueue();
+    syncLeitnerTarget();
+    startRoundTracking();
+    saveState();
+    el.goalOverlay.hidden = true;
+    updateProgressUI();
+    if(opQueue.length === 0){
+      /* Box 1 is always seeded in full (see seedLeitnerBoxOne), so this
+         should be unreachable in practice -- guarded anyway rather than
+         showing a live exercise screen with nothing behind it. */
+      state.leitnerFreePractice = false;
+      saveState();
+      showRoundDoneState();
+      return;
+    }
+    el.rocket.hidden = false;
+    el.railFooter.hidden = false;
+    el.sumEl.hidden = false;
+    generateSum();
+    el.feedback.textContent = "Kies het juiste antwoord!";
+    el.feedback.className = "feedback";
   }
 
   /* ---------------- timer per opgave ---------------- */
@@ -1933,6 +2132,8 @@
     var timeoutResult = scoreLeitnerAttempt(current.cardId, current.faulted, false, false);
     current.faulted = timeoutResult.faulted;
     if(timeoutResult.isNewMistake){
+      current.firstFaultKind = "timeout";
+      current.faultMs = Date.now() - current.startedAt;
       state.roundMistakes++;
       if(!state.leitnerEnabled && state.mistakePenalty > 0){
         state.roundTarget += state.mistakePenalty;
@@ -2123,6 +2324,8 @@
     markBoxDue(el.leitnerBox1, 1);
     markBoxDue(el.leitnerBox2, 2);
     markBoxDue(el.leitnerBox3, 3);
+    el.leitnerBox2DueIn.textContent = Leitner.dueInLabel(2, epochDay());
+    el.leitnerBox3DueIn.textContent = Leitner.dueInLabel(3, epochDay());
   }
 
   /* Gameplay-visible Leitner glance, shown under the rocket panel only
@@ -2139,6 +2342,8 @@
     markBoxDue(el.lpBox1, 1);
     markBoxDue(el.lpBox2, 2);
     markBoxDue(el.lpBox3, 3);
+    el.lpBox2DueIn.textContent = Leitner.dueInLabel(2, epochDay());
+    el.lpBox3DueIn.textContent = Leitner.dueInLabel(3, epochDay());
     var remaining = Math.max(0, state.roundTarget - state.correct);
     el.leitnerTodayText.textContent = remaining === 0
       ? "Alle opgaven van vandaag zijn klaar!"
@@ -2320,6 +2525,29 @@
   });
 
   /* ---------------- history ---------------- */
+  var EXERCISE_OUTCOME_LABEL = { wrong: "fout", late: "laat", correct: "goed" };
+  /* The per-opgave breakdown shown behind a history row's "i" button --
+     ordered via Rules.orderRoundLog so the entries worth a second look
+     (wrong, then late) surface above the plain correct ones, regardless of
+     when they happened during the round. Older history entries logged
+     before this existed have no `log` at all, so that's shown as its own
+     empty state rather than an empty list. */
+  function buildExerciseLogHtml(log){
+    if(!log || !log.length){
+      return '<div class="exercise-log-empty">Geen opgaven-detail opgeslagen voor deze ronde.</div>';
+    }
+    var rows = Rules.orderRoundLog(log).map(function(entry){
+      var eq = entry.a + " " + entry.op + " " + entry.b + " = " + entry.result;
+      var sec = (entry.ms / 1000).toFixed(1) + "s";
+      return '<div class="exercise-log-row outcome-' + entry.outcome + '">' +
+        '<span class="exercise-eq">' + eq + '</span>' +
+        '<span class="exercise-time">' + sec + '</span>' +
+        '<span class="exercise-outcome">' + (EXERCISE_OUTCOME_LABEL[entry.outcome] || entry.outcome) + '</span>' +
+      '</div>';
+    }).join("");
+    return '<div class="exercise-log">' + rows + '</div>';
+  }
+
   function buildBarChart(svg, values, color){
     var W = 300, H = 150, padL = 6, padR = 6, padT = 20, padB = 10;
     var innerW = W - padL - padR, innerH = H - padT - padB;
@@ -2394,7 +2622,8 @@
           badges = '<span class="mini-badge">' + opsBadge + '</span><span class="mini-badge">' + timerBadge + '</span>' +
             (s.blocksEnabled ? '<span class="mini-badge">blokjes</span>' : '') +
             (s.leitnerEnabled ? '<span class="mini-badge">leitner</span>' : '') +
-            (s.mistakePenalty ? '<span class="mini-badge">+' + s.mistakePenalty + '/fout</span>' : '');
+            (s.mistakePenalty ? '<span class="mini-badge">+' + s.mistakePenalty + '/fout</span>' : '') +
+            (e.practice ? '<span class="mini-badge mini-badge-practice">vrij oefenen</span>' : '');
           detail = "Doel: " + e.target + " opgaven · Soorten: " + opsBadge +
             " · Vraagvormen: " + (s.mixedFormats ? "gemengd" : "klassiek") +
             " · Tijd per opgave: " + (timerOn ? s.timerSeconds + " sec" : "geen limiet") +
@@ -2409,14 +2638,17 @@
         return "<tr class=\"hist-row\"><td>" + dateStr + "</td><td>" + durStr + "</td><td>" + secPerSum + "s</td><td>" + e.mistakes + "</td>" +
           "<td><div class=\"badge-row\">" + badges + "</div></td>" +
           "<td class=\"row-actions\">" +
-            "<button type=\"button\" class=\"row-icon-btn\" data-toggle-detail aria-label=\"Instellingen tonen\">" +
+            "<button type=\"button\" class=\"row-icon-btn\" data-toggle-detail aria-label=\"Details tonen\">" +
               '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8v.01" stroke-linecap="round"/></svg>' +
             "</button>" +
             "<button type=\"button\" class=\"row-icon-btn row-icon-danger\" data-delete-id=\"" + e._id + "\" aria-label=\"Ronde verwijderen\">" +
               '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
             "</button>" +
           "</td></tr>" +
-          "<tr class=\"hist-detail-row\" hidden><td colspan=\"6\">" + detail + "</td></tr>";
+          "<tr class=\"hist-detail-row\" hidden><td colspan=\"6\">" +
+            "<div class=\"hist-detail-settings\">" + detail + "</div>" +
+            buildExerciseLogHtml(e.log) +
+          "</td></tr>";
       });
       el.historyTableBody.innerHTML = rows.join("");
     });
@@ -2524,52 +2756,32 @@
     applyTheme(state.colorTheme);
     loadLeitnerCards(function(cards){
       leitnerCards = cards;
-      buildOpQueue();
-      if(state.leitnerEnabled){
-        /* A new calendar day resets today's tally. Same-day reopen just
-           resumes: roundTarget is always recomputed from the CURRENT due
-           queue (correct + however much is left), never left at a stale,
-           larger number from an earlier session -- that stale-max approach
-           is what previously kept "opgaven te gaan" from ever reaching 0
-           once cards got promoted out of box 1 between sessions. */
-        if(state.leitnerDay !== epochDay()){
-          state.leitnerDay = epochDay();
-          state.correct = 0;
-          state.streak = 0;
-        }
-        syncLeitnerTarget();
-      } else {
-        state.target = computeTarget(state);
-        if(typeof state.roundTarget !== "number" || state.roundTarget < state.target){
-          state.roundTarget = state.target;
-        }
-      }
-      syncSettingsUI();
-      if(state.correct >= state.roundTarget || (state.leitnerEnabled && opQueue.length === 0)){
-        /* Reopening the app after the round/day is already done (or there
-           was never anything due today): the "TV-tijd verdiend" overlay is
-           a celebration for JUST finishing, earned by answering, so it
-           must never appear on a page load -- show the same plain done
-           state on the main screen instead (message for Leitner, "Nieuwe
-           ronde starten" button for classic), with the overlay left shut. */
-        showRoundDoneState();
-      } else if(state.correct === 0){
-        /* Fresh round/reeks: wait for an explicit Start press instead of
-           dropping straight into the first sum. */
-        if(state.leitnerEnabled) showStartGate(); else showBeginGate();
-      } else {
-        /* Resuming part-way through a round: still never drop straight
-           into a sum on a page load/refresh -- gate it behind a "Verder"
-           press too, same as reopening from settings. */
-        showResumeGate();
-      }
-      /* <main> stays hidden (see the static markup) until this exact point,
-         so the rocket's launch position, the rail counts, the feedback
-         text and every other default/placeholder value never gets painted
-         even for a single frame -- only the fully-decided state above is
-         ever shown. */
+      /* A new calendar day resets today's tally. Same-day reopen just
+         resumes: roundTarget is always recomputed from the CURRENT due
+         queue (correct + however much is left), never left at a stale,
+         larger number from an earlier session -- that stale-max approach
+         is what previously kept "opgaven te gaan" from ever reaching 0
+         once cards got promoted out of box 1 between sessions.
+         Reopening the app after the round/day is already done (or there
+         was never anything due today): the "TV-tijd verdiend" overlay is
+         a celebration for JUST finishing, earned by answering, so it must
+         never appear on a page load -- syncDayAndShowGate shows the same
+         plain done state on the main screen instead (message for Leitner,
+         "Nieuwe ronde starten" button for classic), with the overlay left
+         shut. A fresh round/reeks waits for an explicit Start press
+         instead of dropping straight into the first sum; resuming
+         part-way through one gates behind a "Verder" press instead, same
+         as reopening from settings.
+         <main> is unhidden right before this call rather than after: it
+         must already be laid out (not display:none) by the time
+         syncDayAndShowGate's updateProgressUI runs, or el.skyRail.clientHeight
+         reads 0 and the rocket's launch position falls back to a wrong
+         default. Nothing paints in between -- the whole boot sequence
+         here is synchronous -- so the browser never gets a chance to
+         show mainView before it's been filled with the fully-decided
+         state below. */
       el.mainView.hidden = false;
-      updateProgressUI();
+      syncDayAndShowGate();
     });
   });
 })();

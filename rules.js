@@ -114,6 +114,15 @@
       .map(function(x){ return x.entry; });
   }
 
+  /* Which question-format / helper-block options actually apply. Leitner
+     always asks for the result and never shows counting blocks, whatever
+     the stored switches say; those stay as the child left them, so they
+     come back as soon as Leitner is switched off again. */
+  function effectiveHelpers(s){
+    var classic = !s.leitnerEnabled;
+    return { mixedFormats: classic && !!s.mixedFormats, blocksEnabled: classic && !!s.blocksEnabled };
+  }
+
   function formatDuration(ms){
     var sec = Math.round(ms / 1000);
     return sec >= 60 ? Math.floor(sec / 60) + "m " + (sec % 60) + "s" : sec + "s";
@@ -129,6 +138,7 @@
     shuffleArray: shuffleArray,
     genNumbersForOp: genNumbersForOp,
     orderRoundLog: orderRoundLog,
+    effectiveHelpers: effectiveHelpers,
     formatDuration: formatDuration
   };
 });

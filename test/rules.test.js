@@ -225,3 +225,25 @@ describe("formatDuration", () => {
     assert.equal(Rules.formatDuration(1600), "2s");
   });
 });
+
+describe("effectiveHelpers", () => {
+  test("classic mode keeps the stored switches", () => {
+    assert.deepEqual(Rules.effectiveHelpers({ leitnerEnabled: false, mixedFormats: true, blocksEnabled: true }), { mixedFormats: true, blocksEnabled: true });
+    assert.deepEqual(Rules.effectiveHelpers({ leitnerEnabled: false, mixedFormats: true, blocksEnabled: false }), { mixedFormats: true, blocksEnabled: false });
+  });
+
+  test("Leitner turns both off, even when the switches are on", () => {
+    assert.deepEqual(Rules.effectiveHelpers({ leitnerEnabled: true, mixedFormats: true, blocksEnabled: true }), { mixedFormats: false, blocksEnabled: false });
+  });
+
+  test("does not modify the stored settings", () => {
+    const s = { leitnerEnabled: true, mixedFormats: true, blocksEnabled: true };
+    Rules.effectiveHelpers(s);
+    assert.equal(s.mixedFormats, true);
+    assert.equal(s.blocksEnabled, true);
+  });
+
+  test("missing fields count as off", () => {
+    assert.deepEqual(Rules.effectiveHelpers({}), { mixedFormats: false, blocksEnabled: false });
+  });
+});

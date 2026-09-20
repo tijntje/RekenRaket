@@ -803,12 +803,12 @@
             <div class="switch" id="soundSwitch" role="switch" aria-checked="true" tabindex="0"><div class="knob"></div></div>
           </div>
 
-          <div class="toggle-row">
+          <div class="toggle-row" id="formatRow">
             <span class="field-label inline">Andere vraagvormen</span>
             <div class="switch" id="formatSwitch" role="switch" aria-checked="true" tabindex="0"><div class="knob"></div></div>
           </div>
 
-          <div class="toggle-row">
+          <div class="toggle-row" id="blocksSettingRow">
             <span class="field-label inline">Hulpblokjes</span>
             <div class="switch" id="blocksSwitch" role="switch" aria-checked="true" tabindex="0"><div class="knob"></div></div>
           </div>
@@ -1244,6 +1244,8 @@
     opGridLabel: document.getElementById("opGridLabel"),
     opGrid: document.getElementById("opGrid"),
     soundSwitch: document.getElementById("soundSwitch"),
+    formatRow: document.getElementById("formatRow"),
+    blocksSettingRow: document.getElementById("blocksSettingRow"),
     formatSwitch: document.getElementById("formatSwitch"),
     timerSelect: document.getElementById("timerSelect"),
     timerWrap: document.getElementById("timerWrap"),
@@ -1562,7 +1564,7 @@
     candidate.firstFaultKind = null;
     candidate.faultMs = null;
 
-    var unknown = state.mixedFormats ? nextSlot() : "result";
+    var unknown = Rules.effectiveHelpers(state).mixedFormats ? nextSlot() : "result";
     candidate.unknown = unknown;
     candidate.answer = unknown === "a" ? candidate.a : unknown === "b" ? candidate.b : candidate.result;
 
@@ -1609,7 +1611,7 @@
     if(current.unknown === "a"){ el.numA.textContent = n; }
     else if(current.unknown === "b"){ el.numB.textContent = n; }
     else { el.qEl.textContent = n; }
-    if(state.blocksEnabled && blocksSupported()){
+    if(Rules.effectiveHelpers(state).blocksEnabled && blocksSupported()){
       var container = current.unknown === "a" ? el.blocksA : current.unknown === "b" ? el.blocksB : el.blocksResult;
       var count = current.unknown === "a" ? current.a : current.unknown === "b" ? current.b : current.result;
       fillCluster(container, count, true);
@@ -1627,7 +1629,7 @@
   }
 
   function renderBlocks(){
-    if(!state.blocksEnabled || !blocksSupported()){ el.blocksRow.hidden = true; return; }
+    if(!Rules.effectiveHelpers(state).blocksEnabled || !blocksSupported()){ el.blocksRow.hidden = true; return; }
     el.blocksRow.hidden = false;
     el.blocksOp.textContent = current.op;
     fillCluster(el.blocksA, current.a, current.unknown !== "a");
@@ -1927,7 +1929,8 @@
        done, drop back into normal mode so "Vernieuwen"/a reload rebuilds
        the real due-cards queue instead of handing out box 1 again. */
     if(wasFreePractice) state.leitnerFreePractice = false;
-    var histSettings = { mixedFormats: state.mixedFormats, blocksEnabled: state.blocksEnabled, timerSeconds: state.timerSeconds, mistakePenalty: state.mistakePenalty, leitnerEnabled: state.leitnerEnabled };
+    var helpers = Rules.effectiveHelpers(state);
+    var histSettings = { mixedFormats: helpers.mixedFormats, blocksEnabled: helpers.blocksEnabled, timerSeconds: state.timerSeconds, mistakePenalty: state.mistakePenalty, leitnerEnabled: state.leitnerEnabled };
     OP_DEFS.forEach(function(def){
       histSettings[def.enabledKey] = state[def.enabledKey];
       histSettings[def.countKey] = state[def.countKey];
@@ -2404,6 +2407,10 @@
        today's tally and re-shuffle the queue); "Leitner-voortgang wissen"
        in settings is the deliberate equivalent, so hide this shortcut. */
     el.restartBtn.hidden = state.leitnerEnabled;
+    /* Leitner always asks for the result and never shows counting blocks
+       (Rules.effectiveHelpers), so those two switches would do nothing. */
+    el.formatRow.hidden = state.leitnerEnabled;
+    el.blocksSettingRow.hidden = state.leitnerEnabled;
     el.leitnerBatchSelect.value = state.leitnerBatchSize;
     el.opGridLabel.textContent = state.leitnerEnabled ? "Soorten opgaven" : "Soorten opgaven & aantal";
     OP_DEFS.forEach(function(def){
@@ -2646,7 +2653,7 @@
   el.leitnerSwitch.addEventListener("click", function(){
     state.leitnerEnabled = !state.leitnerEnabled;
     if(state.leitnerEnabled && Object.keys(leitnerCards).length === 0) seedLeitnerBoxOne();
-    syncSettingsUI(); saveState(); refreshLeitnerPanel();
+    syncSettingsUI(); saveState(); refreshLeitnerPanel(); renderBlocks();
   });
   el.leitnerSwitch.addEventListener("keydown", function(e){
     if(e.key === "Enter" || e.key === " "){ e.preventDefault(); el.leitnerSwitch.click(); }

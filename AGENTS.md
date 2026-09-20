@@ -58,6 +58,46 @@ resets/decisions into one tested function) is the template for future
 bug fixes, not a one-off. Only reach for "no automated coverage" (below)
 once extraction genuinely isn't possible.
 
+## Keep the logboek complete
+
+The logboek ([eventlog.js](eventlog.js), events written in `index.html` via
+`logEvent(...)`) is how a game gets debugged after the fact: the child plays
+on an iPad, the export/log is pasted to a developer, and the whole game has
+to be replayable from it (see `test/eventlog.test.js`). A logboek with holes
+defeats that purpose, so **whenever you add or change anything that affects
+what happens in a game, log it in the same pass** — a new rule or scoring
+decision, a new kind of opgave or queue source, a new setting, gate/screen,
+button that changes state, or any other state change. Concretely:
+
+- Log the *decision and its inputs/outputs* (e.g. card before/after, what
+  was answered), not just that something happened.
+- New settings are picked up automatically by `settings_change` (via
+  `EventLog.settingsSnapshot`) as long as they live on `state`; per-round
+  progress keys must be added to `PROGRESS_KEYS` in `eventlog.js`.
+- Keep the readable form: opgaven as `5+3=x` (`EventLog.sumText`), and add a
+  case to `describe` in `eventlog.js` for any new event type with a bespoke
+  layout, plus tests for it in `test/eventlog.test.js`.
+- The logboek is export-only: importing must never read or overwrite it.
+- Keep events after `run_start`: anything that belongs to a run must be
+  logged after that run's `run_start`, because `EventLog.trimEvents` cuts
+  there.
+
+## Bump the version with every change
+
+The app's version lives in [version.js](version.js) (global `Version`,
+shown at the bottom of Instellingen → Algemeen and logged in
+`session_start`), and `package.json`'s `"version"` must equal it —
+`test/version.test.js` fails if they drift. It is semver, MAJOR.MINOR.PATCH:
+
+- **PATCH**: a bug fix or wording tweak; nothing new for the child.
+- **MINOR**: new functionality — a feature, setting, rule, or screen.
+- **MAJOR**: a change that can break stored data — a new IndexedDB layout,
+  an irreversible settings migration, or a backup format older exports
+  can't be imported into.
+
+Bump it in the same pass as the change, in both files. Stay below 1.0.0
+until the owner says the app is finished.
+
 ## What stays untested
 
 Pure UI wiring in `index.html` — rendering, timers, animations, audio,

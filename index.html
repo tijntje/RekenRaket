@@ -417,6 +417,7 @@
     border-radius:20px; box-shadow:var(--shadow);
     padding:22px 22px 20px;
     display:flex; flex-direction:column; gap:18px;
+    max-height:100%; overflow-y:auto;
   }
   .modal.modal-settings{ max-width:680px; }
   .general-panels{ display:grid; grid-template-columns:1fr 1fr; gap:22px; align-items:start; }
@@ -496,6 +497,8 @@
   .switch.on{ background:var(--gold-deep); border-color:var(--gold); }
   .switch.on .knob{ transform:translateX(20px); background:var(--gold); }
   .settings-tabs{ display:flex; gap:8px; }
+  .backup-row{ display:flex; gap:8px; margin-top:16px; }
+  .leitner-box-moveall{ display:flex; align-items:center; justify-content:space-between; gap:8px; margin:10px 0; }
   .settings-tab{
     flex:1; padding:10px 8px; border-radius:12px;
     background:var(--bg-panel-2); border:1px solid var(--line); color:var(--ink-dim);
@@ -845,6 +848,12 @@
           </div>
         </div>
       </div>
+
+      <div class="backup-row">
+        <button type="button" class="reset-btn" id="exportBtn">Exporteren</button>
+        <button type="button" class="reset-btn" id="importBtn">Importeren</button>
+        <input type="file" id="importFile" accept="application/json,.json" hidden>
+      </div>
     </div>
 
     <div class="tab-panel" id="tabLeitner" hidden>
@@ -945,12 +954,18 @@
       <button type="button" class="settings-tab" data-box="3">Box 3</button>
       <button type="button" class="settings-tab" data-box="mastered">Gemasterd</button>
     </div>
+    <div class="leitner-box-moveall" id="leitnerBoxMoveAll">
+      <label for="leitnerBoxMoveAllSelect">Verplaats alle opgaven hier naar</label>
+      <select class="op-count-select" id="leitnerBoxMoveAllSelect"></select>
+    </div>
     <p class="modal-text" id="leitnerBoxEmpty" hidden>Geen opgaven in deze box.</p>
     <div class="leitner-box-list" id="leitnerBoxList"></div>
   </div>
 </div>
 
 <script src="leitner.js"></script>
+<script src="eventlog.js"></script>
+<script src="backup.js"></script>
 <script src="rules.js"></script>
 <script>
 (function(){
@@ -1071,6 +1086,42 @@
   function persistLeitnerCards(entries){ return leitnerStore.putAll(entries); }
   function loadLeitnerCards(callback){ return leitnerStore.loadAll(callback); }
 
+  /* ---------------- logboek ---------------- */
+  /* Event log of what happened in the game (see eventlog.js): kept in
+     memory, saved (debounced) to the same IndexedDB store as `state`
+     under its own key, printed to the console as it happens, and part of
+     every export. Trimmed to the last few runs so it can't grow forever. */
+  var EVENTS_KEY = "events";
+  var eventLog = [];
+  var eventPersistTimer = null;
+  function persistEventLog(){
+    eventPersistTimer = null;
+    eventLog = EventLog.trimEvents(eventLog);
+    openDB().then(function(db){
+      db.transaction(DB_STORE, "readwrite").objectStore(DB_STORE).put(eventLog, EVENTS_KEY);
+    }).catch(function(){});
+  }
+  function loadEventLog(callback){
+    openDB().then(function(db){
+      var req = db.transaction(DB_STORE, "readonly").objectStore(DB_STORE).get(EVENTS_KEY);
+      req.onsuccess = function(){ callback(Array.isArray(req.result) ? req.result : []); };
+      req.onerror = function(){ callback([]); };
+    }).catch(function(){ callback([]); });
+  }
+  function logEvent(type, data){
+    var e = EventLog.makeEvent(type, data);
+    eventLog.push(e);
+    try{ console.log("[rekenraket] " + EventLog.formatEvent(e)); }catch(err){}
+    if(eventPersistTimer === null) eventPersistTimer = setTimeout(persistEventLog, 400);
+  }
+  function flushEventLog(){
+    if(eventPersistTimer !== null){ clearTimeout(eventPersistTimer); persistEventLog(); }
+  }
+  window.addEventListener("pagehide", flushEventLog);
+  document.addEventListener("visibilitychange", function(){ if(document.hidden) flushEventLog(); });
+  /* Type rekenLog() in the console to get the whole logboek as a table. */
+  window.rekenLog = function(){ console.table(eventLog); return eventLog; };
+
   function readLegacyState(){
     try{
       var raw = localStorage.getItem(LEGACY_STORAGE_KEY);
@@ -1084,7 +1135,19 @@
     }).catch(function(){});
   }
 
-  function saveState(){ persistState(state); }
+  /* Every settings change ends up in the logboek: saveState is called
+     after each one (and after each answer, when nothing settings-wise
+     changed and the diff is null). */
+  var lastLoggedSettings = null;
+  function logSettingsChanges(){
+    var now = EventLog.settingsSnapshot(state);
+    if(lastLoggedSettings){
+      var changes = EventLog.diffSettings(lastLoggedSettings, now);
+      if(changes) logEvent("settings_change", { changes: changes });
+    }
+    lastLoggedSettings = now;
+  }
+  function saveState(){ logSettingsChanges(); persistState(state); }
 
   function loadState(callback){
     openDB().then(function(db){
@@ -1196,12 +1259,17 @@
     leitnerBox3DueIn: document.getElementById("leitnerBox3DueIn"),
     leitnerMastered: document.getElementById("leitnerMastered"),
     leitnerResetBtn: document.getElementById("leitnerResetBtn"),
+    exportBtn: document.getElementById("exportBtn"),
+    importBtn: document.getElementById("importBtn"),
+    importFile: document.getElementById("importFile"),
     leitnerStatsTiles: document.getElementById("leitnerStatsTiles"),
     leitnerBoxBackdrop: document.getElementById("leitnerBoxBackdrop"),
     closeLeitnerBox: document.getElementById("closeLeitnerBox"),
     leitnerBoxTitle: document.getElementById("leitnerBoxTitle"),
     leitnerBoxTabs: document.getElementById("leitnerBoxTabs"),
     leitnerBoxList: document.getElementById("leitnerBoxList"),
+    leitnerBoxMoveAll: document.getElementById("leitnerBoxMoveAll"),
+    leitnerBoxMoveAllSelect: document.getElementById("leitnerBoxMoveAllSelect"),
     leitnerBoxEmpty: document.getElementById("leitnerBoxEmpty"),
     leitnerPanel: document.getElementById("leitnerPanel"),
     lpBox1: document.getElementById("lpBox1"),
@@ -1363,18 +1431,23 @@
      null regardless of `id` -- the mistake/fault bookkeeping still runs
      (so it still logs correctly), it just never touches the real card, so
      practicing never promotes or demotes anything. */
-  function scoreLeitnerAttempt(id, alreadyFaulted, correct, fast){
+  function scoreLeitnerAttempt(id, alreadyFaulted, correct, fast, meta){
     var card = (id && !state.leitnerFreePractice) ? leitnerCards[id] : null;
+    var before = EventLog.cardSnapshot(card);
     var result = Leitner.scoreAttempt(card, alreadyFaulted, correct, fast);
     if(card) persistLeitnerCard(id, card);
+    logEvent("score", EventLog.scoreEvent({
+      kind: meta.kind, sum: EventLog.sumText(current), cardId: id, given: meta.given, correct: correct,
+      alreadyFaulted: alreadyFaulted, verdict: result,
+      freePractice: state.leitnerFreePractice, before: before,
+      after: EventLog.cardSnapshot(card), ms: Date.now() - current.startedAt
+    }));
     return result;
   }
 
   function pickEntryForOp(def, excludeIds){
     if(state.leitnerEnabled){
-      var pool = Leitner.dueCardsForOp(leitnerCards, def.symbol).filter(function(entry){
-        return !excludeIds || !excludeIds.has(entry.id);
-      });
+      var pool = Leitner.dueCardsForOp(leitnerCards, def.symbol, undefined, excludeIds);
       if(pool.length === 0) return { op: def.symbol };
       var chosen = pool[randInt(0, pool.length - 1)];
       if(excludeIds) excludeIds.add(chosen.id);
@@ -1402,6 +1475,7 @@
         q.push({ op: entry.card.op, a: entry.card.a, b: entry.card.b, result: entry.card.result, cardId: entry.id });
       });
       opQueue = shuffleArray(q);
+      logQueue("free_practice");
       return;
     }
     OP_DEFS.forEach(function(def){
@@ -1421,18 +1495,38 @@
        fires there; it only guards a truly pathological state. */
     if(q.length === 0 && !state.leitnerEnabled) q.push(pickEntryForOp(OP_DEFS[0]));
     opQueue = shuffleArray(q);
+    logQueue(state.leitnerEnabled ? "leitner_due" : "classic");
+  }
+  /* The planned order for a run, so the logboek can replay it. opQueue is
+     consumed from the end (pop), so list it in the order it will be shown. */
+  function logQueue(mode){
+    logEvent("queue", {
+      mode: mode, count: opQueue.length,
+      sums: opQueue.slice().reverse().map(function(e){
+        return typeof e.a === "number" ? EventLog.fullSumText(e) : "(random " + e.op + ")";
+      })
+    });
   }
   function syncLeitnerTarget(){
     state.target = opQueue.length;
     state.roundTarget = state.correct + state.target;
   }
+  /* Where the opgave now being shown came from, for the logboek: the
+     planned queue, or an extra drawn beyond it (e.g. the mistake penalty). */
+  var entrySource = "queue";
   function nextEntry(){
+    entrySource = "queue";
     if(opQueue.length > 0) return opQueue.pop();
+    entrySource = "extra";
     /* Extra opgaven beyond the planned queue (e.g. mistake penalty):
        draw randomly from whichever types are currently enabled. */
     var enabled = OP_DEFS.filter(function(def){ return state[def.enabledKey]; });
     if(enabled.length === 0) enabled = [OP_DEFS[0]];
-    return pickEntryForOp(enabled[randInt(0, enabled.length - 1)]);
+    /* Cards still waiting in the planned queue are excluded, so an extra
+       opgave never duplicates one (which used to promote it twice a day). */
+    var queued = new Set();
+    opQueue.forEach(function(e){ if(e.cardId) queued.add(e.cardId); });
+    return pickEntryForOp(enabled[randInt(0, enabled.length - 1)], queued);
   }
   var slotBag = [];
   function nextSlot(){
@@ -1470,6 +1564,13 @@
     candidate.answer = unknown === "a" ? candidate.a : unknown === "b" ? candidate.b : candidate.result;
 
     current = candidate;
+    var shown = candidate.cardId ? leitnerCards[candidate.cardId] : null;
+    logEvent("question", {
+      sum: EventLog.sumText(candidate), cardId: candidate.cardId, card: EventLog.cardSnapshot(shown),
+      answer: candidate.answer, correct: state.correct, target: state.roundTarget, streak: state.streak,
+      timerSeconds: state.timerSeconds, source: entrySource, queueLeft: opQueue.length,
+      freePractice: !!state.leitnerFreePractice
+    });
     lastSum = { a: candidate.a, b: candidate.b, op: candidate.op };
     renderSum();
     buildAnswerPad();
@@ -1655,6 +1756,7 @@
          opgave's outcome -- a numerically right guess volunteered after
          the clock ran out doesn't undo that earlier fault. */
       var logOutcome = current.firstFaultKind === "wrong" ? "wrong" : (isRight ? "late" : "wrong");
+      logEvent("late_answer", { sum: EventLog.sumText(current), cardId: current.cardId, given: n, correct: isRight, loggedAs: logOutcome });
       logCurrentExercise(logOutcome);
       saveState();
       locked = true;
@@ -1683,7 +1785,7 @@
       if(highlightEl) highlightEl.classList.add("correct");
       flashResult("good");
       revealAnswer(n);
-      scoreLeitnerAttempt(current.cardId, current.faulted, true, true);
+      scoreLeitnerAttempt(current.cardId, current.faulted, true, true, { kind: "answer", given: n });
       state.correct++;
       state.streak++;
       if(state.streak > state.roundLongestStreak) state.roundLongestStreak = state.streak;
@@ -1716,7 +1818,7 @@
       if(highlightEl) highlightEl.classList.add("wrong");
       flashResult("wrong");
       state.streak = 0;
-      var wrongResult = scoreLeitnerAttempt(current.cardId, current.faulted, false, false);
+      var wrongResult = scoreLeitnerAttempt(current.cardId, current.faulted, false, false, { kind: "answer", given: n });
       current.faulted = wrongResult.faulted;
       if(wrongResult.isNewMistake){
         current.firstFaultKind = "wrong";
@@ -1788,6 +1890,7 @@
      to make the "TV-tijd verdiend" screen's numbers wrong for any round
      that spanned more than one page load (e.g. every gate/refresh cycle). */
   function startRoundTracking(){
+    logEvent(EventLog.RUN_START, { reason: "round", day: epochDay(), freePractice: !!state.leitnerFreePractice, settings: EventLog.settingsSnapshot(state) });
     state.roundStartTs = Date.now();
     state.roundMistakes = 0;
     state.roundTimeouts = 0;
@@ -1810,6 +1913,13 @@
     var wasFreePractice = state.leitnerFreePractice;
     showRoundDoneState();
     var durationMs = Date.now() - state.roundStartTs;
+    if(justFinished){
+      logEvent("round_end", {
+        practice: !!wasFreePractice, durationMs: durationMs, target: state.roundTarget,
+        mistakes: state.roundMistakes, timeouts: state.roundTimeouts, longestStreak: state.roundLongestStreak
+      });
+      flushEventLog();
+    }
     /* Practice never counts as "the round" it displaced -- the moment it's
        done, drop back into normal mode so "Vernieuwen"/a reload rebuilds
        the real due-cards queue instead of handing out box 1 again. */
@@ -1887,12 +1997,14 @@
     el.numpad.innerHTML = "";
   }
   function showExerciseGate(buttonLabel, message){
+    logEvent("gate", { button: buttonLabel, message: message, correct: state.correct, target: state.roundTarget });
     hideExerciseVisuals();
     var btn = document.createElement("button");
     btn.type = "button";
     btn.className = "primary-btn";
     btn.textContent = buttonLabel;
     btn.addEventListener("click", function(){
+      logEvent("gate_pressed", { button: buttonLabel });
       el.rocket.hidden = false;
       el.railFooter.hidden = false;
       el.sumEl.hidden = false;
@@ -1905,6 +2017,8 @@
     el.feedback.className = "feedback good";
   }
   function showBatchCheckpoint(){
+    logEvent("batch_checkpoint", { correct: state.correct, target: state.roundTarget });
+    flushEventLog();
     var remaining = Math.max(0, state.roundTarget - state.correct);
     var plural = remaining === 1 ? "" : "n";
     if(state.leitnerFreePractice){
@@ -1928,6 +2042,7 @@
      for today, so it's just a message; classic mode can always start
      another round on demand, so that's an actual button. */
   function showRoundDoneState(){
+    logEvent("round_done_screen", { correct: state.correct, target: state.roundTarget, leitner: state.leitnerEnabled });
     hideExerciseVisuals();
     if(state.leitnerEnabled){
       el.feedback.textContent = "Geen opgaven meer voor vandaag.";
@@ -1968,9 +2083,11 @@
      that button's whole job is to redo this same day-rollover check
      on demand instead of waiting for a page reload. */
   function syncDayAndShowGate(){
+    if(state.leitnerEnabled && Leitner.rolloverIfNewDay(state, epochDay())){
+      logEvent(EventLog.RUN_START, { reason: "new_day", day: epochDay(), settings: EventLog.settingsSnapshot(state) });
+    }
     buildOpQueue();
     if(state.leitnerEnabled){
-      Leitner.rolloverIfNewDay(state, epochDay());
       syncLeitnerTarget();
     } else {
       state.target = computeTarget(state);
@@ -1992,6 +2109,9 @@
   function newRound(){
     state.correct = 0;
     state.streak = 0;
+    /* run_start goes first so the logboek's queue event for this run
+       belongs to it (EventLog.trimEvents cuts at run_start). */
+    startRoundTracking();
     buildOpQueue();
     if(state.leitnerEnabled){
       state.leitnerDay = epochDay();
@@ -2000,7 +2120,6 @@
       state.target = computeTarget(state);
       state.roundTarget = state.target;
     }
-    startRoundTracking();
     saveState();
     el.goalOverlay.hidden = true;
     updateProgressUI();
@@ -2034,9 +2153,9 @@
     state.leitnerFreePractice = true;
     state.correct = 0;
     state.streak = 0;
+    startRoundTracking();
     buildOpQueue();
     syncLeitnerTarget();
-    startRoundTracking();
     saveState();
     el.goalOverlay.hidden = true;
     updateProgressUI();
@@ -2131,7 +2250,7 @@
     el.timerFill.style.width = "0%";
     state.streak = 0;
     state.roundTimeouts++;
-    var timeoutResult = scoreLeitnerAttempt(current.cardId, current.faulted, false, false);
+    var timeoutResult = scoreLeitnerAttempt(current.cardId, current.faulted, false, false, { kind: "timeout", given: null });
     current.faulted = timeoutResult.faulted;
     if(timeoutResult.isNewMistake){
       current.firstFaultKind = "timeout";
@@ -2363,8 +2482,19 @@
   function moveLeitnerCard(id, newBox){
     var card = leitnerCards[id];
     if(!card) return;
+    var before = EventLog.cardSnapshot(card);
     Leitner.moveCard(card, newBox);
+    logEvent("card_move", { cardId: id, before: before, after: EventLog.cardSnapshot(card) });
     persistLeitnerCard(id, card);
+    refreshLeitnerStats();
+    refreshLeitnerPanel();
+    renderLeitnerBoxModal();
+  }
+  function moveAllLeitnerCards(newBox){
+    var moved = Leitner.moveAllInView(leitnerCards, leitnerBoxViewTab, newBox);
+    if(moved.length === 0) return;
+    logEvent("cards_move_all", { from: leitnerBoxViewTab, to: newBox, count: moved.length });
+    persistLeitnerCards(moved);
     refreshLeitnerStats();
     refreshLeitnerPanel();
     renderLeitnerBoxModal();
@@ -2375,6 +2505,17 @@
       btn.classList.toggle("active", btn.getAttribute("data-box") === leitnerBoxViewTab);
     });
     var entries = leitnerCardsInView(leitnerBoxViewTab);
+    el.leitnerBoxMoveAll.hidden = entries.length === 0;
+    el.leitnerBoxMoveAllSelect.innerHTML = "";
+    var placeholder = document.createElement("option");
+    placeholder.value = ""; placeholder.textContent = "Kies box…";
+    el.leitnerBoxMoveAllSelect.appendChild(placeholder);
+    [1, 2, 3].forEach(function(b){
+      if(String(b) === leitnerBoxViewTab) return;
+      var opt = document.createElement("option");
+      opt.value = b; opt.textContent = "Box " + b;
+      el.leitnerBoxMoveAllSelect.appendChild(opt);
+    });
     el.leitnerBoxList.innerHTML = "";
     el.leitnerBoxEmpty.hidden = entries.length > 0;
     entries.forEach(function(entry){
@@ -2419,6 +2560,16 @@
     leitnerBoxViewTab = btn.getAttribute("data-box");
     renderLeitnerBoxModal();
   });
+  el.leitnerBoxMoveAllSelect.addEventListener("change", function(){
+    var box = parseInt(el.leitnerBoxMoveAllSelect.value, 10);
+    if(!box) return;
+    var n = leitnerCardsInView(leitnerBoxViewTab).length;
+    if(!confirm(n + " opgaven verplaatsen naar box " + box + "?")){
+      el.leitnerBoxMoveAllSelect.value = "";
+      return;
+    }
+    moveAllLeitnerCards(box);
+  });
   el.closeLeitnerBox.addEventListener("click", closeLeitnerBoxModal);
   el.leitnerBoxBackdrop.addEventListener("click", function(e){ if(e.target === el.leitnerBoxBackdrop) closeLeitnerBoxModal(); });
 
@@ -2432,6 +2583,63 @@
   el.settingsTabGeneralBtn.addEventListener("click", function(){ switchSettingsTab("general"); });
   el.settingsTabLeitnerBtn.addEventListener("click", function(){ switchSettingsTab("leitner"); });
 
+  /* Export/import of the whole game (Backup, backup.js): settings, every
+     Leitner card and the last 10 runs with their logs. Import replaces
+     all three stores in ONE transaction, then reloads so the app boots
+     from exactly what was stored. */
+  el.exportBtn.addEventListener("click", function(){
+    logEvent("export", { cards: Object.keys(leitnerCards).length });
+    getHistory(function(history){
+      var json = JSON.stringify(Backup.buildBackup(state, leitnerCards, history, undefined, EventLog.trimEvents(eventLog).map(EventLog.formatEvent)), null, 1);
+      var url = URL.createObjectURL(new Blob([json], { type: "application/json" }));
+      var a = document.createElement("a");
+      a.href = url;
+      a.download = Backup.backupFilename();
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(function(){ URL.revokeObjectURL(url); }, 1000);
+    });
+  });
+  el.importBtn.addEventListener("click", function(){ el.importFile.click(); });
+  el.importFile.addEventListener("change", function(){
+    var file = el.importFile.files && el.importFile.files[0];
+    el.importFile.value = "";
+    if(!file) return;
+    var reader = new FileReader();
+    reader.onerror = function(){ alert("Het bestand kon niet gelezen worden."); };
+    reader.onload = function(){
+      var parsed = Backup.parseBackup(String(reader.result));
+      if(!parsed.ok){ alert(parsed.error); return; }
+      var b = parsed.backup;
+      if(!confirm("Alle huidige voortgang, instellingen en geschiedenis worden vervangen door deze back-up (" + Object.keys(b.leitnerCards).length + " kaarten, " + b.history.length + " rondes). Doorgaan?")) return;
+      var newState = Object.assign({}, defaults, migrateLegacyFields(b.state));
+      /* The logboek is export-only: an import replaces the game but leaves
+         this machine's own logboek alone, and just notes that it happened. */
+      logEvent("import", { cards: Object.keys(b.leitnerCards).length, rounds: b.history.length });
+      flushEventLog();
+      openDB().then(function(db){
+        return new Promise(function(resolve, reject){
+          var tx = db.transaction([DB_STORE, LEITNER_STORE, HISTORY_STORE], "readwrite");
+          tx.objectStore(DB_STORE).put(newState, DB_KEY);
+          var cards = tx.objectStore(LEITNER_STORE);
+          cards.clear();
+          Object.keys(b.leitnerCards).forEach(function(id){ cards.put(b.leitnerCards[id], id); });
+          var hist = tx.objectStore(HISTORY_STORE);
+          hist.clear();
+          b.history.forEach(function(h){ hist.add(h); });
+          tx.oncomplete = resolve;
+          tx.onerror = tx.onabort = function(){ reject(tx.error); };
+        });
+      }).then(function(){
+        location.reload();
+      }).catch(function(){
+        alert("Importeren is mislukt; er is niets gewijzigd.");
+      });
+    };
+    reader.readAsText(file);
+  });
+
   el.leitnerSwitch.addEventListener("click", function(){
     state.leitnerEnabled = !state.leitnerEnabled;
     if(state.leitnerEnabled && Object.keys(leitnerCards).length === 0) seedLeitnerBoxOne();
@@ -2442,6 +2650,7 @@
   });
   el.leitnerResetBtn.addEventListener("click", function(){
     if(!confirm("Weet je zeker dat je alle Leitner-voortgang wilt wissen? Alle kaarten beginnen weer in box 1.")) return;
+    logEvent("leitner_reset", {});
     leitnerCards = {};
     clearLeitnerCards();
     seedLeitnerBoxOne();
@@ -2471,6 +2680,7 @@
   });
 
   function openSettings(){
+    logEvent("settings_open", { hadLiveSum: !!(current && !current.timedOut && !atBatchCheckpoint) });
     switchSettingsTab("general");
     syncSettingsUI();
     timerPause();
@@ -2478,6 +2688,8 @@
     el.closeSettings.focus();
   }
   function closeSettings(){
+    logEvent("settings_close", {});
+    flushEventLog();
     el.settingsBackdrop.hidden = true;
     el.settingsBtn.focus();
     /* Never resume straight back into whatever sum was showing -- settings
@@ -2513,6 +2725,8 @@
   el.restartBackdrop.addEventListener("click", function(e){ if(e.target === el.restartBackdrop) closeRestartConfirm(); });
   el.confirmRestartBtn.addEventListener("click", function(){
     el.restartBackdrop.hidden = true;
+    logEvent("restart", { correct: state.correct, target: state.roundTarget });
+    flushEventLog();
     newRound();
   });
 
@@ -2758,6 +2972,14 @@
     applyTheme(state.colorTheme);
     loadLeitnerCards(function(cards){
       leitnerCards = cards;
+      loadEventLog(function(events){
+      eventLog = events;
+      logEvent("session_start", {
+        leitner: state.leitnerEnabled, day: epochDay(), leitnerDay: state.leitnerDay,
+        correct: state.correct, cards: Leitner.countBoxes(leitnerCards), storedEvents: events.length,
+        settings: EventLog.settingsSnapshot(state)
+      });
+      lastLoggedSettings = EventLog.settingsSnapshot(state);
       /* Leitner now defaults to on (see `defaults`), so a genuinely fresh
          install boots with it enabled but box 1 never seeded -- the same
          situation the settings switch's click handler already guards
@@ -2790,6 +3012,7 @@
          state below. */
       el.mainView.hidden = false;
       syncDayAndShowGate();
+      });
     });
   });
 })();

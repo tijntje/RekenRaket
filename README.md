@@ -55,8 +55,16 @@ browser's IndexedDB (database `rekenraket_db`) — nothing is sent to a server.
 - [rules.js](rules.js) — the other pure app rules: settings
   normalization/migration and sum generation, following the same
   DOM-free pattern as `leitner.js` (shared as the global `Rules`).
-- [test/leitner.test.js](test/leitner.test.js), [test/rules.test.js](test/rules.test.js)
-  — unit tests for `leitner.js` and `rules.js`.
+- [backup.js](backup.js) — building and validating the export/import file
+  (settings, all Leitner cards, the last 10 runs with logs), used by the
+  Exporteren/Importeren buttons in Settings → Algemeen (global `Backup`).
+- [eventlog.js](eventlog.js) — the logboek: building, trimming (last 10
+  runs) and formatting the event log of what happened in the game. Events
+  are printed to the browser console as `[rekenraket] ...` (type
+  `rekenLog()` there for a table), saved in IndexedDB and included in the
+  export.
+- [test/leitner.test.js](test/leitner.test.js), [test/rules.test.js](test/rules.test.js),
+  [test/backup.test.js](test/backup.test.js), [test/eventlog.test.js](test/eventlog.test.js) — unit tests for the modules.
 
 ## Tests
 

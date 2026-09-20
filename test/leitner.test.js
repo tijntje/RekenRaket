@@ -354,6 +354,48 @@ describe("promoteCard", () => {
   });
 });
 
+describe("promoteCard: once per day", () => {
+  test("a second fast answer the same day does not promote again", () => {
+    const card = { box: 1, mastered: false };
+    Leitner.promoteCard(card, true, 10);
+    Leitner.promoteCard(card, true, 10);
+    Leitner.promoteCard(card, true, 10);
+    assert.equal(card.box, 2);
+    assert.equal(card.mastered, false);
+  });
+
+  test("a box 2 -> 3 card is not mastered by a same-day repeat", () => {
+    const card = { box: 2, mastered: false };
+    Leitner.promoteCard(card, true, 10);
+    Leitner.promoteCard(card, true, 10);
+    assert.equal(card.box, 3);
+    assert.equal(card.mastered, false);
+  });
+
+  test("a card seen (e.g. slow answer) earlier today is not promoted by a later fast one", () => {
+    const card = { box: 1, mastered: false, lastSeenDay: 10 };
+    Leitner.promoteCard(card, true, 10);
+    assert.equal(card.box, 1);
+  });
+
+  test("promotes again on a later day", () => {
+    const card = { box: 1, mastered: false };
+    Leitner.promoteCard(card, true, 10);
+    Leitner.promoteCard(card, true, 11);
+    assert.equal(card.box, 3);
+    assert.equal(card.mastered, false);
+    Leitner.promoteCard(card, true, 12);
+    assert.equal(card.mastered, true);
+  });
+
+  test("a manually moved card (lastSeenDay cleared) can promote the same day", () => {
+    const card = { box: 1, mastered: false, lastSeenDay: 10 };
+    Leitner.moveCard(card, 2);
+    Leitner.promoteCard(card, true, 10);
+    assert.equal(card.box, 3);
+  });
+});
+
 describe("demoteCard", () => {
   test("sends any card back to box 1, un-mastered, stamped as seen today", () => {
     const card = { box: 3, mastered: true, lastSeenDay: 5 };
@@ -436,6 +478,50 @@ describe("moveCard", () => {
   });
 });
 
+describe("moveAllInView", () => {
+  const mk = () => ({
+    "+:1:2": { op: "+", a: 1, b: 2, result: 3, box: 1, mastered: false, lastSeenDay: 4 },
+    "+:2:2": { op: "+", a: 2, b: 2, result: 4, box: 2, mastered: false },
+    "+:3:3": { op: "+", a: 3, b: 3, result: 6, box: 3, mastered: true },
+    "+:4:4": { op: "+", a: 4, b: 4, result: 8, box: 3, mastered: true }
+  });
+
+  test("moves every mastered card to the chosen box and un-masters it", () => {
+    const cards = mk();
+    const moved = Leitner.moveAllInView(cards, "mastered", 1);
+    assert.deepEqual(moved.map((e) => e.id), ["+:3:3", "+:4:4"]);
+    assert.equal(cards["+:3:3"].box, 1);
+    assert.equal(cards["+:3:3"].mastered, false);
+    assert.equal(cards["+:4:4"].mastered, false);
+    assert.equal(Leitner.countBoxes(cards)[1], 3);
+  });
+
+  test("leaves cards in other boxes untouched", () => {
+    const cards = mk();
+    Leitner.moveAllInView(cards, "mastered", 1);
+    assert.equal(cards["+:2:2"].box, 2);
+    assert.equal(cards["+:1:2"].lastSeenDay, 4);
+  });
+
+  test("clears lastSeenDay on moved cards", () => {
+    const cards = mk();
+    Leitner.moveAllInView(cards, "1", 3);
+    assert.equal("lastSeenDay" in cards["+:1:2"], false);
+    assert.equal(cards["+:1:2"].box, 3);
+  });
+
+  test("moving a box into itself is a no-op", () => {
+    const cards = mk();
+    assert.deepEqual(Leitner.moveAllInView(cards, "2", 2), []);
+    assert.equal(cards["+:2:2"].box, 2);
+  });
+
+  test("an empty view moves nothing", () => {
+    assert.deepEqual(Leitner.moveAllInView(mk(), "1", 2).length, 1);
+    assert.deepEqual(Leitner.moveAllInView({}, "1", 2), []);
+  });
+});
+
 describe("countBoxes", () => {
   test("tallies box counts and mastered separately", () => {
     const cards = {
@@ -504,6 +590,16 @@ describe("dueCardsForOp", () => {
   test("excludes an op's cards whose box isn't due today", () => {
     const due = Leitner.dueCardsForOp(cards, "+", 11);
     assert.ok(!due.some((e) => e.id === "+:9:9"));
+  });
+
+  test("excludes cards whose id is in excludeIds (already queued)", () => {
+    const due = Leitner.dueCardsForOp(cards, "+", 10, new Set(["+:1:2"]));
+    assert.deepEqual(due, []);
+  });
+
+  test("an empty excludeIds set excludes nothing", () => {
+    const due = Leitner.dueCardsForOp(cards, "+", 10, new Set());
+    assert.deepEqual(due.map((e) => e.id), ["+:1:2"]);
   });
 
   test("defaults to today when no day is given", () => {

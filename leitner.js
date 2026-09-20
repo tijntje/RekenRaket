@@ -117,11 +117,16 @@
      any, had already run out -- see promoteLeitnerCard); an answer that
      doesn't qualify leaves the card in its current box, for every box
      transition. Either way, lastSeenDay always gets stamped -- the card
-     was attempted today regardless. */
+     was attempted today regardless.
+     A card already seen today never promotes again: a card can turn up
+     more than once in a day (e.g. as an extra opgave), and each correct
+     answer used to move it another box -- 1 -> 2 -> 3 -> mastered in one
+     sitting. One promotion per card per day. */
   function promoteCard(card, fast, day){
     if(day === undefined) day = epochDay();
+    var seenToday = card.lastSeenDay === day;
     card.lastSeenDay = day;
-    if(fast){
+    if(fast && !seenToday){
       if(card.box === 1){ card.box = 2; }
       else if(card.box === 2){ card.box = 3; }
       else if(card.box === 3){ card.mastered = true; }
@@ -196,6 +201,18 @@
     return true;
   }
 
+  /* Bulk version of moveCard for the box detail screen: every card
+     currently shown in the `tab` view ("1"/"2"/"3"/"mastered") goes to
+     `newBox`. Returns the moved {id, card} entries so the caller can
+     persist exactly those. Moving a tab's cards into the box they're
+     already in is a no-op (returns []). */
+  function moveAllInView(cards, tab, newBox){
+    if(String(newBox) === tab) return [];
+    var entries = cardsInView(cards, tab);
+    entries.forEach(function(e){ moveCard(e.card, newBox); });
+    return entries;
+  }
+
   function countBoxes(cards){
     var counts = { 1: 0, 2: 0, 3: 0, mastered: 0 };
     Object.keys(cards).forEach(function(id){
@@ -231,11 +248,12 @@
   /* Every {id, card} for one operation symbol that's due today -- the
      query both pickEntryForOp (classic-mode-shaped overflow draws) and
      buildOpQueue (the day's full Leitner workload) run per enabled op. */
-  function dueCardsForOp(cards, opSymbol, day){
+  function dueCardsForOp(cards, opSymbol, day, excludeIds){
     if(day === undefined) day = epochDay();
     var result = [];
     Object.keys(cards).forEach(function(id){
       var c = cards[id];
+      if(excludeIds && excludeIds.has(id)) return;
       if(c.op === opSymbol && cardDueToday(c, day)) result.push({ id: id, card: c });
     });
     return result;
@@ -316,6 +334,7 @@
     demoteCard: demoteCard,
     scoreAttempt: scoreAttempt,
     moveCard: moveCard,
+    moveAllInView: moveAllInView,
     countBoxes: countBoxes,
     cardsInView: cardsInView,
     cardLabel: cardLabel,

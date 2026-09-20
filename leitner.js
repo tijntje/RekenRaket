@@ -52,15 +52,35 @@
     return "(in " + days + " dagen)";
   }
 
+  /* Was `box` due on any day after `sinceDay`, up to and including `day`?
+     This is what makes skipped days catch up: if a child skips the day box
+     2 was due, that due day is still "unanswered" on the next day they
+     practice, so the card shows up then (together with everything else
+     they missed). Closed form: box 2/3 are due on multiples of 3/5, so
+     one fell in (sinceDay, day] exactly when the multiple-count grew. */
+  function boxDueSince(box, sinceDay, day){
+    if(day === undefined) day = epochDay();
+    if(box === 1) return day > sinceDay;
+    var interval = box === 2 ? 3 : box === 3 ? 5 : null;
+    if(interval === null) return false;
+    return Math.floor(day / interval) > Math.floor(sinceDay / interval);
+  }
+
   /* A card already answered today (right, wrong, or timed out -- see
      promoteCard/demoteCard, which always stamp lastSeenDay) stays out of
      today's queue even if it's still sitting in box 1 and box 1 is "due
      every day". Otherwise a wrong answer (which keeps a card in box 1) or
      a same-day refresh would put it right back in front of the child
-     again today; it's only due again on a future day's reeks. */
+     again today; it's only due again on a future day's reeks.
+     A card is due when its box's due day came up since the card was last
+     seen -- so due days the child skipped are carried over to the next day
+     they practice, however many days that is. A card with no lastSeenDay
+     (never seen, or manually moved) only counts today's rhythm. */
   function cardDueToday(card, day){
     if(day === undefined) day = epochDay();
-    return !card.mastered && boxDueToday(card.box, day) && card.lastSeenDay !== day;
+    if(card.mastered || card.lastSeenDay === day) return false;
+    var since = typeof card.lastSeenDay === "number" ? card.lastSeenDay : day - 1;
+    return boxDueSince(card.box, since, day);
   }
 
   function cardId(op, a, b){ return op + ":" + a + ":" + b; }
@@ -285,6 +305,7 @@
   return {
     epochDay: epochDay,
     boxDueToday: boxDueToday,
+    boxDueSince: boxDueSince,
     daysUntilDue: daysUntilDue,
     dueInLabel: dueInLabel,
     cardDueToday: cardDueToday,

@@ -172,6 +172,74 @@ describe("cardDueToday", () => {
   });
 });
 
+describe("boxDueSince", () => {
+  test("box 1 is due whenever at least one day has passed", () => {
+    assert.equal(Leitner.boxDueSince(1, 9, 10), true);
+    assert.equal(Leitner.boxDueSince(1, 3, 10), true);
+    assert.equal(Leitner.boxDueSince(1, 10, 10), false);
+  });
+
+  test("box 2: a due day (multiple of 3) inside the gap counts", () => {
+    assert.equal(Leitner.boxDueSince(2, 5, 7), true);  // day 6 was skipped
+    assert.equal(Leitner.boxDueSince(2, 6, 7), false); // seen on 6, next is 9
+    assert.equal(Leitner.boxDueSince(2, 7, 8), false);
+    assert.equal(Leitner.boxDueSince(2, 8, 9), true);
+  });
+
+  test("box 3: a due day (multiple of 5) inside the gap counts", () => {
+    assert.equal(Leitner.boxDueSince(3, 9, 11), true); // day 10 was skipped
+    assert.equal(Leitner.boxDueSince(3, 10, 14), false);
+    assert.equal(Leitner.boxDueSince(3, 10, 15), true);
+  });
+
+  test("not a real box: never due", () => {
+    assert.equal(Leitner.boxDueSince(4, 0, 100), false);
+  });
+
+  test("agrees with boxDueToday when the gap is a single day", () => {
+    [1, 2, 3].forEach(box => {
+      for(let day = 1; day < 40; day++){
+        assert.equal(Leitner.boxDueSince(box, day - 1, day), Leitner.boxDueToday(box, day), `box ${box} day ${day}`);
+      }
+    });
+  });
+});
+
+describe("skipped days carry over", () => {
+  test("a box-2 card whose due day was skipped is due the next day", () => {
+    const card = { box: 2, mastered: false, lastSeenDay: 5 };
+    assert.equal(Leitner.cardDueToday(card, 6), true);
+    assert.equal(Leitner.cardDueToday(card, 7), true);
+  });
+
+  test("a box-2 card seen on its due day is not due again until the next one", () => {
+    const card = { box: 2, mastered: false, lastSeenDay: 6 };
+    assert.equal(Leitner.cardDueToday(card, 7), false);
+    assert.equal(Leitner.cardDueToday(card, 8), false);
+    assert.equal(Leitner.cardDueToday(card, 9), true);
+  });
+
+  test("skipping several days gathers every box's missed cards at once", () => {
+    const cards = {
+      a: { op: "+", box: 1, mastered: false, lastSeenDay: 10 },
+      b: { op: "+", box: 2, mastered: false, lastSeenDay: 10 },
+      c: { op: "+", box: 3, mastered: false, lastSeenDay: 10 },
+    };
+    // child practiced on 10, skipped 11-14, returns on 15: all three are due
+    assert.deepEqual(Leitner.dueCardsForOp(cards, "+", 15).map(e => e.id), ["a", "b", "c"]);
+    // ...but on day 11 (no skip) only box 1 is
+    assert.deepEqual(Leitner.dueCardsForOp(cards, "+", 11).map(e => e.id), ["a"]);
+  });
+
+  test("a mastered card never carries over", () => {
+    assert.equal(Leitner.cardDueToday({ box: 2, mastered: true, lastSeenDay: 1 }, 20), false);
+  });
+
+  test("a card seen today is not due even after a long gap elsewhere", () => {
+    assert.equal(Leitner.cardDueToday({ box: 2, mastered: false, lastSeenDay: 15 }, 15), false);
+  });
+});
+
 describe("rolloverIfNewDay", () => {
   function freshState(day){
     return {

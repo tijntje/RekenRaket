@@ -29,7 +29,9 @@ browser's IndexedDB (database `rekenraket_db`) — nothing is sent to a server.
   the enabled operations is seeded into box 1. A correct answer promotes a
   card to the next box (box 3 → mastered); answering too late (after the
   per-opgave timer runs out) or incorrectly sends it back to box 1. Box 1 is
-  reviewed every day, box 2 every 3rd day, box 3 every 5th day.
+  reviewed every day, box 2 every 3rd day, box 3 every 5th day. Due days a
+  child skips carry over: on the next day they practice, everything they
+  missed is added to that day's exercises.
 - Optional per-opgave countdown timer, a mistake penalty (extra sums added to
   the round after a wrong answer, classic mode only), alternate question
   formats (solving for the first or second operand instead of the result),

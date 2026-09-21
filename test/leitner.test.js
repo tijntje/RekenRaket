@@ -388,11 +388,11 @@ describe("promoteCard: once per day", () => {
     assert.equal(card.mastered, true);
   });
 
-  test("a manually moved card (lastSeenDay cleared) can promote the same day", () => {
-    const card = { box: 1, mastered: false, lastSeenDay: 10 };
-    Leitner.moveCard(card, 2);
+  test("a manually moved card counts as seen that day, so it can't promote the same day", () => {
+    const card = { box: 1, mastered: false, lastSeenDay: 9 };
+    Leitner.moveCard(card, 2, 10);
     Leitner.promoteCard(card, true, 10);
-    assert.equal(card.box, 3);
+    assert.equal(card.box, 2);
   });
 });
 
@@ -469,12 +469,79 @@ describe("scoreAttempt", () => {
 });
 
 describe("moveCard", () => {
-  test("sets the new box, un-masters, and clears lastSeenDay", () => {
-    const card = { box: 1, mastered: true, lastSeenDay: 10 };
-    Leitner.moveCard(card, 3);
+  test("sets the new box and un-masters", () => {
+    const card = { box: 1, mastered: true, lastSeenDay: 4 };
+    Leitner.moveCard(card, 3, 10);
     assert.equal(card.box, 3);
     assert.equal(card.mastered, false);
+  });
+
+  test("into box 2/3 stamps lastSeenDay with the given day", () => {
+    const card = { box: 1, mastered: false };
+    Leitner.moveCard(card, 2, 10);
+    assert.equal(card.lastSeenDay, 10);
+  });
+
+  test("into box 2/3 defaults the stamp to today", () => {
+    const card = { box: 1, mastered: false };
+    Leitner.moveCard(card, 3);
+    assert.equal(card.lastSeenDay, Leitner.epochDay());
+  });
+
+  test("into box 1 clears lastSeenDay", () => {
+    const card = { box: 3, mastered: false, lastSeenDay: 4 };
+    Leitner.moveCard(card, 1, 10);
     assert.equal("lastSeenDay" in card, false);
+  });
+
+  test("box 3 -> box 1 is due today, even if it was answered today", () => {
+    const card = { box: 3, mastered: false, lastSeenDay: 10 };
+    Leitner.moveCard(card, 1, 10);
+    assert.equal(Leitner.cardDueToday(card, 10), true);
+  });
+
+  test("a mastered card moved into box 1 is due today", () => {
+    const card = { box: 3, mastered: true, lastSeenDay: 2 };
+    Leitner.moveCard(card, 1, 10);
+    assert.equal(Leitner.cardDueToday(card, 10), true);
+  });
+
+  test("moved out of box 1 into box 2 it is not due today, then waits for a multiple of 3", () => {
+    // day 9 is itself a multiple of 3: without the stamp it would be due at once.
+    const card = { box: 1, mastered: false };
+    Leitner.moveCard(card, 2, 9);
+    assert.equal(Leitner.cardDueToday(card, 9), false);
+    assert.equal(Leitner.cardDueToday(card, 10), false);
+    assert.equal(Leitner.cardDueToday(card, 11), false);
+    assert.equal(Leitner.cardDueToday(card, 12), true);
+  });
+
+  test("moved out of box 1 into box 3 it is not due today, then waits for a multiple of 5", () => {
+    const card = { box: 1, mastered: false };
+    Leitner.moveCard(card, 3, 10);
+    assert.equal(Leitner.cardDueToday(card, 10), false);
+    assert.equal(Leitner.cardDueToday(card, 14), false);
+    assert.equal(Leitner.cardDueToday(card, 15), true);
+  });
+
+  test("moved between box 2 and 3 is not due today either", () => {
+    const card = { box: 2, mastered: false };
+    Leitner.moveCard(card, 3, 10);
+    assert.equal(Leitner.cardDueToday(card, 10), false);
+  });
+
+  test("a card moved into box 2/3 counts as seen that day, so it can't promote the same day", () => {
+    const card = { box: 1, mastered: false, lastSeenDay: 9 };
+    Leitner.moveCard(card, 2, 10);
+    Leitner.promoteCard(card, true, 10);
+    assert.equal(card.box, 2);
+  });
+
+  test("a card moved into box 1 can promote the same day", () => {
+    const card = { box: 3, mastered: false, lastSeenDay: 10 };
+    Leitner.moveCard(card, 1, 10);
+    Leitner.promoteCard(card, true, 10);
+    assert.equal(card.box, 2);
   });
 });
 
@@ -503,11 +570,20 @@ describe("moveAllInView", () => {
     assert.equal(cards["+:1:2"].lastSeenDay, 4);
   });
 
-  test("clears lastSeenDay on moved cards", () => {
+  test("moving into box 1 makes every moved card due today", () => {
     const cards = mk();
-    Leitner.moveAllInView(cards, "1", 3);
-    assert.equal("lastSeenDay" in cards["+:1:2"], false);
+    Leitner.moveAllInView(cards, "mastered", 1, 10);
+    assert.equal(Leitner.cardDueToday(cards["+:3:3"], 10), true);
+    assert.equal(Leitner.cardDueToday(cards["+:4:4"], 10), true);
+  });
+
+  test("moving out of box 1 stamps every moved card so none is due today", () => {
+    const cards = mk();
+    Leitner.moveAllInView(cards, "1", 3, 10);
     assert.equal(cards["+:1:2"].box, 3);
+    assert.equal(cards["+:1:2"].lastSeenDay, 10);
+    assert.equal(Leitner.cardDueToday(cards["+:1:2"], 10), false);
+    assert.equal(Leitner.cardDueToday(cards["+:1:2"], 15), true);
   });
 
   test("moving a box into itself is a no-op", () => {
@@ -559,6 +635,80 @@ describe("cardsInView", () => {
   test("sorts by op, then a, then b", () => {
     const view = Leitner.cardsInView(cards, "1");
     assert.deepEqual(view.map((e) => [e.card.a, e.card.b]), [[0, 1], [1, 2]]);
+  });
+});
+
+describe("vrij oefenen box selection", () => {
+  const cards = {
+    "+:1:2": { op: "+", a: 1, b: 2, result: 3, box: 1, mastered: false },
+    "+:0:1": { op: "+", a: 0, b: 1, result: 1, box: 1, mastered: false },
+    "-:5:2": { op: "-", a: 5, b: 2, result: 3, box: 2, mastered: false },
+    "×:3:4": { op: "×", a: 3, b: 4, result: 12, box: 3, mastered: true }
+  };
+  const counts = { 1: 2, 2: 1, 3: 0, mastered: 1 };
+
+  test("normalizePracticeBoxes keeps known boxes once, in display order", () => {
+    assert.deepEqual(Leitner.normalizePracticeBoxes(["mastered", "2", "2", "9", "1"]), ["1", "2", "mastered"]);
+  });
+
+  test("normalizePracticeBoxes turns non-arrays into []", () => {
+    assert.deepEqual(Leitner.normalizePracticeBoxes(undefined), []);
+    assert.deepEqual(Leitner.normalizePracticeBoxes(null), []);
+    assert.deepEqual(Leitner.normalizePracticeBoxes("1"), []);
+  });
+
+  test("defaultPracticeBoxes prefers box 1 when it has cards", () => {
+    assert.deepEqual(Leitner.defaultPracticeBoxes(counts), ["1"]);
+  });
+
+  test("defaultPracticeBoxes falls back to the first non-empty box", () => {
+    assert.deepEqual(Leitner.defaultPracticeBoxes({ 1: 0, 2: 0, 3: 4, mastered: 1 }), ["3"]);
+    assert.deepEqual(Leitner.defaultPracticeBoxes({ 1: 0, 2: 0, 3: 0, mastered: 1 }), ["mastered"]);
+  });
+
+  test("defaultPracticeBoxes is empty when nothing has cards or counts is missing", () => {
+    assert.deepEqual(Leitner.defaultPracticeBoxes({ 1: 0, 2: 0, 3: 0, mastered: 0 }), []);
+    assert.deepEqual(Leitner.defaultPracticeBoxes(undefined), []);
+  });
+
+  test("togglePracticeBox adds a box that has cards, keeping display order", () => {
+    assert.deepEqual(Leitner.togglePracticeBox(["mastered"], "1", counts), ["1", "mastered"]);
+  });
+
+  test("togglePracticeBox removes a selected box", () => {
+    assert.deepEqual(Leitner.togglePracticeBox(["1", "2"], "1", counts), ["2"]);
+  });
+
+  test("togglePracticeBox can deselect down to nothing", () => {
+    assert.deepEqual(Leitner.togglePracticeBox(["1"], "1", counts), []);
+  });
+
+  test("togglePracticeBox refuses empty and unknown boxes", () => {
+    assert.deepEqual(Leitner.togglePracticeBox(["1"], "3", counts), ["1"]);
+    assert.deepEqual(Leitner.togglePracticeBox(["1"], "9", counts), ["1"]);
+  });
+
+  test("togglePracticeBox can still deselect a box that has since emptied", () => {
+    assert.deepEqual(Leitner.togglePracticeBox(["1", "3"], "3", counts), ["1"]);
+  });
+
+  test("practiceEntries gathers every card of the chosen boxes as queue entries", () => {
+    const entries = Leitner.practiceEntries(cards, ["1", "2"]);
+    assert.deepEqual(entries.map((e) => e.cardId), ["+:0:1", "+:1:2", "-:5:2"]);
+    assert.deepEqual(entries[2], { op: "-", a: 5, b: 2, result: 3, cardId: "-:5:2" });
+  });
+
+  test("practiceEntries with just box 1 matches the original free practice", () => {
+    assert.deepEqual(Leitner.practiceEntries(cards, ["1"]).map((e) => e.cardId), ["+:0:1", "+:1:2"]);
+  });
+
+  test("practiceEntries includes mastered cards when asked and ignores unknown boxes", () => {
+    assert.deepEqual(Leitner.practiceEntries(cards, ["mastered", "x"]).map((e) => e.cardId), ["×:3:4"]);
+  });
+
+  test("practiceEntries is empty for no boxes or a non-array", () => {
+    assert.deepEqual(Leitner.practiceEntries(cards, []), []);
+    assert.deepEqual(Leitner.practiceEntries(cards, undefined), []);
   });
 });
 
@@ -673,6 +823,26 @@ describe("createStore", () => {
     assert.deepEqual(db.getData(), { a: { box: 1 }, b: { box: 2 } });
   });
 
+  test("bulk-moved cards persist their records, not undefined (moveAllInView -> putAll)", async () => {
+    const cards = { a: { op: "+", a: 1, b: 1, result: 2, box: 1, mastered: false } };
+    const moved = Leitner.moveAllInView(cards, "1", 3, 10);
+    const db = makeFakeDb();
+    const store = Leitner.createStore(() => Promise.resolve(db), "leitner");
+    await store.putAll(Leitner.toRecordEntries(moved));
+    assert.equal(db.getData().a.box, 3);
+  });
+
+  test("loadAll() skips records stored as undefined", () => {
+    const db = makeFakeDb({ a: { box: 1 }, b: undefined });
+    const store = Leitner.createStore(() => Promise.resolve(db), "leitner");
+    return new Promise((resolve) => {
+      store.loadAll((result) => {
+        assert.deepEqual(result, { a: { box: 1 } });
+        resolve();
+      });
+    });
+  });
+
   test("clear() empties the store", async () => {
     const db = makeFakeDb({ a: { box: 1 } });
     const store = Leitner.createStore(() => Promise.resolve(db), "leitner");
@@ -717,5 +887,18 @@ describe("createStore", () => {
         resolve();
       });
     });
+  });
+});
+
+describe("moving cards between boxes changes what is due today", () => {
+  test("all to box 3, then 2 back to box 1: only those 2 are due", () => {
+    const cards = {};
+    for(let i = 0; i < 150; i++) cards["+:" + i + ":1"] = { op: "+", a: i, b: 1, result: i + 1, box: 1, mastered: false };
+    assert.equal(Leitner.dueCardsForOp(cards, "+", 10).length, 150);
+    Leitner.moveAllInView(cards, "1", 3, 10);
+    assert.equal(Leitner.dueCardsForOp(cards, "+", 10).length, 0);
+    Leitner.moveCard(cards["+:0:1"], 1, 10);
+    Leitner.moveCard(cards["+:1:1"], 1, 10);
+    assert.equal(Leitner.dueCardsForOp(cards, "+", 10).length, 2);
   });
 });

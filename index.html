@@ -398,6 +398,16 @@
     transition:transform .12s ease;
   }
   .primary-btn:active{ transform:scale(0.97); }
+  .primary-btn:disabled{ opacity:.45; cursor:default; }
+  .practice-chips{ display:flex; flex-wrap:wrap; gap:8px; justify-content:center; }
+  .practice-chip{
+    font-family:"Baloo 2"; font-weight:800; font-size:1rem;
+    padding:10px 16px; border-radius:12px; cursor:pointer;
+    background:var(--bg-panel-2); color:var(--ink); border:2px solid var(--line);
+  }
+  .practice-chip.selected{ border-color:var(--flame-strong); }
+  .practice-chip:disabled{ opacity:.4; cursor:default; }
+  .practice-chip-count{ margin-left:8px; color:var(--ink-dim); font-weight:700; }
   .primary-btn.secondary-btn{
     background:var(--bg-panel-2); color:var(--ink); border:1px solid var(--line);
     box-shadow:none;
@@ -740,9 +750,9 @@
 
   <div class="leitner-panel" id="leitnerPanel" hidden>
     <div class="stat-tiles leitner-panel-stats">
-      <div class="stat-tile"><span class="val" id="lpBox1">0</span><span class="lbl">Box 1</span></div>
-      <div class="stat-tile"><span class="val" id="lpBox2">0</span><span class="lbl">Box 2</span><span class="due-in" id="lpBox2DueIn"></span></div>
-      <div class="stat-tile"><span class="val" id="lpBox3">0</span><span class="lbl">Box 3</span><span class="due-in" id="lpBox3DueIn"></span></div>
+      <div class="stat-tile"><span class="val" id="lpBox1">0</span><span class="lbl">Doos 1</span></div>
+      <div class="stat-tile"><span class="val" id="lpBox2">0</span><span class="lbl">Doos 2</span><span class="due-in" id="lpBox2DueIn"></span></div>
+      <div class="stat-tile"><span class="val" id="lpBox3">0</span><span class="lbl">Doos 3</span><span class="due-in" id="lpBox3DueIn"></span></div>
       <div class="stat-tile"><span class="val" id="lpMastered">0</span><span class="lbl">Gemasterd</span></div>
     </div>
     <div class="leitner-today" id="leitnerTodayText"></div>
@@ -867,12 +877,12 @@
         <span class="field-label inline">Max reeks lengte</span>
         <select class="op-count-select" id="leitnerBatchSelect" aria-label="Max reeks lengte"></select>
       </div>
-      <p class="modal-text leitner-explainer">3 boxen. Goed vóór de tijd om is → box omhoog (vanuit box 3: gemasterd); geen tijdslimiet ingesteld? Dan telt elk goed antwoord. Eén keer fout of te laat op een opgave → direct terug naar box 1; daarna nog een keer (of vaker) opnieuw proberen mag om te oefenen, maar verandert niets meer aan de box. Box 1 elke dag, box 2 elke 3e dag, box 3 elke 5e dag (steeds samen met box 1). Sla je een dag over? Dan komen de opgaven die je gemist hebt de volgende keer dat je oefent erbij.</p>
+      <p class="modal-text leitner-explainer">3 dozen. Goed vóór de tijd om is → doos omhoog (vanuit doos 3: gemasterd); geen tijdslimiet ingesteld? Dan telt elk goed antwoord. Eén keer fout of te laat op een opgave → direct terug naar doos 1; daarna nog een keer (of vaker) opnieuw proberen mag om te oefenen, maar verandert niets meer aan de doos. Doos 1 elke dag, doos 2 elke 3e dag, doos 3 elke 5e dag (steeds samen met doos 1). Sla je een dag over? Dan komen de opgaven die je gemist hebt de volgende keer dat je oefent erbij.</p>
       <p class="modal-text leitner-due" id="leitnerDueText"></p>
       <div class="stat-tiles leitner-stats" id="leitnerStatsTiles">
-        <button type="button" class="stat-tile clickable" data-box="1" aria-label="Toon opgaven in box 1"><span class="val" id="leitnerBox1">0</span><span class="lbl">Box 1</span></button>
-        <button type="button" class="stat-tile clickable" data-box="2" aria-label="Toon opgaven in box 2"><span class="val" id="leitnerBox2">0</span><span class="lbl">Box 2</span><span class="due-in" id="leitnerBox2DueIn"></span></button>
-        <button type="button" class="stat-tile clickable" data-box="3" aria-label="Toon opgaven in box 3"><span class="val" id="leitnerBox3">0</span><span class="lbl">Box 3</span><span class="due-in" id="leitnerBox3DueIn"></span></button>
+        <button type="button" class="stat-tile clickable" data-box="1" aria-label="Toon opgaven in doos 1"><span class="val" id="leitnerBox1">0</span><span class="lbl">Doos 1</span></button>
+        <button type="button" class="stat-tile clickable" data-box="2" aria-label="Toon opgaven in doos 2"><span class="val" id="leitnerBox2">0</span><span class="lbl">Doos 2</span><span class="due-in" id="leitnerBox2DueIn"></span></button>
+        <button type="button" class="stat-tile clickable" data-box="3" aria-label="Toon opgaven in doos 3"><span class="val" id="leitnerBox3">0</span><span class="lbl">Doos 3</span><span class="due-in" id="leitnerBox3DueIn"></span></button>
         <button type="button" class="stat-tile clickable" data-box="mastered" aria-label="Toon gemasterde opgaven"><span class="val" id="leitnerMastered">0</span><span class="lbl">Gemasterd</span></button>
       </div>
       <button type="button" class="reset-btn" id="leitnerResetBtn">Leitner-voortgang wissen</button>
@@ -945,15 +955,15 @@
 <div class="modal-backdrop" id="leitnerBoxBackdrop" hidden>
   <div class="modal" role="dialog" aria-modal="true" aria-labelledby="leitnerBoxTitle">
     <div class="modal-head">
-      <h2 id="leitnerBoxTitle">Box 1</h2>
+      <h2 id="leitnerBoxTitle">Doos 1</h2>
       <button type="button" class="icon-btn" id="closeLeitnerBox" aria-label="Sluiten">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 5l14 14M19 5 5 19"/></svg>
       </button>
     </div>
     <div class="settings-tabs" id="leitnerBoxTabs">
-      <button type="button" class="settings-tab" data-box="1">Box 1</button>
-      <button type="button" class="settings-tab" data-box="2">Box 2</button>
-      <button type="button" class="settings-tab" data-box="3">Box 3</button>
+      <button type="button" class="settings-tab" data-box="1">Doos 1</button>
+      <button type="button" class="settings-tab" data-box="2">Doos 2</button>
+      <button type="button" class="settings-tab" data-box="3">Doos 3</button>
       <button type="button" class="settings-tab" data-box="mastered">Gemasterd</button>
     </div>
     <div class="leitner-box-moveall" id="leitnerBoxMoveAll">
@@ -998,6 +1008,7 @@
     timerSeconds: 10, colorTheme: "blue",
     leitnerEnabled: true,
     leitnerFreePractice: false,
+    leitnerPracticeBoxes: ["1"],
     leitnerDay: 0,
     leitnerBatchSize: 15,
     target: 20, correct: 0, streak: 0,
@@ -1473,14 +1484,13 @@
   function buildOpQueue(){
     var q = [];
     if(state.leitnerEnabled && state.leitnerFreePractice){
-      /* Vrij oefenen: every box-1 opgave, regardless of which ones are
-         actually due today or which op types are currently enabled --
-         "all of box 1" is the point, not "today's workload". */
-      Leitner.cardsInView(leitnerCards, "1").forEach(function(entry){
-        q.push({ op: entry.card.op, a: entry.card.a, b: entry.card.b, result: entry.card.result, cardId: entry.id });
-      });
+      /* Vrij oefenen: every opgave in the boxes the child picked,
+         regardless of which ones are actually due today or which op types
+         are currently enabled -- "all of those boxes" is the point, not
+         "today's workload". */
+      q = Leitner.practiceEntries(leitnerCards, state.leitnerPracticeBoxes);
       opQueue = shuffleArray(q);
-      logQueue("free_practice");
+      logQueue("free_practice", { boxes: Leitner.normalizePracticeBoxes(state.leitnerPracticeBoxes) });
       return;
     }
     OP_DEFS.forEach(function(def){
@@ -1504,13 +1514,13 @@
   }
   /* The planned order for a run, so the logboek can replay it. opQueue is
      consumed from the end (pop), so list it in the order it will be shown. */
-  function logQueue(mode){
-    logEvent("queue", {
+  function logQueue(mode, extra){
+    logEvent("queue", Object.assign({
       mode: mode, count: opQueue.length,
       sums: opQueue.slice().reverse().map(function(e){
         return typeof e.a === "number" ? EventLog.fullSumText(e) : "(random " + e.op + ")";
       })
-    });
+    }, extra));
   }
   function syncLeitnerTarget(){
     state.target = opQueue.length;
@@ -2070,7 +2080,7 @@
       practiceBtn.type = "button";
       practiceBtn.className = "primary-btn secondary-btn";
       practiceBtn.textContent = "Vrij oefenen";
-      practiceBtn.addEventListener("click", startFreePractice);
+      practiceBtn.addEventListener("click", showPracticePicker);
       el.numpad.appendChild(practiceBtn);
     } else {
       var btn = document.createElement("button");
@@ -2145,8 +2155,67 @@
     }
   }
 
-  /* "Vrij oefenen": an optional, repeatable drill through every box-1
-     opgave, for a kid who wants extra practice on the ones they're still
+  var PRACTICE_BOX_LABELS = { "1": "Doos 1", "2": "Doos 2", "3": "Doos 3", "mastered": "Gehaald" };
+
+  /* Step before startFreePractice: the child picks which boxes to drill
+     (multi-select chips with card counts; empty boxes can't be picked).
+     Box 1 is preselected when it has cards, so the old one-tap flow is
+     still one tap on "Start". The selection lives in
+     state.leitnerPracticeBoxes so it's remembered and shows up in the
+     logboek's settings snapshot. */
+  function showPracticePicker(){
+    var counts = Leitner.countBoxes(leitnerCards);
+    var selected = Leitner.normalizePracticeBoxes(state.leitnerPracticeBoxes).filter(function(b){ return counts[b] > 0; });
+    if(selected.length === 0) selected = Leitner.defaultPracticeBoxes(counts);
+    state.leitnerPracticeBoxes = selected;
+    logEvent("practice_picker", { counts: counts, selected: selected });
+    el.numpad.innerHTML = "";
+    el.feedback.textContent = "Welke dozen wil je oefenen?";
+    el.feedback.className = "feedback";
+
+    var chips = document.createElement("div");
+    chips.className = "practice-chips";
+    var startBtn = document.createElement("button");
+    startBtn.type = "button";
+    startBtn.className = "primary-btn";
+    startBtn.textContent = "Start";
+    startBtn.addEventListener("click", startFreePractice);
+    var chipEls = {};
+    function refresh(){
+      Leitner.PRACTICE_BOXES.forEach(function(b){
+        var on = state.leitnerPracticeBoxes.indexOf(b) !== -1;
+        chipEls[b].classList.toggle("selected", on);
+        chipEls[b].setAttribute("aria-pressed", on ? "true" : "false");
+      });
+      startBtn.disabled = state.leitnerPracticeBoxes.length === 0;
+    }
+    Leitner.PRACTICE_BOXES.forEach(function(b){
+      var chip = document.createElement("button");
+      chip.type = "button";
+      chip.className = "practice-chip";
+      chip.disabled = !(counts[b] > 0);
+      chip.innerHTML = PRACTICE_BOX_LABELS[b] + '<span class="practice-chip-count">' + counts[b] + '</span>';
+      chip.addEventListener("click", function(){
+        state.leitnerPracticeBoxes = Leitner.togglePracticeBox(state.leitnerPracticeBoxes, b, counts);
+        saveState();
+        refresh();
+      });
+      chipEls[b] = chip;
+      chips.appendChild(chip);
+    });
+    el.numpad.appendChild(chips);
+    el.numpad.appendChild(startBtn);
+    var backBtn = document.createElement("button");
+    backBtn.type = "button";
+    backBtn.className = "primary-btn secondary-btn";
+    backBtn.textContent = "Terug";
+    backBtn.addEventListener("click", showRoundDoneState);
+    el.numpad.appendChild(backBtn);
+    refresh();
+  }
+
+  /* "Vrij oefenen": an optional, repeatable drill through every opgave
+     in the boxes the child picked (see showPracticePicker; box 1 by default), for a kid who wants extra practice on the ones they're still
      shaky on. It reuses the normal round machinery (buildOpQueue,
      generateSum, handleAnswer) rather than a separate code path, but sets
      state.leitnerFreePractice first -- buildOpQueue then draws from ALL of
@@ -2156,6 +2225,7 @@
      screen, so there's always a real due-cards queue to fall back to once
      practice ends (see showGoal, which clears the flag again). */
   function startFreePractice(){
+    state.leitnerPracticeBoxes = Leitner.normalizePracticeBoxes(state.leitnerPracticeBoxes);
     state.leitnerFreePractice = true;
     state.correct = 0;
     state.streak = 0;
@@ -2431,9 +2501,9 @@
     el.timerSelect.value = state.timerSeconds;
     el.leitnerSwitch.classList.toggle("on", state.leitnerEnabled);
     el.leitnerSwitch.setAttribute("aria-checked", state.leitnerEnabled ? "true" : "false");
-    var dueBits = ["Box 1"];
-    if(boxDueToday(2)) dueBits.push("Box 2");
-    if(boxDueToday(3)) dueBits.push("Box 3");
+    var dueBits = ["Doos 1"];
+    if(boxDueToday(2)) dueBits.push("Doos 2");
+    if(boxDueToday(3)) dueBits.push("Doos 3");
     el.leitnerDueText.textContent = "Vandaag actief: " + dueBits.join(", ");
     refreshLeitnerStats();
   }
@@ -2487,6 +2557,9 @@
      navigation between the boxes and a control to move an opgave to a
      different box. */
   var leitnerBoxViewTab = "1";
+  /* Set when cards were moved between boxes: today's planned queue was
+     built from the old boxes, so closeSettings rebuilds it. */
+  var leitnerQueueStale = false;
   function leitnerCardLabel(card){ return Leitner.cardLabel(card); }
   function leitnerCardsInView(tab){ return Leitner.cardsInView(leitnerCards, tab); }
   function moveLeitnerCard(id, newBox){
@@ -2494,6 +2567,7 @@
     if(!card) return;
     var before = EventLog.cardSnapshot(card);
     Leitner.moveCard(card, newBox);
+    leitnerQueueStale = true;
     logEvent("card_move", { cardId: id, before: before, after: EventLog.cardSnapshot(card) });
     persistLeitnerCard(id, card);
     refreshLeitnerStats();
@@ -2503,14 +2577,15 @@
   function moveAllLeitnerCards(newBox){
     var moved = Leitner.moveAllInView(leitnerCards, leitnerBoxViewTab, newBox);
     if(moved.length === 0) return;
+    leitnerQueueStale = true;
     logEvent("cards_move_all", { from: leitnerBoxViewTab, to: newBox, count: moved.length });
-    persistLeitnerCards(moved);
+    persistLeitnerCards(Leitner.toRecordEntries(moved));
     refreshLeitnerStats();
     refreshLeitnerPanel();
     renderLeitnerBoxModal();
   }
   function renderLeitnerBoxModal(){
-    el.leitnerBoxTitle.textContent = leitnerBoxViewTab === "mastered" ? "Gemasterd" : "Box " + leitnerBoxViewTab;
+    el.leitnerBoxTitle.textContent = leitnerBoxViewTab === "mastered" ? "Gemasterd" : "Doos " + leitnerBoxViewTab;
     Array.prototype.forEach.call(el.leitnerBoxTabs.children, function(btn){
       btn.classList.toggle("active", btn.getAttribute("data-box") === leitnerBoxViewTab);
     });
@@ -2518,12 +2593,12 @@
     el.leitnerBoxMoveAll.hidden = entries.length === 0;
     el.leitnerBoxMoveAllSelect.innerHTML = "";
     var placeholder = document.createElement("option");
-    placeholder.value = ""; placeholder.textContent = "Kies box…";
+    placeholder.value = ""; placeholder.textContent = "Kies doos…";
     el.leitnerBoxMoveAllSelect.appendChild(placeholder);
     [1, 2, 3].forEach(function(b){
       if(String(b) === leitnerBoxViewTab) return;
       var opt = document.createElement("option");
-      opt.value = b; opt.textContent = "Box " + b;
+      opt.value = b; opt.textContent = "Doos " + b;
       el.leitnerBoxMoveAllSelect.appendChild(opt);
     });
     el.leitnerBoxList.innerHTML = "";
@@ -2537,10 +2612,10 @@
       row.appendChild(label);
       var select = document.createElement("select");
       select.className = "op-count-select";
-      select.setAttribute("aria-label", "Verplaats " + leitnerCardLabel(entry.card) + " naar box");
+      select.setAttribute("aria-label", "Verplaats " + leitnerCardLabel(entry.card) + " naar doos");
       [1, 2, 3].forEach(function(b){
         var opt = document.createElement("option");
-        opt.value = b; opt.textContent = "Box " + b;
+        opt.value = b; opt.textContent = "Doos " + b;
         select.appendChild(opt);
       });
       select.value = entry.card.box;
@@ -2574,7 +2649,7 @@
     var box = parseInt(el.leitnerBoxMoveAllSelect.value, 10);
     if(!box) return;
     var n = leitnerCardsInView(leitnerBoxViewTab).length;
-    if(!confirm(n + " opgaven verplaatsen naar box " + box + "?")){
+    if(!confirm(n + " opgaven verplaatsen naar doos " + box + "?")){
       el.leitnerBoxMoveAllSelect.value = "";
       return;
     }
@@ -2659,7 +2734,7 @@
     if(e.key === "Enter" || e.key === " "){ e.preventDefault(); el.leitnerSwitch.click(); }
   });
   el.leitnerResetBtn.addEventListener("click", function(){
-    if(!confirm("Weet je zeker dat je alle Leitner-voortgang wilt wissen? Alle kaarten beginnen weer in box 1.")) return;
+    if(!confirm("Weet je zeker dat je alle Leitner-voortgang wilt wissen? Alle kaarten beginnen weer in doos 1.")) return;
     logEvent("leitner_reset", {});
     leitnerCards = {};
     clearLeitnerCards();
@@ -2708,6 +2783,17 @@
        live, unanswered sum was showing, stash it back onto the queue (so
        it isn't lost from today's/this round's total) and gate it behind
        an explicit "Verder" press instead. */
+    if(leitnerQueueStale && state.leitnerEnabled){
+      leitnerQueueStale = false;
+      /* The live sum (if any) is dropped: buildOpQueue re-plans from the
+         cards' new boxes and includes it again only if it's still due. */
+      buildOpQueue();
+      syncLeitnerTarget();
+      saveState();
+      updateProgressUI();
+      if(opQueue.length === 0) showRoundDoneState(); else showResumeGate();
+      return;
+    }
     if(!atBatchCheckpoint){
       if(current && !current.timedOut) opQueue.push(current);
       showResumeGate();

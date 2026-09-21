@@ -285,6 +285,20 @@ describe("formatEvent", () => {
     assert.equal(EventLog.formatEvent(e), iso + " queue  count=2 sums=[5+3=8, 1+1=2] extra={\"a\":1} none=null");
   });
 
+  test("free-practice queue and practice_picker events show the chosen boxes and counts", () => {
+    const q = EventLog.makeEvent("queue", { mode: "free_practice", count: 3, sums: ["1+1=2"], boxes: ["1", "mastered"] }, t);
+    assert.equal(EventLog.formatEvent(q), iso + " queue  mode=free_practice count=3 sums=[1+1=2] boxes=[1, mastered]");
+    const p = EventLog.makeEvent("practice_picker", { counts: { 1: 2, mastered: 0 }, selected: ["1"] }, t);
+    assert.equal(EventLog.formatEvent(p), iso + " practice_picker  counts={\"1\":2,\"mastered\":0} selected=[1]");
+  });
+
+  test("leitnerPracticeBoxes is a setting, so settings_change logs picker changes", () => {
+    const diff = EventLog.diffSettings(
+      EventLog.settingsSnapshot({ leitnerPracticeBoxes: ["1"], correct: 1 }),
+      EventLog.settingsSnapshot({ leitnerPracticeBoxes: ["1", "2"], correct: 2 }));
+    assert.deepEqual(diff, { leitnerPracticeBoxes: [["1"], ["1", "2"]] });
+  });
+
   test("an event with no data is just time and type", () => {
     assert.equal(EventLog.formatEvent(EventLog.makeEvent("session_start", {}, 0)), "1970-01-01T00:00:00.000Z session_start");
   });

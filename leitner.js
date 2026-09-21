@@ -75,7 +75,8 @@
      A card is due when its box's due day came up since the card was last
      seen -- so due days the child skipped are carried over to the next day
      they practice, however many days that is. A card with no lastSeenDay
-     (never seen, or manually moved) only counts today's rhythm. */
+     (never seen, or manually moved into box 1) only counts today's
+     rhythm; see moveCard. */
   function cardDueToday(card, day){
     if(day === undefined) day = epochDay();
     if(card.mastered || card.lastSeenDay === day) return false;
@@ -142,15 +143,20 @@
     return card;
   }
 
-  /* A manual move (from the box detail screen) is a deliberate
-     re-categorization, not "already practiced today" -- lastSeenDay gets
-     cleared so the card is immediately live for its new box, instead of
-     skipping the rest of today because the OLD box/attempt had already
-     marked it seen. */
-  function moveCard(card, newBox){
+  /* A manual move (from the box detail screen) re-schedules the card
+     under its NEW box's rhythm.
+     Into box 1: lastSeenDay is cleared, so the card is due today (box 1 is
+     due every day) -- also when it was already answered today.
+     Into box 2/3: lastSeenDay = today, so the card is NOT due today and
+     next comes up on the box's next due day (the next multiple of 3/5, see
+     boxDueSince). Without the stamp a card moved out of box 1 was still
+     due today whenever today happened to be one of the new box's days. */
+  function moveCard(card, newBox, day){
+    if(day === undefined) day = epochDay();
     card.box = newBox;
     card.mastered = false;
-    delete card.lastSeenDay;
+    if(newBox === 1) delete card.lastSeenDay;
+    else card.lastSeenDay = day;
     return card;
   }
 
@@ -206,11 +212,17 @@
      `newBox`. Returns the moved {id, card} entries so the caller can
      persist exactly those. Moving a tab's cards into the box they're
      already in is a no-op (returns []). */
-  function moveAllInView(cards, tab, newBox){
+  function moveAllInView(cards, tab, newBox, day){
     if(String(newBox) === tab) return [];
     var entries = cardsInView(cards, tab);
-    entries.forEach(function(e){ moveCard(e.card, newBox); });
+    entries.forEach(function(e){ moveCard(e.card, newBox, day); });
     return entries;
+  }
+
+  /* cardsInView/moveAllInView hand out {id, card}; the store's putAll
+     wants {id, record}. */
+  function toRecordEntries(entries){
+    return entries.map(function(e){ return { id: e.id, record: e.card }; });
   }
 
   function countBoxes(cards){
@@ -239,6 +251,49 @@
       return x.card.b - y.card.b;
     });
     return list;
+  }
+
+  /* Vrij oefenen: which boxes can be drilled, in display order. */
+  var PRACTICE_BOXES = ["1", "2", "3", "mastered"];
+
+  /* Whatever was stored/passed -> only known boxes, each once, in display
+     order. Anything that isn't an array yields []. */
+  function normalizePracticeBoxes(boxes){
+    if(!Array.isArray(boxes)) return [];
+    return PRACTICE_BOXES.filter(function(b){ return boxes.indexOf(b) !== -1; });
+  }
+
+  /* What's preselected in the picker: box 1 (the original behaviour) when
+     it has cards, otherwise the first box that does, otherwise nothing.
+     `counts` is countBoxes' result. */
+  function defaultPracticeBoxes(counts){
+    if(counts && counts[1] > 0) return ["1"];
+    var first = PRACTICE_BOXES.filter(function(b){ return counts && counts[b] > 0; })[0];
+    return first ? [first] : [];
+  }
+
+  /* Picker chip press: flips `box` in `selected`. Unknown boxes and boxes
+     without cards can't be selected (they can still be deselected, in case
+     they emptied since). Returns a new normalized array. */
+  function togglePracticeBox(selected, box, counts){
+    var current = normalizePracticeBoxes(selected);
+    if(PRACTICE_BOXES.indexOf(box) === -1) return current;
+    if(current.indexOf(box) !== -1) return current.filter(function(b){ return b !== box; });
+    if(!(counts && counts[box] > 0)) return current;
+    return normalizePracticeBoxes(current.concat(box));
+  }
+
+  /* The opgave entries a Vrij oefenen round draws from: every card in each
+     chosen box (unknown boxes ignored), shaped like buildOpQueue's entries.
+     Unshuffled -- the caller shuffles. */
+  function practiceEntries(cards, boxes){
+    var out = [];
+    normalizePracticeBoxes(boxes).forEach(function(box){
+      cardsInView(cards, box).forEach(function(e){
+        out.push({ op: e.card.op, a: e.card.a, b: e.card.b, result: e.card.result, cardId: e.id });
+      });
+    });
+    return out;
   }
 
   function cardLabel(card){
@@ -308,7 +363,9 @@
         req.onsuccess = function(e){
           var cursor = e.target.result;
           if(cursor){
-            result[cursor.key] = cursor.value;
+            /* A record that was once stored as undefined would crash every
+               consumer; leave such an entry out. */
+            if(cursor.value) result[cursor.key] = cursor.value;
             cursor.continue();
           } else {
             callback(result);
@@ -335,8 +392,14 @@
     scoreAttempt: scoreAttempt,
     moveCard: moveCard,
     moveAllInView: moveAllInView,
+    toRecordEntries: toRecordEntries,
     countBoxes: countBoxes,
     cardsInView: cardsInView,
+    PRACTICE_BOXES: PRACTICE_BOXES,
+    normalizePracticeBoxes: normalizePracticeBoxes,
+    defaultPracticeBoxes: defaultPracticeBoxes,
+    togglePracticeBox: togglePracticeBox,
+    practiceEntries: practiceEntries,
     cardLabel: cardLabel,
     dueCardsForOp: dueCardsForOp,
     buildSeedEntries: buildSeedEntries,

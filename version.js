@@ -17,7 +17,7 @@
 })(typeof self !== "undefined" ? self : this, function(){
   "use strict";
 
-  var current = "0.2.0";
+  var current = "0.3.4";
 
   function isValid(v){
     return typeof v === "string" && /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/.test(v);

@@ -38,3 +38,34 @@ describe("label", () => {
     assert.equal(Version.label(null), "");
   });
 });
+
+describe("changelog", () => {
+  const cmp = (a, b) => {
+    const x = a.split(".").map(Number), y = b.split(".").map(Number);
+    return x[0] - y[0] || x[1] - y[1] || x[2] - y[2];
+  };
+
+  test("starts with the current version, so a bump without an entry fails", () => {
+    assert.equal(Version.changelog[0].version, Version.current);
+  });
+
+  test("lists valid, unique versions from newest to oldest", () => {
+    const versions = Version.changelog.map((e) => e.version);
+    versions.forEach((v) => assert.ok(Version.isValid(v), v));
+    assert.equal(new Set(versions).size, versions.length);
+    for (let i = 1; i < versions.length; i++) {
+      assert.ok(cmp(versions[i - 1], versions[i]) > 0, versions[i - 1] + " before " + versions[i]);
+    }
+  });
+
+  test("every entry has at least one non-empty change", () => {
+    Version.changelog.forEach((e) => {
+      assert.ok(Array.isArray(e.changes) && e.changes.length > 0, e.version);
+      e.changes.forEach((c) => assert.ok(typeof c === "string" && c.trim() !== "", e.version));
+    });
+  });
+
+  test("keeps the very first version, 0.1.0, as its last entry", () => {
+    assert.equal(Version.changelog[Version.changelog.length - 1].version, "0.1.0");
+  });
+});

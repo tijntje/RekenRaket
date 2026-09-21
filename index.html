@@ -508,7 +508,14 @@
   .switch.on .knob{ transform:translateX(20px); background:var(--gold); }
   .settings-tabs{ display:flex; gap:8px; }
   .backup-row{ display:flex; gap:8px; margin-top:16px; }
-  .app-version{ margin:12px 0 0; text-align:center; font-size:12px; color:var(--ink-dim); }
+  .app-version{
+    display:block; margin:12px auto 0; padding:4px 8px; text-align:center; font-size:12px;
+    color:var(--ink-dim); background:none; border:0; text-decoration:underline; cursor:pointer;
+    font-family:inherit;
+  }
+  .changelog-list{ max-height:60vh; overflow-y:auto; text-align:left; }
+  .changelog-list h3{ margin:14px 0 4px; font-size:1rem; }
+  .changelog-list ul{ margin:0; padding-left:20px; color:var(--ink-dim); font-size:0.9rem; }
   .leitner-box-moveall{ display:flex; align-items:center; justify-content:space-between; gap:8px; margin:10px 0; }
   .settings-tab{
     flex:1; padding:10px 8px; border-radius:12px;
@@ -865,7 +872,7 @@
         <button type="button" class="reset-btn" id="importBtn">Importeren</button>
         <input type="file" id="importFile" accept="application/json,.json" hidden>
       </div>
-      <p class="app-version" id="appVersion"></p>
+      <button type="button" class="app-version" id="appVersion" aria-label="Toon wijzigingen per versie"></button>
     </div>
 
     <div class="tab-panel" id="tabLeitner" hidden>
@@ -887,6 +894,18 @@
       </div>
       <button type="button" class="reset-btn" id="leitnerResetBtn">Leitner-voortgang wissen</button>
     </div>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="changelogBackdrop" hidden>
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="changelogTitle">
+    <div class="modal-head">
+      <h2 id="changelogTitle">Wijzigingen</h2>
+      <button type="button" class="icon-btn" id="closeChangelog" aria-label="Sluiten">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 5l14 14M19 5 5 19"/></svg>
+      </button>
+    </div>
+    <div class="changelog-list" id="changelogList"></div>
   </div>
 </div>
 
@@ -1297,6 +1316,9 @@
     leitnerTodayText: document.getElementById("leitnerTodayText"),
     historyBtn: document.getElementById("historyBtn"),
     restartBtn: document.getElementById("restartBtn"),
+    changelogBackdrop: document.getElementById("changelogBackdrop"),
+    changelogList: document.getElementById("changelogList"),
+    closeChangelog: document.getElementById("closeChangelog"),
     restartBackdrop: document.getElementById("restartBackdrop"),
     closeRestart: document.getElementById("closeRestart"),
     confirmRestartBtn: document.getElementById("confirmRestartBtn"),
@@ -2155,7 +2177,7 @@
     }
   }
 
-  var PRACTICE_BOX_LABELS = { "1": "Doos 1", "2": "Doos 2", "3": "Doos 3", "mastered": "Gehaald" };
+  var PRACTICE_BOX_LABELS = { "1": "Doos 1", "2": "Doos 2", "3": "Doos 3", "mastered": "Gemasterd" };
 
   /* Step before startFreePractice: the child picks which boxes to drill
      (multi-select chips with card counts; empty boxes can't be picked).
@@ -2804,6 +2826,32 @@
   el.closeSettings.addEventListener("click", closeSettings);
   el.settingsBackdrop.addEventListener("click", function(e){ if(e.target === el.settingsBackdrop) closeSettings(); });
 
+  /* ---------------- changelog ---------------- */
+  function openChangelog(){
+    el.changelogList.innerHTML = "";
+    Version.changelog.forEach(function(entry){
+      var h = document.createElement("h3");
+      h.textContent = Version.label(entry.version);
+      var ul = document.createElement("ul");
+      entry.changes.forEach(function(text){
+        var li = document.createElement("li");
+        li.textContent = text;
+        ul.appendChild(li);
+      });
+      el.changelogList.appendChild(h);
+      el.changelogList.appendChild(ul);
+    });
+    el.changelogBackdrop.hidden = false;
+    el.closeChangelog.focus();
+  }
+  function closeChangelog(){
+    el.changelogBackdrop.hidden = true;
+    document.getElementById("appVersion").focus();
+  }
+  document.getElementById("appVersion").addEventListener("click", openChangelog);
+  el.closeChangelog.addEventListener("click", closeChangelog);
+  el.changelogBackdrop.addEventListener("click", function(e){ if(e.target === el.changelogBackdrop) closeChangelog(); });
+
   /* ---------------- restart confirm ---------------- */
   function openRestartConfirm(){
     timerPause();
@@ -2830,7 +2878,8 @@
     if(e.key !== "Escape") return;
     /* The box detail modal can be open on top of the settings modal, so it
        must close first -- otherwise Escape would drop both at once. */
-    if(!el.leitnerBoxBackdrop.hidden) closeLeitnerBoxModal();
+    if(!el.changelogBackdrop.hidden) closeChangelog();
+    else if(!el.leitnerBoxBackdrop.hidden) closeLeitnerBoxModal();
     else if(!el.settingsBackdrop.hidden) closeSettings();
     else if(!el.historyBackdrop.hidden) closeHistoryModal();
     else if(!el.restartBackdrop.hidden) closeRestartConfirm();

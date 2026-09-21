@@ -95,7 +95,12 @@ shown at the bottom of Instellingen → Algemeen and logged in
   an irreversible settings migration, or a backup format older exports
   can't be imported into.
 
-Bump it in the same pass as the change, in both files. Stay below 1.0.0
+Bump it in the same pass as the change, in both files, **and add an entry
+for the new version at the top of `changelog` in `version.js`** — short
+Dutch sentences describing what changed for the user. The changelog opens
+when the version at the bottom of Instellingen → Algemeen is tapped and
+keeps every version ever released, so never delete or rewrite old entries.
+`test/version.test.js` fails if the top entry isn't the current version. Stay below 1.0.0
 until the owner says the app is finished.
 
 ## What stays untested

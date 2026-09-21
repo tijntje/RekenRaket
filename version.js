@@ -17,7 +17,29 @@
 })(typeof self !== "undefined" ? self : this, function(){
   "use strict";
 
-  var current = "0.3.4";
+  var current = "0.4.0";
+
+  /* Every released version, newest first -- shown when the version at the
+     bottom of Instellingen is tapped. Each entry: { version, changes: [...] }
+     with short Dutch sentences. Add the new entry at the TOP in the same
+     pass as every version bump (test/version.test.js checks that the top
+     entry is `current` and that the list is complete and in order). */
+  var changelog = [
+    { version: "0.4.0", changes: ["Nieuw: tik op het versienummer onderaan Instellingen om alle wijzigingen per versie te zien."] },
+    { version: "0.3.5", changes: ["Vrij oefenen: laatste keuze heet nu \"Gemasterd\", net als in de rest van de app."] },
+    { version: "0.3.4", changes: ["Overal in de app heet het nu \"doos\" in plaats van \"box\"."] },
+    { version: "0.3.3", changes: [
+      "Fix: alles in een doos tegelijk verplaatsen bewaarde de kaarten verkeerd, waardoor de app na herladen crashte.",
+      "Kaarten zonder geldige opslag worden bij het laden overgeslagen in plaats van de app te laten crashen."
+    ] },
+    { version: "0.3.2", changes: ["Fix: na het verplaatsen van kaarten tussen dozen wordt de reeks van vandaag opnieuw opgebouwd, zodat het aantal opgaven klopt."] },
+    { version: "0.3.1", changes: [
+      "Een kaart die uit doos 1 wordt verplaatst, volgt het schema van de nieuwe doos en is vandaag niet meer aan de beurt.",
+      "Vrij oefenen: kies zelf welke dozen je wilt oefenen (doos 1, 2, 3 en/of gemasterd)."
+    ] },
+    { version: "0.2.0", changes: ["Sommige instellingen zijn verborgen zolang Leitner actief is."] },
+    { version: "0.1.0", changes: ["Versienummer toegevoegd."] }
+  ];
 
   function isValid(v){
     return typeof v === "string" && /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/.test(v);
@@ -29,5 +51,5 @@
     return isValid(v) ? "v" + v : "";
   }
 
-  return { current: current, isValid: isValid, label: label };
+  return { current: current, changelog: changelog, isValid: isValid, label: label };
 });

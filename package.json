@@ -1,6 +1,6 @@
 {
   "name": "rekenhelper",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "private": true,
   "description": "Rekenraket - een reken-oefentool voor kinderen, met een Leitner spaced-repetition modus.",
   "scripts": {

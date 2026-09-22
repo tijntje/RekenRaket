@@ -332,6 +332,23 @@
     return entries;
   }
 
+  /* Cards to add to box 1 without disturbing anything that already
+     exists -- e.g. after widening an op's "tot" range, or (re-)enabling
+     an op that has no cards yet. `cards` is the app's current
+     leitnerCards map; `opDefs` is the same [{symbol, max}, ...] shape
+     buildSeedEntries takes, for whichever ops are enabled NOW. Only
+     combos with no existing card (any box, mastered or not) come back;
+     an existing card's box/mastered/lastSeenDay is never touched, so
+     narrowing the range back down and widening it again doesn't reset
+     progress on the combos that were always in range. Narrowing itself
+     removes nothing -- combos outside the new, smaller range just keep
+     whatever box they were already in. */
+  function missingSeedEntries(cards, opDefs){
+    return buildSeedEntries(opDefs).filter(function(e){
+      return !cards[e.id];
+    });
+  }
+
   /* A tiny IndexedDB CRUD wrapper around one object store, kept here so
      it can be exercised in tests against a fake `getDb` instead of real
      IndexedDB. `getDb` must return a Promise of a db with the standard
@@ -403,6 +420,7 @@
     cardLabel: cardLabel,
     dueCardsForOp: dueCardsForOp,
     buildSeedEntries: buildSeedEntries,
+    missingSeedEntries: missingSeedEntries,
     createStore: createStore
   };
 });

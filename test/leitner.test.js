@@ -777,6 +777,45 @@ describe("buildSeedEntries", () => {
   });
 });
 
+describe("missingSeedEntries", () => {
+  test("widening an op's max adds only the newly-possible combos", () => {
+    // "+" tot 1 = 3 combos, already fully seeded.
+    const cards = {};
+    Leitner.buildSeedEntries([{ symbol: "+", max: 1 }]).forEach((e) => { cards[e.id] = e.record; });
+    const added = Leitner.missingSeedEntries(cards, [{ symbol: "+", max: 2 }]);
+    // "+" tot 2 = 6 combos total, 3 already exist -> 3 new ones.
+    assert.equal(added.length, 3);
+    for (const e of added) {
+      assert.equal(e.record.box, 1);
+      assert.equal(e.record.mastered, false);
+      assert.equal(cards[e.id], undefined);
+    }
+  });
+
+  test("nothing missing once the full range is already seeded", () => {
+    const cards = {};
+    Leitner.buildSeedEntries([{ symbol: "+", max: 3 }]).forEach((e) => { cards[e.id] = e.record; });
+    assert.deepEqual(Leitner.missingSeedEntries(cards, [{ symbol: "+", max: 3 }]), []);
+  });
+
+  test("an op with no existing cards yet is seeded in full, e.g. after being enabled", () => {
+    const added = Leitner.missingSeedEntries({}, [{ symbol: "-", max: 1 }]);
+    // "-" tot 1: (0,0) (1,0) (1,1) = 3 combos.
+    assert.equal(added.length, 3);
+  });
+
+  test("an existing card's box/mastered state is left alone, not re-listed as missing", () => {
+    const cards = { "+:0:0": { op: "+", a: 0, b: 0, result: 0, box: 3, mastered: true } };
+    const added = Leitner.missingSeedEntries(cards, [{ symbol: "+", max: 0 }]);
+    assert.deepEqual(added, []);
+    assert.equal(cards["+:0:0"].box, 3);
+  });
+
+  test("an empty op-def list adds nothing", () => {
+    assert.deepEqual(Leitner.missingSeedEntries({ "+:0:0": {} }, []), []);
+  });
+});
+
 describe("createStore", () => {
   /* A minimal fake standing in for an IndexedDB connection, just enough
      of the `transaction(store, mode).objectStore(store)` surface that

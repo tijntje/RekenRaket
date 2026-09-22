@@ -1443,12 +1443,36 @@
   function epochDay(){ return Leitner.epochDay(); }
   function boxDueToday(box){ return Leitner.boxDueToday(box); }
 
-  function seedLeitnerBoxOne(){
-    var opDefs = OP_DEFS.filter(function(def){ return state[def.enabledKey]; })
+  function enabledLeitnerOpDefs(){
+    return OP_DEFS.filter(function(def){ return state[def.enabledKey]; })
       .map(function(def){ return { symbol: def.symbol, max: state[def.maxKey] }; });
-    var entries = Leitner.buildSeedEntries(opDefs);
+  }
+
+  function seedLeitnerBoxOne(){
+    var entries = Leitner.buildSeedEntries(enabledLeitnerOpDefs());
     entries.forEach(function(e){ leitnerCards[e.id] = e.record; });
     persistLeitnerCards(entries);
+  }
+
+  /* Box 1 is normally only seeded in full on reset (see seedLeitnerBoxOne
+     above) -- Leitner otherwise only ever shuffles that fixed set between
+     boxes, never invents new cards. But widening an op's "tot" range, or
+     (re-)enabling an op, genuinely grows the set of possible opgaven, and
+     those new combos need to show up somewhere -- box 1, same as any
+     other never-seen combo. This adds exactly the missing ones, leaving
+     every existing card's box untouched, and is safe to call any time
+     Leitner is on, including when nothing is actually missing. */
+  function addMissingLeitnerCards(){
+    var entries = Leitner.missingSeedEntries(leitnerCards, enabledLeitnerOpDefs());
+    if(entries.length === 0) return;
+    var perOp = {};
+    entries.forEach(function(e){
+      leitnerCards[e.id] = e.record;
+      perOp[e.record.op] = (perOp[e.record.op] || 0) + 1;
+    });
+    persistLeitnerCards(entries);
+    leitnerQueueStale = true;
+    logEvent("leitner_cards_added", { count: entries.length, perOp: perOp });
   }
 
   /* One opgave can involve several submissions -- retries after a wrong
@@ -2474,6 +2498,7 @@
     }
     state[def.enabledKey] = !state[def.enabledKey];
     state.target = computeTarget(state);
+    if(state.leitnerEnabled) addMissingLeitnerCards();
     syncSettingsUI(); saveState();
   }
 
@@ -2485,6 +2510,7 @@
 
   function setOpMax(def, val){
     state[def.maxKey] = val;
+    if(state.leitnerEnabled) addMissingLeitnerCards();
     syncSettingsUI(); saveState();
   }
 
@@ -2749,7 +2775,7 @@
 
   el.leitnerSwitch.addEventListener("click", function(){
     state.leitnerEnabled = !state.leitnerEnabled;
-    if(state.leitnerEnabled && Object.keys(leitnerCards).length === 0) seedLeitnerBoxOne();
+    if(state.leitnerEnabled) addMissingLeitnerCards();
     syncSettingsUI(); saveState(); refreshLeitnerPanel(); renderBlocks();
   });
   el.leitnerSwitch.addEventListener("keydown", function(e){

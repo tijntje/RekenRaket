@@ -17,7 +17,7 @@
 })(typeof self !== "undefined" ? self : this, function(){
   "use strict";
 
-  var current = "0.4.0";
+  var current = "0.4.1";
 
   /* Every released version, newest first -- shown when the version at the
      bottom of Instellingen is tapped. Each entry: { version, changes: [...] }
@@ -25,6 +25,7 @@
      pass as every version bump (test/version.test.js checks that the top
      entry is `current` and that the list is complete and in order). */
   var changelog = [
+    { version: "0.4.1", changes: ["Fix: bij Leitner een groter \"tot\"-bereik kiezen (of een nieuwe soort opgave aanzetten) voegt de nieuwe opgaven nu meteen toe aan doos 1, in plaats van dat er niets verandert."] },
     { version: "0.4.0", changes: ["Nieuw: tik op het versienummer onderaan Instellingen om alle wijzigingen per versie te zien."] },
     { version: "0.3.5", changes: ["Vrij oefenen: laatste keuze heet nu \"Gemasterd\", net als in de rest van de app."] },
     { version: "0.3.4", changes: ["Overal in de app heet het nu \"doos\" in plaats van \"box\"."] },

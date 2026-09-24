@@ -816,6 +816,42 @@ describe("missingSeedEntries", () => {
   });
 });
 
+describe("outOfRangeEntries", () => {
+  test("narrowing an op's max flags the combos that fall outside it", () => {
+    const cards = {};
+    Leitner.buildSeedEntries([{ symbol: "+", max: 2 }]).forEach((e) => { cards[e.id] = e.record; });
+    const stale = Leitner.outOfRangeEntries(cards, [{ symbol: "+", max: 1 }]);
+    // "+" tot 2 has 6 combos, tot 1 has 3 -> the 3 combos that need a+b==2 are now out of range.
+    assert.equal(stale.length, 3);
+    for (const e of stale) {
+      assert.equal(e.card.a + e.card.b, 2);
+      assert.equal(e.card, cards[e.id]);
+    }
+  });
+
+  test("nothing is flagged when every existing card still fits", () => {
+    const cards = {};
+    Leitner.buildSeedEntries([{ symbol: "+", max: 1 }]).forEach((e) => { cards[e.id] = e.record; });
+    assert.deepEqual(Leitner.outOfRangeEntries(cards, [{ symbol: "+", max: 2 }]), []);
+  });
+
+  test("a promoted or mastered card outside the range is flagged too", () => {
+    const cards = { "+:1:1": { op: "+", a: 1, b: 1, result: 2, box: 3, mastered: true } };
+    const stale = Leitner.outOfRangeEntries(cards, [{ symbol: "+", max: 1 }]);
+    assert.equal(stale.length, 1);
+    assert.equal(stale[0].card.mastered, true);
+  });
+
+  test("a disabled op's cards (not in opDefs) are left alone", () => {
+    const cards = { "-:5:5": { op: "-", a: 5, b: 5, result: 0, box: 1, mastered: false } };
+    assert.deepEqual(Leitner.outOfRangeEntries(cards, [{ symbol: "+", max: 1 }]), []);
+  });
+
+  test("an empty op-def list flags nothing", () => {
+    assert.deepEqual(Leitner.outOfRangeEntries({ "+:5:5": { op: "+", a: 5, b: 5 } }, []), []);
+  });
+});
+
 describe("createStore", () => {
   /* A minimal fake standing in for an IndexedDB connection, just enough
      of the `transaction(store, mode).objectStore(store)` surface that
@@ -827,6 +863,7 @@ describe("createStore", () => {
       return {
         put(record, id){ data[id] = record; },
         clear(){ data = {}; },
+        delete(id){ delete data[id]; },
         openCursor(){
           const keys = Object.keys(data);
           let idx = 0;
@@ -889,6 +926,20 @@ describe("createStore", () => {
     assert.deepEqual(db.getData(), {});
   });
 
+  test("deleteMany() removes exactly the given ids", async () => {
+    const db = makeFakeDb({ a: { box: 1 }, b: { box: 2 }, c: { box: 3 } });
+    const store = Leitner.createStore(() => Promise.resolve(db), "leitner");
+    await store.deleteMany(["a", "c"]);
+    assert.deepEqual(db.getData(), { b: { box: 2 } });
+  });
+
+  test("deleteMany() with an empty list deletes nothing", async () => {
+    const db = makeFakeDb({ a: { box: 1 } });
+    const store = Leitner.createStore(() => Promise.resolve(db), "leitner");
+    await store.deleteMany([]);
+    assert.deepEqual(db.getData(), { a: { box: 1 } });
+  });
+
   test("loadAll() returns every stored record keyed by id", () => {
     const db = makeFakeDb({ a: { box: 1 }, b: { box: 2 } });
     const store = Leitner.createStore(() => Promise.resolve(db), "leitner");
@@ -916,6 +967,7 @@ describe("createStore", () => {
     await assert.doesNotReject(store.put("a", { box: 1 }));
     await assert.doesNotReject(store.clear());
     await assert.doesNotReject(store.putAll([]));
+    await assert.doesNotReject(store.deleteMany(["a"]));
   });
 
   test("loadAll() still calls back with {} when getDb rejects", () => {

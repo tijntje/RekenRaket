@@ -17,7 +17,7 @@
 })(typeof self !== "undefined" ? self : this, function(){
   "use strict";
 
-  var current = "0.4.1";
+  var current = "0.5.0";
 
   /* Every released version, newest first -- shown when the version at the
      bottom of Instellingen is tapped. Each entry: { version, changes: [...] }
@@ -25,6 +25,7 @@
      pass as every version bump (test/version.test.js checks that the top
      entry is `current` and that the list is complete and in order). */
   var changelog = [
+    { version: "0.5.0", changes: ["Nieuw: bij Leitner een kleiner \"tot\"-bereik kiezen vraagt bij het sluiten van Instellingen of de opgaven die daardoor buiten bereik vallen verwijderd mogen worden uit de dozen."] },
     { version: "0.4.1", changes: ["Fix: bij Leitner een groter \"tot\"-bereik kiezen (of een nieuwe soort opgave aanzetten) voegt de nieuwe opgaven nu meteen toe aan doos 1, in plaats van dat er niets verandert."] },
     { version: "0.4.0", changes: ["Nieuw: tik op het versienummer onderaan Instellingen om alle wijzigingen per versie te zien."] },
     { version: "0.3.5", changes: ["Vrij oefenen: laatste keuze heet nu \"Gemasterd\", net als in de rest van de app."] },

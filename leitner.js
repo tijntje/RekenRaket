@@ -349,6 +349,31 @@
     });
   }
 
+  /* The mirror image of missingSeedEntries: existing cards that no
+     longer fit an op's "tot" range now that it's been narrowed. `opDefs`
+     is the same [{symbol, max}, ...] shape, for whichever ops are
+     enabled NOW -- a disabled op's cards are left alone, same as
+     missingSeedEntries leaves them unseeded (narrowing behind a
+     disabled op isn't a removal any more than it's an addition). Returns
+     [{id, card}, ...] -- both the id (to delete) and the card itself
+     (e.g. for a before-snapshot in the logboek) -- for every box and
+     mastered state alike; the caller decides whether/when to actually
+     remove them. */
+  function outOfRangeEntries(cards, opDefs){
+    var out = [];
+    opDefs.forEach(function(def){
+      var valid = {};
+      allCombosForOp(def.symbol, def.max).forEach(function(c){
+        valid[cardId(def.symbol, c.a, c.b)] = true;
+      });
+      Object.keys(cards).forEach(function(id){
+        var c = cards[id];
+        if(c.op === def.symbol && !valid[id]) out.push({ id: id, card: c });
+      });
+    });
+    return out;
+  }
+
   /* A tiny IndexedDB CRUD wrapper around one object store, kept here so
      it can be exercised in tests against a fake `getDb` instead of real
      IndexedDB. `getDb` must return a Promise of a db with the standard
@@ -372,6 +397,12 @@
         db.transaction(storeName, "readwrite").objectStore(storeName).clear();
       }).catch(function(){});
     }
+    function deleteMany(ids){
+      return getDb().then(function(db){
+        var store = db.transaction(storeName, "readwrite").objectStore(storeName);
+        ids.forEach(function(id){ store.delete(id); });
+      }).catch(function(){});
+    }
     function loadAll(callback){
       return getDb().then(function(db){
         var store = db.transaction(storeName, "readonly").objectStore(storeName);
@@ -391,7 +422,7 @@
         req.onerror = function(){ callback({}); };
       }).catch(function(){ callback({}); });
     }
-    return { put: put, putAll: putAll, clear: clear, loadAll: loadAll };
+    return { put: put, putAll: putAll, clear: clear, deleteMany: deleteMany, loadAll: loadAll };
   }
 
   return {
@@ -421,6 +452,7 @@
     dueCardsForOp: dueCardsForOp,
     buildSeedEntries: buildSeedEntries,
     missingSeedEntries: missingSeedEntries,
+    outOfRangeEntries: outOfRangeEntries,
     createStore: createStore
   };
 });

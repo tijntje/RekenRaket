@@ -1117,6 +1117,10 @@
   function persistLeitnerCard(id, record){ return leitnerStore.put(id, record); }
   function clearLeitnerCards(){ return leitnerStore.clear(); }
   function persistLeitnerCards(entries){ return leitnerStore.putAll(entries); }
+  function removeLeitnerCards(ids){
+    ids.forEach(function(id){ delete leitnerCards[id]; });
+    return leitnerStore.deleteMany(ids);
+  }
   function loadLeitnerCards(callback){ return leitnerStore.loadAll(callback); }
 
   /* ---------------- logboek ---------------- */
@@ -2820,7 +2824,29 @@
     el.settingsBackdrop.hidden = false;
     el.closeSettings.focus();
   }
+  /* Narrowing an op's "tot" range (or disabling it) never deletes
+     anything by itself -- see addMissingLeitnerCards/outOfRangeEntries --
+     so out-of-range cards are only ever checked, and offered for removal,
+     once here: when settings actually closes. That's deliberate, not
+     just convenient: checking on every dropdown change would pop a
+     confirm() mid-adjustment, before the child's parent is done picking
+     a range. Confirming deletes those cards (and their box/mastered
+     progress) for good; cancelling leaves them exactly as they were --
+     inert, outside the new range, until it's widened again or they're
+     removed by a later close. */
   function closeSettings(){
+    if(state.leitnerEnabled){
+      var stale = Leitner.outOfRangeEntries(leitnerCards, enabledLeitnerOpDefs());
+      if(stale.length > 0 && confirm(stale.length + " opgaven vallen niet meer binnen het ingestelde bereik en worden verwijderd uit de Leitner-dozen. Doorgaan?")){
+        var removed = stale.map(function(e){
+          return { id: e.id, op: e.card.op, a: e.card.a, b: e.card.b, before: EventLog.cardSnapshot(e.card) };
+        });
+        removeLeitnerCards(removed.map(function(r){ return r.id; }));
+        leitnerQueueStale = true;
+        logEvent("leitner_cards_removed", { count: removed.length, cards: removed });
+        refreshLeitnerStats();
+      }
+    }
     logEvent("settings_close", {});
     flushEventLog();
     el.settingsBackdrop.hidden = true;
